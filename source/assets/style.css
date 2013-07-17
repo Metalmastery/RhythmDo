@@ -1,0 +1,28 @@
+div {
+    padding: 5px;
+    border: 1px solid graytext;
+}
+
+.module_holder {
+    position: relative;
+}
+
+.graph {
+    height: 100px;
+}
+
+.task {
+    overflow: hidden;
+}
+
+.task div {
+    float: left;
+}
+
+.main {
+    height: 100%;
+}
+
+.list {
+    height: 100%;
+}
