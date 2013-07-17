@@ -11,7 +11,7 @@ RAD.view("view.task_list", RAD.Blanks.View.extend({
     events: {
         'swipe .task' : 'removeTask',
         'swipe .task_list' : 'createRedactor',
-        'click .task' : 'changeRedactor'
+        'tapup .task' : 'changeRedactor'
 
     },
 

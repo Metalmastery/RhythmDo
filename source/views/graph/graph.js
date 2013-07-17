@@ -9,7 +9,9 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
     url : 'source/views/graph/graph.html',
 
     events : {
-        'swipe .graph_container' : 'swipeGraph'
+        'swipe .graph_container' : 'swipeGraph',
+        'tapdown .graph_container' : 'stopGraph'
+
     },
 
     onEndRender : function(){
@@ -18,11 +20,16 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
         var self = this;
         var i = 0;
         var y = 0;
+	    window.speed = 0;
         var callback = function(){
             y++;
-
+			if (Math.abs(window.speed) > 1) {
+				window.speed*=0.98;
+			} else {
+				window.speed = 0;
+			}
             if (y>2) {
-                i++;
+                i+=window.speed;
                 self.draw(self.getBounds(new Date(2000, 5, 1, i), 3));
                 y=0;
             }
@@ -34,9 +41,18 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
     },
 
     swipeGraph : function(e){
-        console.log(e.originalEvent.swipe.speed);
-        console.log(e.originalEvent.swipe.direction);
+
+	    if (e.originalEvent.swipe.speed !== 'Infinity') window.speed = e.originalEvent.swipe.speed * 24 * (e.originalEvent.swipe.direction === 'right' ? -1 : 1);
+     	/*function(t, b, c, d) {
+		    var ts=(t/=d)*t;
+		    var tc=ts*t;
+		    return b+c*(-1*ts*ts + 4*tc + -6*ts + 4*t);
+	    }*/
     },
+
+	stopGraph : function(){
+		if (window.speed) window.speed = 0;
+	},
 
     draw : function(arr){
         var canvas = this.$el.find('canvas')[0];
