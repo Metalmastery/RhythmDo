@@ -5,7 +5,7 @@
  * Time: 10:57 AM
  * To change this template use File | Settings | File Templates.
  */
-RAD.view("view.redactor", RAD.Blanks.Popup.extend({
+RAD.view("view.redactor", RAD.Blanks.View.extend({
     url : 'source/views/tasks/redactor/redactor.html',
 
     onInitialize : function(){
@@ -14,8 +14,6 @@ RAD.view("view.redactor", RAD.Blanks.Popup.extend({
         this.list = RAD.model('task_list');
         this.currentModel = null;
     },
-
-    outSideClose : true,
 
     events : {
         'click .save' : 'saveTask'
@@ -38,7 +36,11 @@ RAD.view("view.redactor", RAD.Blanks.Popup.extend({
             this.list.add(task, {validate: true});
         }
 
-        this.publish('navigation.popup.close', {content: 'view.redactor'});
+        this.publish('navigation.back', {
+            content: 'view.start_page',
+            container_id: '#screen'
+
+        });
 
         this.publish('service.storage.save');
     },

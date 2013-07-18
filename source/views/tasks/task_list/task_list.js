@@ -11,7 +11,7 @@ RAD.view("view.task_list", RAD.Blanks.View.extend({
     events: {
         'swipe .task' : 'removeTask',
         'swipe .task_list' : 'createRedactor',
-        'tapup .task' : 'changeRedactor'
+        'tap .task' : 'changeRedactor'
 
     },
 
@@ -35,12 +35,10 @@ RAD.view("view.task_list", RAD.Blanks.View.extend({
         e.originalEvent.stopPropagation();
         var direction = e.originalEvent.swipe.direction;
         if (direction === "right" && e.originalEvent.swipe.speed > 0) {
-            this.publish('navigation.popup.show', {
+            this.publish('navigation.show', {
                 content : 'view.redactor',
-                width: 180,
-                height: 80,
-                target: document.body,
-                gravity: 'center'
+                container_id : '#screen',
+                backstack : true
             });
         }
     },
@@ -48,13 +46,11 @@ RAD.view("view.task_list", RAD.Blanks.View.extend({
     changeRedactor : function(e){
         console.log('change');
         var id = $(e.target).data('model-id');
-        this.publish('navigation.popup.show', {
+        this.publish('navigation.show', {
             content : 'view.redactor',
-            width: 180,
-            height: 80,
-            target: document.body,
-            gravity: 'center',
-            extras: id
+            container_id : '#screen',
+            extras : id,
+            backstack : true
         });
 
     },

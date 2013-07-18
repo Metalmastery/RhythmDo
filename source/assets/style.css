@@ -8,7 +8,7 @@ div {
 }
 
 .graph {
-    height: 100px;
+    height: 200px;
 }
 
 .task {
@@ -25,4 +25,13 @@ div {
 
 .list {
     height: 100%;
+}
+
+canvas {
+    margin: 5px;
+    border: 1px solid crimson;
+}
+
+.graph_container {
+    height: 200px;
 }
