@@ -10,7 +10,10 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
 
     events : {
         'swipe .graph_container' : 'swipeGraph',
-        'tapdown .graph_container' : 'stopGraph'
+        'tapmove .graph_container' : 'moveGraph',
+        'tapdown .graph_container' : 'stopGraph',
+        'tapup .graph_container' : 'toggleMove'
+
 
     },
 
@@ -27,6 +30,12 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
         range : 0
     },
 
+    drawing : {
+        canvas : null,
+        context : null,
+        moving : false
+    },
+
     onEndRender : function(){
 
         var requestAF =  window.webkitRequestAnimationFrame
@@ -40,19 +49,32 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
 
         var canvas = this.$el.find('canvas').attr({width : this.$el.width(), height : this.$el.height()})[0];
         var self = this;
+
+        //self.drawing.canvas = canvas;
+        //self.drawing.context = canvas.getContext('2d');
+        _(self.drawing).extend({
+            canvas : canvas,
+            context : canvas.getContext('2d'),
+            canvasWidth : canvas.width,
+            canvasHeight : canvas.height,
+            visualRange : this.scrollBio.range * 2 + 1,
+            visualDayWidth : canvas.width / (this.scrollBio.range * 2 + 1),
+            canvasHalfHeight : canvas.height / 2
+
+        });
+        console.log(self.drawing);
         var y = 0;
 
-        var visualRange = this.scrollBio.range * 2 + 1;
-        var daysList = this.$el.find('ul');
-        console.log(canvas.width);
-        for (var key=0; key < visualRange + 1; key++){
+        var visualRange = self.drawing.visualRange;
+        var daysList = self.$el.find('ul');
+        for (var key=0; key < self.drawing.visualRange + 1; key++){
             var li = $('<li/>').appendTo(daysList).css({
-                'width' : canvas.width / visualRange /1.5+ 'px',
-                'height' : canvas.height / 2 + 'px'
+                'width' : self.drawing.visualDayWidth / 1.5 + 'px',
+                'height' : self.drawing.canvasHalfHeight + 'px'
             });
-        };
+        }
+        self.list = daysList.find('li');
 
-        this.list = daysList.find('li');
 
         var callback = function(){
             y++;
@@ -61,12 +83,8 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
 			} else {
                 self.scrollBio.scrollSpeed = 0;
             }
-            window.current = self.scrollBio.currentDay;
+
             if (y>2) {
-//                if (self.scrollBio.currentDay <= self.scrollBio.daysFromBirth && self.scrollBio.scrollSpeed > 0) {
-//                    self.scrollBio.scrollSpeed = 0
-//                }
-                //self.scrollBio.scrollSpeed = (self.scrollBio.scrollSpeed > 0 && self.scrollBio.currentDay < self.scrollBio.daysFromBirth) ? self.scrollBio.scrollSpeed : 0;
                 self.scrollBio.currentDay += self.scrollBio.scrollSpeed / 24;
                 self.draw(self.getBounds(new Date(1989, 2, 1, self.scrollBio.currentDay * 24)));
                 y=0;
@@ -90,29 +108,67 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
 	    }*/
     },
 
-	stopGraph : function(){
+    moveGraph : function(e){
+        if (this.moving) {
+            this.scrollBio.currentDay = this.startCurrentDay - (e.originalEvent.tapmove.clientX - this.startX) / this.drawing.visualDayWidth;
+        }
+    },
+
+	stopGraph : function(e){
 		if (this.scrollBio.scrollSpeed) {
             this.scrollBio.scrollSpeed = 0;
         }
+
+        this.moving = true;
+        this.startX = e.originalEvent.tapdown.clientX;
+        this.startCurrentDay = this.scrollBio.currentDay;
+
+        console.log('tapdown');
 	},
 
+    toggleMove : function(){
+        this.moving = false;
+    },
+
     draw : function(arr){
-        var canvas = this.$el.find('canvas')[0];
-        var context = canvas.getContext('2d');
+        var canvas = this.drawing.canvas,
+            context = this.drawing.context;
+
         context.clearRect(0,0,canvas.width, canvas.height);
-        context.font = "10pt Arial";
+        //context.font = "10pt Arial";
         var colors = ['blue', 'red', 'green'];
 
-        var visualRange = this.scrollBio.range * 2 + 1;
-        var halfHeight = canvas.height / 2;
-        var halfWidth = canvas.width / 2;
-        var visualDayLength = canvas.width / visualRange;
+        var visualRange = this.drawing.visualRange
+        var halfHeight = this.drawing.canvasHalfHeight;
+        var visualDayWidth = this.drawing.visualDayWidth;
 
+//        context.lineWidth = 3;
+//
+//        if (this.lastResult) {
+//            for (var bio = 0; bio < 3; bio++) {
+//                context.beginPath();
+//                for (var i = 0; i < this.lastResult.length - 1; i++) {
+//                    var obj = this.lastResult[i][bio];
+//
+//                    var begX = visualDayWidth * i;
+//                    var begY = halfHeight - this.lastResult[i][bio]*halfHeight;
+//                    var endX = (i+1) * visualDayWidth;
+//                    var endY = halfHeight - this.lastResult[i+1][bio]*halfHeight;
+//                    context.moveTo(begX, begY);
+//                    //context.bezierCurveTo(begX + halfWidth, 5 + begY - 10 * arr[i+3], endX - halfHeight, 5 + endY - 10 * arr[i], endX, 5 + endY);
+//                    context.lineTo(endX, endY);
+//                }
+//                context.strokeStyle = 'white';
+//                context.closePath();
+//                context.stroke();
+//            }
+//
+//        }
         context.lineWidth = 2;
-        context.beginPath();
 
-//        for (var i = 0; i < arr.length; i++) {
-////            var begY = halfHeight - arr[i]*halfHeight + (arr[i]>0 ? 5 : -5);
+
+//      for (var i = 0; i < arr.length; i++) {
+//            var begY = halfHeight - arr[i]*halfHeight + (arr[i]>0 ? 5 : -5);
 //            var begX = 0;
 //            var begY = halfHeight - arr[i]*halfHeight;
 //            var endX = canvas.width;
@@ -122,44 +178,65 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
 //
 //        }
 
+        for (var bio = 0; bio < 3; bio++) {
+            context.beginPath();
+            for (var i = 0; i < arr.length - 1; i++) {
+                var obj = arr[i][bio];
 
-        for (var i = 0; i < arr.length-1; i++) {
-            //console.log(arr[i]);
-
-            for (var bio = 0; bio<3; bio++) {
-//              var begY = halfHeight - arr[i]*halfHeight + (arr[i]>0 ? 5 : -5);
-                context.beginPath();
-                var begX = visualDayLength * i;
+                var begX = visualDayWidth * i;
                 var begY = halfHeight - arr[i][bio]*halfHeight;
-                var endX = (i+1) * visualDayLength;
+                var endX = (i+1) * visualDayWidth;
                 var endY = halfHeight - arr[i+1][bio]*halfHeight;
                 context.moveTo(begX, begY);
                 //context.bezierCurveTo(begX + halfWidth, 5 + begY - 10 * arr[i+3], endX - halfHeight, 5 + endY - 10 * arr[i], endX, 5 + endY);
                 context.lineTo(endX, endY);
-                context.strokeStyle = colors[bio];
-                context.closePath();
-                context.stroke();
             }
-
+            context.strokeStyle = colors[bio];
+            context.closePath();
+            context.stroke();
         }
-        context.strokeStyle = 'rgba(50,50,50,1)';
-        context.stroke();
 
-        context.beginPath();
+
+//        for (var i = 0; i < arr.length-1; i++) {
+//            //console.log(arr[i]);
+//
+//            for (var bio = 0; bio<3; bio++) {
+////              var begY = halfHeight - arr[i]*halfHeight + (arr[i]>0 ? 5 : -5);
+//                context.beginPath();
+//                var begX = visualDayLength * i;
+//                var begY = halfHeight - arr[i][bio]*halfHeight;
+//                var endX = (i+1) * visualDayLength;
+//                var endY = halfHeight - arr[i+1][bio]*halfHeight;
+//                context.moveTo(begX, begY);
+//                //context.bezierCurveTo(begX + halfWidth, 5 + begY - 10 * arr[i+3], endX - halfHeight, 5 + endY - 10 * arr[i], endX, 5 + endY);
+//                context.lineTo(endX, endY);
+//                context.strokeStyle = colors[bio];
+//                context.closePath();
+//                context.stroke();
+//            }
+//
+//        }
+        //context.strokeStyle = 'rgba(50,50,50,1)';
+
+        //context.beginPath();
         for (var days = 0; days<visualRange+1; days++) {
-            var begin = canvas.width - (this.scrollBio.currentDay - Math.floor(this.scrollBio.currentDay)) * visualDayLength;
-            context.moveTo(begin - days*visualDayLength, 0);
-            context.lineTo(begin - days*visualDayLength, canvas.height);
-            //context.fillText(Math.floor(this.scrollBio.currentDay - days + this.scrollBio.range + 1), begin - days*visualDayLength, 20);
-            //this.list[days].style.left = begin - days*visualDayLength + 'px';
-            //$(this.list[days]).text(Math.floor(this.scrollBio.currentDay - days + this.scrollBio.range + 1));
+            var begin = canvas.width - (this.scrollBio.currentDay - Math.floor(this.scrollBio.currentDay)) * visualDayWidth;
+//            context.moveTo(begin - days*visualDayWidth, 0);
+//            context.lineTo(begin - days*visualDayWidth, canvas.height);
+//            //context.fillText(Math.floor(this.scrollBio.currentDay - days + this.scrollBio.range + 1), begin - days*visualDayLength, 20);
+            //this.list[days].style.left = begin - days*visualDayWidth + 'px';
+
+            this.list[days].style['-webkit-transform'] = 'translate(' + (begin - days*visualDayWidth) + 'px)';
+
+            this.list[days].innerHTML = Math.floor(this.scrollBio.currentDay - days + this.scrollBio.range + 1);
 
             //console.log(this.list[days].style.left);
         }
-        context.moveTo(0, halfHeight);
-        context.lineTo(canvas.width, halfHeight);
-        context.strokeStyle = 'rgba(50,50,50,0.2)';
-        context.stroke();
+//        context.moveTo(0, halfHeight);
+//        context.lineTo(canvas.width, halfHeight);
+//        context.closePath();
+//        context.strokeStyle = 'rgba(50,50,50,0.2)';
+//        context.stroke();
 
 //        for (var i = 0; i < 3; i++) {
 //            var begX = 0;
@@ -175,6 +252,7 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
 //            context.stroke();
 //        }
 
+        this.lastResult = arr;
 
 
     },
