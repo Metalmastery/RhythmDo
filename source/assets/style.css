@@ -30,8 +30,47 @@ div {
 canvas {
     margin: 5px;
     border: 1px solid crimson;
+
 }
 
 .graph_container {
     height: 200px;
+}
+
+.gradient1 {
+    position: absolute;
+
+    /*background: linear-gradient(to right, rgba(0,0,0,1) 20%,rgba(0,0,0,0.12) 89%,rgba(0,0,0,0) 100%); *//* W3C */
+
+    width: 49%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    border: none;
+}
+.gradient2 {
+    border: none;
+    position: absolute;
+    /*background: linear-gradient(to left, rgba(0,0,0,1) 20%,rgba(0,0,0,0.12) 89%,rgba(0,0,0,0) 100%); *//* W3C */
+    width: 49%;
+    height: 100%;
+    top: 0;
+    right: 0;
+}
+
+.days {
+    height: 100%;
+    left: 18px;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    width: 95%;
+}
+.days li {
+    list-style: none;
+    background-color: mediumspringgreen;
+    opacity: 0.5;
+    padding: 3px;
+    margin: 3px;
+    position: absolute;
 }
