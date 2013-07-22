@@ -33,8 +33,11 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
     drawing : {
         canvas : null,
         context : null,
-        moving : false
+        moving : false,
+        colors : ['#40b2e4', '#f75d55', '#01d5be']
     },
+
+    lastResult : null,
 
     onEndRender : function(){
 
@@ -47,7 +50,7 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
                 };
 
 
-        var canvas = this.$el.find('canvas').attr({width : this.$el.width(), height : this.$el.height()})[0];
+        var canvas = this.$el.find('canvas').attr({width : this.$el.width(), height : this.$el.height()/2})[0];
         var self = this;
 
         //self.drawing.canvas = canvas;
@@ -57,7 +60,7 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
             context : canvas.getContext('2d'),
             canvasWidth : canvas.width,
             canvasHeight : canvas.height,
-            visualRange : this.scrollBio.range * 2 + 1,
+            visualRange : this.scrollBio.range * 2 + 2,
             visualDayWidth : canvas.width / (this.scrollBio.range * 2 + 1),
             canvasHalfHeight : canvas.height / 2
 
@@ -69,17 +72,19 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
         var daysList = self.$el.find('ul');
         for (var key=0; key < self.drawing.visualRange + 1; key++){
             var li = $('<li/>').appendTo(daysList).css({
-                'width' : self.drawing.visualDayWidth / 1.5 + 'px',
-                'height' : self.drawing.canvasHalfHeight + 'px'
+                'width' : self.drawing.visualDayWidth / 1.2 + 'px'
+//                'height' : self.drawing.canvasHalfHeight + 'px',
             });
         }
         self.list = daysList.find('li');
 
+        var daysPointer = self.$el.find('#days_pointer')[0];
+        daysPointer.style.width = self.drawing.visualDayWidth / 1.2 + 'px';
 
         var callback = function(){
             y++;
 			if (Math.abs(self.scrollBio.scrollSpeed) > 1) {
-                self.scrollBio.scrollSpeed *= 0.98;
+                self.scrollBio.scrollSpeed *= 0.96;
 			} else {
                 self.scrollBio.scrollSpeed = 0;
             }
@@ -100,7 +105,7 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
     swipeGraph : function(e){
         console.log(this.scrollBio);
 
-        if (e.originalEvent.swipe.speed !== 'Infinity') this.scrollBio.scrollSpeed = e.originalEvent.swipe.speed * 30 * (e.originalEvent.swipe.direction === 'right' ? -1 : 1);
+        if (e.originalEvent.swipe.speed !== 'Infinity') this.scrollBio.scrollSpeed = e.originalEvent.swipe.speed * 50 * (e.originalEvent.swipe.direction === 'right' ? -1 : 1);
      	/*function(t, b, c, d) {
 		    var ts=(t/=d)*t;
 		    var tc=ts*t;
@@ -131,64 +136,32 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
     },
 
     draw : function(arr){
+//        console.time('line');
         var canvas = this.drawing.canvas,
-            context = this.drawing.context;
+            context = this.drawing.context,
+            colors = this.drawing.colors,
+            visualRange = this.drawing.visualRange,
+            halfHeight = this.drawing.canvasHalfHeight,
+            visualDayWidth = this.drawing.visualDayWidth,
+            firstRedrawingDay = 0,
+            lastRedrawingDay = arr.length;
 
-        context.clearRect(0,0,canvas.width, canvas.height);
-        //context.font = "10pt Arial";
-        var colors = ['blue', 'red', 'green'];
-
-        var visualRange = this.drawing.visualRange
-        var halfHeight = this.drawing.canvasHalfHeight;
-        var visualDayWidth = this.drawing.visualDayWidth;
-
-//        context.lineWidth = 3;
-//
-//        if (this.lastResult) {
-//            for (var bio = 0; bio < 3; bio++) {
-//                context.beginPath();
-//                for (var i = 0; i < this.lastResult.length - 1; i++) {
-//                    var obj = this.lastResult[i][bio];
-//
-//                    var begX = visualDayWidth * i;
-//                    var begY = halfHeight - this.lastResult[i][bio]*halfHeight;
-//                    var endX = (i+1) * visualDayWidth;
-//                    var endY = halfHeight - this.lastResult[i+1][bio]*halfHeight;
-//                    context.moveTo(begX, begY);
-//                    //context.bezierCurveTo(begX + halfWidth, 5 + begY - 10 * arr[i+3], endX - halfHeight, 5 + endY - 10 * arr[i], endX, 5 + endY);
-//                    context.lineTo(endX, endY);
-//                }
-//                context.strokeStyle = 'white';
-//                context.closePath();
-//                context.stroke();
-//            }
-//
-//        }
+        context.clearRect(0, 0, canvas.width, canvas.height);
         context.lineWidth = 2;
-
-
-//      for (var i = 0; i < arr.length; i++) {
-//            var begY = halfHeight - arr[i]*halfHeight + (arr[i]>0 ? 5 : -5);
-//            var begX = 0;
-//            var begY = halfHeight - arr[i]*halfHeight;
-//            var endX = canvas.width;
-//            var endY = halfHeight - arr[i+3]*halfHeight;
-//            context.moveTo(begX, 5 + begY);
-//            context.bezierCurveTo(begX + halfWidth, 5 + begY - 10 * arr[i+3], endX - halfHeight, 5 + endY - 10 * arr[i], endX, 5 + endY);
-//
-//        }
 
         for (var bio = 0; bio < 3; bio++) {
             context.beginPath();
-            for (var i = 0; i < arr.length - 1; i++) {
-                var obj = arr[i][bio];
+            //for (var i = 0; i < arr.length - 1; i++) {
 
+            for (var i = firstRedrawingDay; i < lastRedrawingDay-1; i++) {
+                //console.log(i);
+                //console.log(arr[i]);
                 var begX = visualDayWidth * i;
                 var begY = halfHeight - arr[i][bio]*halfHeight;
                 var endX = (i+1) * visualDayWidth;
                 var endY = halfHeight - arr[i+1][bio]*halfHeight;
                 context.moveTo(begX, begY);
-                //context.bezierCurveTo(begX + halfWidth, 5 + begY - 10 * arr[i+3], endX - halfHeight, 5 + endY - 10 * arr[i], endX, 5 + endY);
+                //context.bezierCurveTo(begX + visualDayWidth/2, begY, endX - visualDayWidth/2, endY, endX, endY);
                 context.lineTo(endX, endY);
             }
             context.strokeStyle = colors[bio];
@@ -196,65 +169,32 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
             context.stroke();
         }
 
-
-//        for (var i = 0; i < arr.length-1; i++) {
-//            //console.log(arr[i]);
-//
-//            for (var bio = 0; bio<3; bio++) {
-////              var begY = halfHeight - arr[i]*halfHeight + (arr[i]>0 ? 5 : -5);
-//                context.beginPath();
-//                var begX = visualDayLength * i;
-//                var begY = halfHeight - arr[i][bio]*halfHeight;
-//                var endX = (i+1) * visualDayLength;
-//                var endY = halfHeight - arr[i+1][bio]*halfHeight;
-//                context.moveTo(begX, begY);
-//                //context.bezierCurveTo(begX + halfWidth, 5 + begY - 10 * arr[i+3], endX - halfHeight, 5 + endY - 10 * arr[i], endX, 5 + endY);
-//                context.lineTo(endX, endY);
-//                context.strokeStyle = colors[bio];
-//                context.closePath();
-//                context.stroke();
-//            }
-//
-//        }
-        //context.strokeStyle = 'rgba(50,50,50,1)';
-
-        //context.beginPath();
+//        context.beginPath();
         for (var days = 0; days<visualRange+1; days++) {
             var begin = canvas.width - (this.scrollBio.currentDay - Math.floor(this.scrollBio.currentDay)) * visualDayWidth;
-//            context.moveTo(begin - days*visualDayWidth, 0);
-//            context.lineTo(begin - days*visualDayWidth, canvas.height);
-//            //context.fillText(Math.floor(this.scrollBio.currentDay - days + this.scrollBio.range + 1), begin - days*visualDayLength, 20);
-            //this.list[days].style.left = begin - days*visualDayWidth + 'px';
 
-            this.list[days].style['-webkit-transform'] = 'translate(' + (begin - days*visualDayWidth) + 'px)';
+            var value= 'translate(' + (begin - days * visualDayWidth) + 'px)';
+            this.list[days].style.webkitTransform = value;
+            this.list[days].style.transform = value;
+            this.list[days].style.oTransform = value;
+            this.list[days].style.msTransform = value;
+            this.list[days].style.mozTransform = value;
 
             this.list[days].innerHTML = Math.floor(this.scrollBio.currentDay - days + this.scrollBio.range + 1);
 
-            //console.log(this.list[days].style.left);
+//            context.moveTo(begin - days * visualDayWidth, 0);
+//            context.fillText(Math.floor(this.scrollBio.currentDay - days + this.scrollBio.range + 1), begin - days * visualDayWidth, 30)
+//            //context.bezierCurveTo(begX + halfWidth, 5 + begY - 10 * arr[i+3], endX - halfHeight, 5 + endY - 10 * arr[i], endX, 5 + endY);
+//            context.lineTo(begin - days * visualDayWidth, 100);
         }
-//        context.moveTo(0, halfHeight);
-//        context.lineTo(canvas.width, halfHeight);
 //        context.closePath();
-//        context.strokeStyle = 'rgba(50,50,50,0.2)';
-//        context.stroke();
-
-//        for (var i = 0; i < 3; i++) {
-//            var begX = 0;
-//            var begY = halfHeight - arr[i]*halfHeight;
-//            var endX = canvas.width;
-//            var endY = halfHeight - arr[i+3]*halfHeight;
-//
-//            context.beginPath();
-//            context.moveTo(begX, begY);
-//            context.bezierCurveTo(begX + halfWidth, begY - 5 * arr[i+3], endX - halfHeight, endY - 5 * arr[i], endX, endY);
-//            context.strokeStyle = colors[i];
-//            ///context.closePath();
+//        context.strokeStyle = 'gray';
 //            context.stroke();
-//        }
 
-        this.lastResult = arr;
+//        this.lastResult = arr;
+//        this.lastDay = this.scrollBio.currentDay;
 
-
+//        console.timeEnd('line');
     },
 
     getBounds : function(middleDay){
@@ -296,3 +236,4 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
     }
 
 }));
+

@@ -1,14 +1,15 @@
-div {
-    /*padding: 5px;*/
-    border: 1px solid graytext;
+body {
+    /*background-color: #303d4b;454054*/
+    background: linear-gradient(to bottom, #303d4b 20%, #454054 89%);
 }
+
 
 .module_holder {
     position: relative;
 }
 
 .graph {
-    height: 10%;
+    height: 200px;
 }
 
 .task {
@@ -28,9 +29,9 @@ div {
 }
 
 canvas {
-    /*margin: 5px;*/
-    border: 1px solid crimson;
-
+    height: 150px;
+    width: 100%;
+    opacity: 0.9;
 }
 
 .graph_container {
@@ -40,7 +41,7 @@ canvas {
 .gradient1 {
     position: absolute;
 
-    /*background: linear-gradient(to right, rgba(0,0,0,1) 20%,rgba(0,0,0,0.12) 89%,rgba(0,0,0,0) 100%); *//* W3C */
+    /*background: linear-gradient(to right, rgba(0,0,0,1) 20%,rgba(0,0,0,0.12) 89%,rgba(0,0,0,0) 100%);*/
 
     width: 49%;
     height: 100%;
@@ -51,7 +52,7 @@ canvas {
 .gradient2 {
     border: none;
     position: absolute;
-    /*background: linear-gradient(to left, rgba(0,0,0,1) 20%,rgba(0,0,0,0.12) 89%,rgba(0,0,0,0) 100%); *//* W3C */
+    /*background: linear-gradient(to left, rgba(0,0,0,1) 20%,rgba(0,0,0,0.12) 89%,rgba(0,0,0,0) 100%);*/
     width: 49%;
     height: 100%;
     top: 0;
@@ -65,13 +66,20 @@ canvas {
     position: absolute;
     top: 0;
     width: 100%;
+    margin: 0;
 }
 .days li {
     list-style: none;
-    background-color: mediumspringgreen;
-    opacity: 0.5;
+    background-color: #273d55;
     position: absolute;
+    height: 150px;
 }
-.days li:hover {
-    border: 2px solid deepskyblue;
+
+#days_pointer {
+    position: absolute;
+    height: 150px;
+    top: 0;
+    left: 100px;
+    background-color: #1f2e41;
+    opacity: 0.3;
 }
