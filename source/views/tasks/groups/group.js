@@ -8,6 +8,8 @@
 RAD.view(["view.group_brain", "view.group_emo", "view.group_strength", "view.group_today", "view.group_tomorrow", "view.group_week"], RAD.Blanks.View.extend({
     url : 'source/views/tasks/groups/group.html',
 
+    groupName : 'group',
+
     onNewExtras : function(data){
         console.log(data);
         if (!data){
@@ -26,6 +28,5 @@ RAD.view(["view.group_brain", "view.group_emo", "view.group_strength", "view.gro
     filter : function(){
         return true;
     }
-
 
 }));

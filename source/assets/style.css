@@ -86,3 +86,14 @@ canvas {
     background-color: #000;
     opacity: 0.25;
 }
+
+.group {
+    color: #ffffff;
+}
+
+.group h3{
+    height: 50px;
+    font:  20pt sans-serif;
+    text-transform:uppercase;
+
+}
