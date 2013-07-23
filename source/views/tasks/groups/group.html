@@ -1,0 +1,18 @@
+<div class="group">
+    <h3>{{= this.groupName }}</h3>
+    <div class="task_list">
+        {{# var mods = _.filter(this.model.models, this.filter);}}
+        {{# _(mods).each(function(mod){ }}
+        {{# var item = mod.attributes}}
+        <div class="task" data-model-id="{{= item.id }}">
+            <div class="id">  {{= item.id }} </div>
+            <div class="date">  {{= item.date }} </div>
+            <div class="time">  {{= item.time }} </div>
+            <div class="text">  {{= item.text }} </div>
+            <div class="type">  {{= item.type }} </div>
+            <div class="reminder">  {{= item.reminder }} </div>
+            <div class="repeat">  {{= item.repeat }} </div>
+        </div>
+        {{# }) }}
+    </div>
+</div>

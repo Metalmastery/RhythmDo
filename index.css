@@ -1,4 +1,4 @@
-@import url('../bootstrap/css/reset.css');
-@import url('../core/css/core.css');
+@import url('source/assets/reset.css');
+@import url('source/assets/core.css');
 @import url('../bootstrap/css/style.css');
 @import url('source/assets/style.css');

@@ -69,12 +69,17 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
         var y = 0;
 
         var visualRange = self.drawing.visualRange;
-        var daysList = self.$el.find('ul');
-        for (var key=0; key < self.drawing.visualRange + 1; key++){
-            var li = $('<li/>').appendTo(daysList).css({
-                'width' : self.drawing.visualDayWidth / 1.2 + 'px'
-//                'height' : self.drawing.canvasHalfHeight + 'px',
-            });
+
+        var daysList = self.$el.find('ul.days');
+        var dayLi = daysList.find('li').css({
+            'width' : self.drawing.visualDayWidth / 1.2 + 'px'
+        });
+
+        console.log(daysList);
+        console.log(dayLi);
+
+        for (var key=0; key < self.drawing.visualRange; key++){
+            var li = dayLi.clone().appendTo(daysList);
         }
         self.list = daysList.find('li');
 
@@ -82,19 +87,24 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
         daysPointer.style.width = self.drawing.visualDayWidth / 1.2 + 'px';
 
         var callback = function(){
-            y++;
+
+//            y++;
 			if (Math.abs(self.scrollBio.scrollSpeed) > 1) {
-                self.scrollBio.scrollSpeed *= 0.96;
+                self.scrollBio.scrollSpeed *= 0.97;
 			} else {
                 self.scrollBio.scrollSpeed = 0;
             }
 
-            if (y>2) {
+//            if (y>2) {
                 self.scrollBio.currentDay += self.scrollBio.scrollSpeed / 24;
+//                if (Math.floor(self.lastDay) != Math.floor(self.scrollBio.currentDay)){
+//                    self.scrollBio.currentDay = Math.floor(self.scrollBio.currentDay);
+//                    self.scrollBio.scrollSpeed = 0;
+//                }
                 self.draw(self.getBounds(new Date(1989, 2, 1, self.scrollBio.currentDay * 24)));
                 y=0;
-            }
-
+//            }
+//            self.lastDay = self.scrollBio.currentDay;
             requestAF(callback);
         };
 
@@ -105,7 +115,9 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
     swipeGraph : function(e){
         console.log(this.scrollBio);
 
-        if (e.originalEvent.swipe.speed !== 'Infinity') this.scrollBio.scrollSpeed = e.originalEvent.swipe.speed * 50 * (e.originalEvent.swipe.direction === 'right' ? -1 : 1);
+        if (e.originalEvent.swipe.speed !== 'Infinity') this.scrollBio.scrollSpeed = e.originalEvent.swipe.speed * 10 * (e.originalEvent.swipe.direction === 'right' ? -1 : 1);
+        //if (e.originalEvent.swipe.speed !== 'Infinity') this.scrollBio.scrollSpeed = 10 * (e.originalEvent.swipe.direction === 'right' ? -1 : 1);
+//        this.scrollBio.currentDay += (e.originalEvent.swipe.direction === 'right' ? -1 : 1);
      	/*function(t, b, c, d) {
 		    var ts=(t/=d)*t;
 		    var tc=ts*t;
@@ -180,7 +192,7 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
             this.list[days].style.msTransform = value;
             this.list[days].style.mozTransform = value;
 
-            this.list[days].innerHTML = Math.floor(this.scrollBio.currentDay - days + this.scrollBio.range + 1);
+            //this.list[days].innerHTML = Math.floor(this.scrollBio.currentDay - days + this.scrollBio.range + 1);
 
 //            context.moveTo(begin - days * visualDayWidth, 0);
 //            context.fillText(Math.floor(this.scrollBio.currentDay - days + this.scrollBio.range + 1), begin - days * visualDayWidth, 30)
@@ -192,7 +204,7 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
 //            context.stroke();
 
 //        this.lastResult = arr;
-//        this.lastDay = this.scrollBio.currentDay;
+//
 
 //        console.timeEnd('line');
     },
@@ -205,7 +217,8 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
         var range = this.scrollBio.range;
         var dates = [];
         var middleDayTimestamp = middleDay.getTime();
-        for (var d=-this.scrollBio.range - 1; d<= this.scrollBio.range + 1; d++) {
+//        for (var d=-this.scrollBio.range - 1; d<= this.scrollBio.range + 1; d++) {
+        for (var d= - 1; d<= this.scrollBio.range*2 + 1; d++) {
             dates.push(new Date(middleDayTimestamp + this.scrollBio.dayLength*d));
         }
 //        dates.push(new Date(middleDay.getTime() - this.scrollBio.dayLength*range));
