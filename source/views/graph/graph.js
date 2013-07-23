@@ -88,23 +88,23 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
 
         var callback = function(){
 
-            y++;
+//            y++;
 			if (Math.abs(self.scrollBio.scrollSpeed) > 1) {
-                self.scrollBio.scrollSpeed *= 0.96;
+                self.scrollBio.scrollSpeed *= 0.97;
 			} else {
                 self.scrollBio.scrollSpeed = 0;
             }
 
-            if (y>2) {
+//            if (y>2) {
                 self.scrollBio.currentDay += self.scrollBio.scrollSpeed / 24;
-                if (Math.floor(self.lastDay) != Math.floor(self.scrollBio.currentDay)){
-                    self.scrollBio.currentDay = Math.floor(self.scrollBio.currentDay);
-                    self.scrollBio.scrollSpeed = 0;
-                }
+//                if (Math.floor(self.lastDay) != Math.floor(self.scrollBio.currentDay)){
+//                    self.scrollBio.currentDay = Math.floor(self.scrollBio.currentDay);
+//                    self.scrollBio.scrollSpeed = 0;
+//                }
                 self.draw(self.getBounds(new Date(1989, 2, 1, self.scrollBio.currentDay * 24)));
                 y=0;
-            }
-            self.lastDay = self.scrollBio.currentDay;
+//            }
+//            self.lastDay = self.scrollBio.currentDay;
             requestAF(callback);
         };
 
@@ -115,9 +115,9 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
     swipeGraph : function(e){
         console.log(this.scrollBio);
 
-//        if (e.originalEvent.swipe.speed !== 'Infinity') this.scrollBio.scrollSpeed = e.originalEvent.swipe.speed * 10 * (e.originalEvent.swipe.direction === 'right' ? -1 : 1);
+        if (e.originalEvent.swipe.speed !== 'Infinity') this.scrollBio.scrollSpeed = e.originalEvent.swipe.speed * 10 * (e.originalEvent.swipe.direction === 'right' ? -1 : 1);
         //if (e.originalEvent.swipe.speed !== 'Infinity') this.scrollBio.scrollSpeed = 10 * (e.originalEvent.swipe.direction === 'right' ? -1 : 1);
-        this.scrollBio.currentDay += (e.originalEvent.swipe.direction === 'right' ? -1 : 1);
+//        this.scrollBio.currentDay += (e.originalEvent.swipe.direction === 'right' ? -1 : 1);
      	/*function(t, b, c, d) {
 		    var ts=(t/=d)*t;
 		    var tc=ts*t;

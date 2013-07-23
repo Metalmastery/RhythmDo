@@ -11,6 +11,7 @@
         "source/views/graph/graph.js",
         "source/views/tasks/task/task.js",
         "source/views/tasks/task_list/task_list.js",
+        "source/views/tasks/groups/group.js",
         "source/views/tasks/redactor/redactor.js",
 
         "source/services/storage.js",

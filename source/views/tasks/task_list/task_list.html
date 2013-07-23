@@ -1,16 +1,2 @@
-<div class="g">
-    <h3>Task list</h3>
-    <div class="task_list">
-        {{# _(model).each(function(item){ }}
-            <div class="task" data-model-id="{{= item.id }}">
-                <div class="id">  {{= item.id }} </div>
-                <div class="date">  {{= item.date }} </div>
-                <div class="time">  {{= item.time }} </div>
-                <div class="text">  {{= item.text }} </div>
-                <div class="type">  {{= item.type }} </div>
-                <div class="reminder">  {{= item.reminder }} </div>
-                <div class="repeat">  {{= item.repeat }} </div>
-            </div>
-        {{# }) }}
-    </div>
-</div>
+<div id="brain" class="module_holder"></div>
+<div id="emo" class="module_holder"></div>
