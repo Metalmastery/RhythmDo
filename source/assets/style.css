@@ -19,23 +19,58 @@ body {
 }
 
 .task_list {
-    height: 200px;
+
+}
+
+.task.even {
+    background: rgba(221,84,75,0.1);
 }
 
 .task {
     overflow: hidden;
+    height: 60px;
+    background: rgba(0,0,0,0.1);
+    margin: 2px 10px;
 }
 
 .task div {
+    float: right;
+    text-align: center;
+    line-height: 60px;
+    min-width: 50px;
+    min-height: 60px;
+    padding: 0 10px;
+}
+
+.task .text {
     float: left;
+}
+
+.task .hidden{
+    display: none;
+}
+
+.task .type_1 {
+    background: url('../img/strength.png') no-repeat center;
+}
+.task .type_2 {
+    background: url('../img/heart.png') no-repeat center;
+}
+.task .type_3 {
+    background: url('../img/brain.png') no-repeat center;
 }
 
 .main {
     height: 100%;
+    position: relative;
 }
 
 .list {
-    height: 100%;
+    bottom: 0;
+    overflow: auto;
+    position: absolute;
+    top: 200px;
+    width: 100%;
 }
 
 canvas {
@@ -96,4 +131,7 @@ canvas {
     font:  20pt sans-serif;
     text-transform:uppercase;
 
+}
+.positionRelative {
+    position: relative !important;
 }

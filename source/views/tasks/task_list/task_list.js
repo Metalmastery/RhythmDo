@@ -5,12 +5,14 @@
  * Time: 3:18 PM
  * To change this template use File | Settings | File Templates.
  */
-RAD.view("view.task_list", RAD.Blanks.View.extend({
+RAD.view("view.task_list", RAD.Blanks.ScrollableView.extend({
     url : 'source/views/tasks/task_list/task_list.html',
+
+//    className: 'positionRelative',
 
     events: {
         'swipe .task' : 'removeTask',
-        'swipe .task_list' : 'createRedactor',
+        'swipe h3' : 'createRedactor',
         'tap .task' : 'changeRedactor'
 
     },
@@ -23,21 +25,37 @@ RAD.view("view.task_list", RAD.Blanks.View.extend({
         {
             content : 'view.group_emo',
             container_id : '#emo'
+        },
+        {
+            content : 'view.group_strength',
+            container_id : '#strength'
+        },
+        {
+            content : 'view.group_today',
+            container_id : '#today'
         }
+
     ],
 
     onInitialize : function(){
         this.model = RAD.model('task_list');
 
-        console.log(RAD.core.getStartedViews());
+        this.subscribe('taskListRefresh', this.refreshScroll, this);
 
         var filtersList = {
-            'view.group_brain' : function(){
+            'view.group_today' : function(){
                 return true;
             },
-            'view.group_emo' : function(){
-                return true;
+            'view.group_brain' : function(item){
+                return parseInt(item.attributes.type) === 3;
+            },
+            'view.group_emo' : function(item){
+                return parseInt(item.attributes.type) === 2;
+            },
+            'view.group_strength' : function(item){
+                return parseInt(item.attributes.type) === 1;
             }
+
         };
 
         for (var filter in filtersList) {
@@ -46,7 +64,8 @@ RAD.view("view.task_list", RAD.Blanks.View.extend({
                     autocreate : true,
                     extras : {
                         model : this.model,
-                        filter : filtersList[filter]
+                        filter : filtersList[filter],
+                        groupName : filter
                     }
                 });
             }
@@ -76,17 +95,23 @@ RAD.view("view.task_list", RAD.Blanks.View.extend({
     },
 
     changeRedactor : function(e){
-        var id = $(e.target).data('model-id');
+        var id = $(e.currentTarget).data('model-id');
+        console.log(id);
+
+//        this.publish('view.redactor',{
+//            autocreate : true,
+//            extras : id
+//        });
+
         this.publish('navigation.show', {
             content : 'view.redactor',
             container_id : '#screen',
+            backstack : true,
             extras : id,
-            backstack : true
+            autocreate : true
         });
 
-    },
-    onReceiveMsg : function(c,d){
-        console.log(arguments);
+
     }
 
 }));

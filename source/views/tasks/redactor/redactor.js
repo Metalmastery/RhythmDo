@@ -12,7 +12,7 @@ RAD.view("view.redactor", RAD.Blanks.View.extend({
         "use strict";
 
         this.list = RAD.model('task_list');
-        this.currentModel = null;
+        //this.currentModel = null;
     },
 
     events : {
@@ -48,14 +48,20 @@ RAD.view("view.redactor", RAD.Blanks.View.extend({
     onStartAttach : function(){
         "use strict";
 
-        this.$el.find('input:text').focus();
+        var self = this;
+        this.$el.find('[name]').each(function(index, el){
+            console.log(el.name);
+            el.value = self.currentModel.attributes[el.name];
+        });
     },
 
     onNewExtras : function(extras){
         "use strict";
 
         this.currentModel = RAD.model('task_list').get(extras);
-        console.log(this.model);
+    },
+    onReceiveMsg : function(c, data){
+        console.log('received', data);
     }
 
 }));

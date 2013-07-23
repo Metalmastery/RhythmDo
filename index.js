@@ -36,6 +36,7 @@
 
         //start
         application.start();
+
         core.publish('service.storage.restore');
     }
 

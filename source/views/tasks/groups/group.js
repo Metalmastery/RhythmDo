@@ -10,19 +10,33 @@ RAD.view(["view.group_brain", "view.group_emo", "view.group_strength", "view.gro
 
     groupName : 'group',
 
+    className : 'positionRelative',
+
+    events: {
+        'tap h3' : 'toggleGroup'
+    },
+
+    toggleGroup : function(){
+        var self = this;
+        this.$el.find('.task_list').slideToggle('fast', function(){self.publish('taskListRefresh', {});});
+
+    },
+
     onNewExtras : function(data){
-        console.log(data);
         if (!data){
             return false;
         }
         if (typeof data.filter === 'function'){
             this.filter = data.filter;
         }
+        if (data.groupName && data.groupName.length){
+            this.groupName = data.groupName;
+        }
         this.model = data.model;
     },
 
     onReceiveMsg : function(c,d){
-        console.log(arguments);
+
     },
 
     filter : function(){

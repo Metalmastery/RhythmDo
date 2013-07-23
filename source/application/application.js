@@ -10,6 +10,7 @@ RAD.application = function (core) {
             animation: "none"
         };
         core.publish('navigation.show', options);
+        core.publish('view.redactor', {autocreate: true});
     };
 
     return app;
