@@ -1,7 +1,7 @@
+{{# var mods = _.filter(this.model.models, this.filter);}}
 <div class="group">
-    <h3>{{= this.groupName }}</h3>
+    <div class="groupTitle">{{= this.groupName }}<span class="count">{{= mods.length }}</span></div>
     <div class="task_list">
-        {{# var mods = _.filter(this.model.models, this.filter);}}
         {{# _(mods).each(function(mod, index){ }}
         {{# var item = mod.attributes}}
         <div class="task {{=index % 2 === 0 ? '' : 'even';}}" data-model-id="{{= item.id }}">

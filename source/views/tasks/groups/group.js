@@ -13,7 +13,7 @@ RAD.view(["view.group_brain", "view.group_emo", "view.group_strength", "view.gro
     className : 'positionRelative',
 
     events: {
-        'tap h3' : 'toggleGroup'
+        'tap .groupTitle' : 'toggleGroup'
     },
 
     toggleGroup : function(){

@@ -15,6 +15,7 @@ body {
 }
 
 .graph {
+    margin-top: 40px;
     height: 200px;
 }
 
@@ -76,7 +77,8 @@ body {
 canvas {
     height: 150px;
     width: 100%;
-    opacity: 0.9;
+    opacity: 0.8;
+    margin-top: 13px;
 }
 
 .graph_container {
@@ -91,12 +93,13 @@ canvas {
     top: 0;
     width: 100%;
     margin: 0;
+    color: #fff;
 }
 .days li {
     list-style: none;
     background-color: #273d55;
     position: absolute;
-    height: 150px;
+    height: 178px;
 }
 
 .days li .weekday {
@@ -104,6 +107,8 @@ canvas {
     opacity: 0.1;
     width: 100%;
     height: 50%;
+    text-align: center;
+    line-height: 135px;
 }
 
 .days li .monthday {
@@ -111,11 +116,13 @@ canvas {
     opacity: 0.2;
     width: 100%;
     height: 50%;
+    text-align: center;
+    line-height: 50px;
 }
 
 #days_pointer {
     position: absolute;
-    height: 150px;
+    height: 178px;
     top: 0;
     left: 100px;
     background-color: #000;
@@ -126,12 +133,20 @@ canvas {
     color: #ffffff;
 }
 
-.group h3{
+.group .groupTitle {
     height: 50px;
-    font:  20pt sans-serif;
+    font:  40pt sans-serif;
     text-transform:uppercase;
-
+    padding-right: 15px;
+    text-align: right;
 }
+
+.group .groupTitle .count {
+    display: inline-block;
+    padding-right: 16px;
+    width: 60px;
+}
+
 .positionRelative {
     position: relative !important;
 }

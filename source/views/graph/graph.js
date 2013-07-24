@@ -34,7 +34,8 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
         canvas : null,
         context : null,
         moving : false,
-        colors : ['#40b2e4', '#f75d55', '#01d5be']
+        colors : ['#40b2e4', '#f75d55', '#01d5be'],
+        visualDayWidth: 135
     },
 
     lastResult : null,
@@ -49,62 +50,50 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
                     setTimeout(callback, 16)
                 };
 
+        var canvas = this.$el.find('canvas').attr({width : this.$el.width(), height : this.$el.height()/2})[0],
+            self = this;
 
-        var canvas = this.$el.find('canvas').attr({width : this.$el.width(), height : this.$el.height()/2})[0];
-        var self = this;
+        this.scrollBio.range = canvas.width / this.drawing.visualDayWidth / 2;
 
-        //self.drawing.canvas = canvas;
-        //self.drawing.context = canvas.getContext('2d');
+        console.log(this.scrollBio.range);
         _(self.drawing).extend({
             canvas : canvas,
             context : canvas.getContext('2d'),
             canvasWidth : canvas.width,
             canvasHeight : canvas.height,
-            visualRange : this.scrollBio.range * 2 + 2,
-            visualDayWidth : canvas.width / (this.scrollBio.range * 2 + 1),
+            visualRange : this.scrollBio.range * 2,
+            //visualDayWidth : canvas.width / (this.scrollBio.range * 2 + 1),
             canvasHalfHeight : canvas.height / 2
 
         });
-        console.log(self.drawing);
-        var y = 0;
 
-        var visualRange = self.drawing.visualRange;
-
-        var daysList = self.$el.find('ul.days');
-        var dayLi = daysList.find('li').css({
-            'width' : self.drawing.visualDayWidth / 1.2 + 'px'
-        });
-
-        console.log(daysList);
-        console.log(dayLi);
+        var visualRange = self.drawing.visualRange,
+            daysList = self.$el.find('ul.days'),
+            dayLi = daysList.find('li').css({
+                'width' : (self.drawing.visualDayWidth-8) + 'px'
+            }),
+            daysPointer = self.$el.find('#days_pointer')[0];
 
         for (var key=0; key < self.drawing.visualRange; key++){
             var li = dayLi.clone().appendTo(daysList);
         }
         self.list = daysList.find('li');
 
-        var daysPointer = self.$el.find('#days_pointer')[0];
         daysPointer.style.width = self.drawing.visualDayWidth / 1.2 + 'px';
 
         var callback = function(){
 
-//            y++;
 			if (Math.abs(self.scrollBio.scrollSpeed) > 1) {
                 self.scrollBio.scrollSpeed *= 0.97;
 			} else {
                 self.scrollBio.scrollSpeed = 0;
             }
 
-//            if (y>2) {
                 self.scrollBio.currentDay += self.scrollBio.scrollSpeed / 24;
-//                if (Math.floor(self.lastDay) != Math.floor(self.scrollBio.currentDay)){
-//                    self.scrollBio.currentDay = Math.floor(self.scrollBio.currentDay);
-//                    self.scrollBio.scrollSpeed = 0;
-//                }
+
                 self.draw(self.getBounds(new Date(1989, 2, 1, self.scrollBio.currentDay * 24)));
                 y=0;
-//            }
-//            self.lastDay = self.scrollBio.currentDay;
+
             requestAF(callback);
         };
 
@@ -113,16 +102,7 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
     },
 
     swipeGraph : function(e){
-        console.log(this.scrollBio);
-
         if (e.originalEvent.swipe.speed !== 'Infinity') this.scrollBio.scrollSpeed = e.originalEvent.swipe.speed * 10 * (e.originalEvent.swipe.direction === 'right' ? -1 : 1);
-        //if (e.originalEvent.swipe.speed !== 'Infinity') this.scrollBio.scrollSpeed = 10 * (e.originalEvent.swipe.direction === 'right' ? -1 : 1);
-//        this.scrollBio.currentDay += (e.originalEvent.swipe.direction === 'right' ? -1 : 1);
-     	/*function(t, b, c, d) {
-		    var ts=(t/=d)*t;
-		    var tc=ts*t;
-		    return b+c*(-1*ts*ts + 4*tc + -6*ts + 4*t);
-	    }*/
     },
 
     moveGraph : function(e){
@@ -139,8 +119,6 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
         this.moving = true;
         this.startX = e.originalEvent.tapdown.clientX;
         this.startCurrentDay = this.scrollBio.currentDay;
-
-        console.log('tapdown');
 	},
 
     toggleMove : function(){
@@ -148,7 +126,6 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
     },
 
     draw : function(arr){
-//        console.time('line');
         var canvas = this.drawing.canvas,
             context = this.drawing.context,
             colors = this.drawing.colors,
@@ -163,17 +140,13 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
 
         for (var bio = 0; bio < 3; bio++) {
             context.beginPath();
-            //for (var i = 0; i < arr.length - 1; i++) {
 
             for (var i = firstRedrawingDay; i < lastRedrawingDay-1; i++) {
-                //console.log(i);
-                //console.log(arr[i]);
                 var begX = visualDayWidth * i;
                 var begY = halfHeight - arr[i][bio]*halfHeight;
                 var endX = (i+1) * visualDayWidth;
                 var endY = halfHeight - arr[i+1][bio]*halfHeight;
                 context.moveTo(begX, begY);
-                //context.bezierCurveTo(begX + visualDayWidth/2, begY, endX - visualDayWidth/2, endY, endX, endY);
                 context.lineTo(endX, endY);
             }
             context.strokeStyle = colors[bio];
@@ -181,21 +154,28 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
             context.stroke();
         }
 
-//        context.beginPath();
-        for (var days = 0; days<visualRange+1; days++) {
-            var begin = canvas.width - (this.scrollBio.currentDay - Math.floor(this.scrollBio.currentDay)) * visualDayWidth;
+        //console.log(arr);
 
-            var value= 'translate(' + (begin - days * visualDayWidth) + 'px)';
+        //for (var days = 0; days<visualRange+1; days++) {
+        for (var days = 0; days<arr.length-1; days++) {
+            var begin = canvas.width - (this.scrollBio.currentDay - Math.floor(this.scrollBio.currentDay)) * visualDayWidth,
+                value= 'translate(' + (begin - days * visualDayWidth) + 'px)';
+
             this.list[days].style.webkitTransform = value;
             this.list[days].style.transform = value;
             this.list[days].style.oTransform = value;
             this.list[days].style.msTransform = value;
             this.list[days].style.mozTransform = value;
 
+            this.list.eq(arr.length - days - 2).find('.monthday').text(arr[days] ? arr[days][3] : '');
+            this.list.eq(arr.length - days - 2).find('.weekday').text(arr[days] ? arr[days][4] : '');
+            //this.list.eq(days).find('.weekday').text(new Date(1989, 2, 1, (this.scrollBio.currentDay-days) * 24).getDay()); //a.toLocaleFormat('%a')
+
+
             //this.list[days].innerHTML = Math.floor(this.scrollBio.currentDay - days + this.scrollBio.range + 1);
 
-//            context.moveTo(begin - days * visualDayWidth, 0);
-//            context.fillText(Math.floor(this.scrollBio.currentDay - days + this.scrollBio.range + 1), begin - days * visualDayWidth, 30)
+            //context.moveTo(begin - days * visualDayWidth, 0);
+            //context.fillText(arr[visualRange-days][3].toLocaleFormat('%a'), begin - days * visualDayWidth, 30);
 //            //context.bezierCurveTo(begX + halfWidth, 5 + begY - 10 * arr[i+3], endX - halfHeight, 5 + endY - 10 * arr[i], endX, 5 + endY);
 //            context.lineTo(begin - days * visualDayWidth, 100);
         }
@@ -218,7 +198,7 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
         var dates = [];
         var middleDayTimestamp = middleDay.getTime();
 //        for (var d=-this.scrollBio.range - 1; d<= this.scrollBio.range + 1; d++) {
-        for (var d= - 1; d<= this.scrollBio.range*2 + 1; d++) {
+        for (var d= - 2; d<= this.scrollBio.range*2; d++) {
             dates.push(new Date(middleDayTimestamp + this.scrollBio.dayLength*d));
         }
 //        dates.push(new Date(middleDay.getTime() - this.scrollBio.dayLength*range));
@@ -236,6 +216,8 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
                 var d = (dates[date] - birth)/this.scrollBio.dayLength;
                 day[per] = (Math.sin(2*Math.PI*d/periods[per]));
             }
+            day[3] = dates[date].getDate();
+            day[4] = dates[date].toDateString().split(' ')[0];
             res.push(day);
         }
         //console.log(res.length);
