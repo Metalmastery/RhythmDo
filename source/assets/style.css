@@ -124,9 +124,10 @@ canvas {
     position: absolute;
     height: 178px;
     top: 0;
-    left: 100px;
+    left: 89px;
     background-color: #000;
     opacity: 0.25;
+    width: 127px;
 }
 
 .group {
@@ -144,7 +145,7 @@ canvas {
 .group .groupTitle .count {
     display: inline-block;
     padding-right: 16px;
-    width: 60px;
+    width: 100px;
 }
 
 .positionRelative {

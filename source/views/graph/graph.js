@@ -55,7 +55,6 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
 
         this.scrollBio.range = canvas.width / this.drawing.visualDayWidth / 2;
 
-        console.log(this.scrollBio.range);
         _(self.drawing).extend({
             canvas : canvas,
             context : canvas.getContext('2d'),
@@ -79,20 +78,28 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
         }
         self.list = daysList.find('li');
 
-        daysPointer.style.width = self.drawing.visualDayWidth / 1.2 + 'px';
+        daysPointer.style.width = (self.drawing.visualDayWidth - 8) + 'px';
+
+        self.scrollBio.currentDay = Math.floor(self.scrollBio.currentDay);
+        self.lastDay = self.scrollBio.currentDay;
 
         var callback = function(){
 
-			if (Math.abs(self.scrollBio.scrollSpeed) > 1) {
-                self.scrollBio.scrollSpeed *= 0.97;
-			} else {
+//			if (Math.abs(self.scrollBio.scrollSpeed) > 1) {
+//                self.scrollBio.scrollSpeed *= 0.97;
+//			} else {
+//                self.scrollBio.scrollSpeed = 0;
+//            }
+
+            self.scrollBio.currentDay += self.scrollBio.scrollSpeed / 24;
+
+            if (Math.abs(self.scrollBio.currentDay - self.lastDay) > 1) {
+                self.scrollBio.currentDay = (self.scrollBio.scrollSpeed > 0 ? Math.floor(self.scrollBio.currentDay) : Math.round(self.scrollBio.currentDay + 1));
                 self.scrollBio.scrollSpeed = 0;
+                self.lastDay = self.scrollBio.currentDay;
             }
 
-                self.scrollBio.currentDay += self.scrollBio.scrollSpeed / 24;
-
-                self.draw(self.getBounds(new Date(1989, 2, 1, self.scrollBio.currentDay * 24)));
-                y=0;
+            self.draw(self.getBounds(self.scrollBio.currentDay));
 
             requestAF(callback);
         };
@@ -102,12 +109,14 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
     },
 
     swipeGraph : function(e){
-        if (e.originalEvent.swipe.speed !== 'Infinity') this.scrollBio.scrollSpeed = e.originalEvent.swipe.speed * 10 * (e.originalEvent.swipe.direction === 'right' ? -1 : 1);
+        if (e.originalEvent.swipe.speed !== 'Infinity') this.scrollBio.scrollSpeed = 20 * (e.originalEvent.swipe.direction === 'right' ? -1 : 1);
+        //this.scrollBio.currentDay += (e.originalEvent.swipe.direction === 'right' ? -1 : 1);
+
     },
 
     moveGraph : function(e){
         if (this.moving) {
-            this.scrollBio.currentDay = this.startCurrentDay - (e.originalEvent.tapmove.clientX - this.startX) / this.drawing.visualDayWidth;
+            //this.scrollBio.currentDay = this.startCurrentDay - (e.originalEvent.tapmove.clientX - this.startX) / this.drawing.visualDayWidth;
         }
     },
 
@@ -154,7 +163,6 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
             context.stroke();
         }
 
-        //console.log(arr);
 
         //for (var days = 0; days<visualRange+1; days++) {
         for (var days = 0; days<arr.length-1; days++) {
@@ -166,9 +174,15 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
             this.list[days].style.oTransform = value;
             this.list[days].style.msTransform = value;
             this.list[days].style.mozTransform = value;
+            //this.list[days].data_coord = begin - days * visualDayWidth;
 
-            this.list.eq(arr.length - days - 2).find('.monthday').text(arr[days] ? arr[days][3] : '');
-            this.list.eq(arr.length - days - 2).find('.weekday').text(arr[days] ? arr[days][4] : '');
+//            if (this.list[0].data_coord == canvas.width) {
+//                console.log('jump');
+//
+//            }
+//
+//            this.list.eq(arr.length - days - 2).find('.monthday').text(arr[days] ? arr[days][3] : '');
+//            this.list.eq(arr.length - days - 2).find('.weekday').text(arr[days] ? arr[days][4] : '');
             //this.list.eq(days).find('.weekday').text(new Date(1989, 2, 1, (this.scrollBio.currentDay-days) * 24).getDay()); //a.toLocaleFormat('%a')
 
 
@@ -189,8 +203,10 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
 //        console.timeEnd('line');
     },
 
-    getBounds : function(middleDay){
-        var birth = new Date(1989, 2, 1);
+    getBounds : function(current){
+        var birth = new Date(1989, 2, 1),
+            middleDay = new Date (1989, 2, 1, current * 24);
+
         //var b = new Date();
 
         middleDay = middleDay || b;
@@ -200,6 +216,7 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
 //        for (var d=-this.scrollBio.range - 1; d<= this.scrollBio.range + 1; d++) {
         for (var d= - 2; d<= this.scrollBio.range*2; d++) {
             dates.push(new Date(middleDayTimestamp + this.scrollBio.dayLength*d));
+            //dates.push(new Date(1989, 2, middleDay));
         }
 //        dates.push(new Date(middleDay.getTime() - this.scrollBio.dayLength*range));
 //        dates.push(new Date(middleDay.getTime() + this.scrollBio.dayLength*range));
@@ -210,7 +227,6 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
         for (var date in dates)
         {
             var day = [];
-            ///console.log(dates[date] - birth);
 
             for (var per in periods){
                 var d = (dates[date] - birth)/this.scrollBio.dayLength;
@@ -220,7 +236,6 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
             day[4] = dates[date].toDateString().split(' ')[0];
             res.push(day);
         }
-        //console.log(res.length);
         return res;
     },
 

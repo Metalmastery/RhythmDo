@@ -65,7 +65,7 @@ RAD.view("view.task_list", RAD.Blanks.ScrollableView.extend({
                     extras : {
                         model : this.model,
                         filter : filtersList[filter],
-                        groupName : filter
+                        groupName : filter.split('_')[1]
                     }
                 });
             }
