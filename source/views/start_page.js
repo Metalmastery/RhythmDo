@@ -11,6 +11,12 @@ RAD.view("view.start_page", RAD.Blanks.View.extend({
         }
     ],
     onReceiveMsg : function(c,d){
-        console.log(arguments);
+        if (typeof this[c.split('.')[2]] === 'function') {
+            this[c.split('.')[2]]();
+        }
+    },
+    hello : function(){
+        console.log('hello');
+
     }
 }));

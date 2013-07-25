@@ -42,9 +42,11 @@ RAD.view("view.task_list", RAD.Blanks.ScrollableView.extend({
 
         this.subscribe('taskListRefresh', this.refreshScroll, this);
 
+        var curr = this.application.currentDay;
+
         var filtersList = {
-            'view.group_today' : function(){
-                return true;
+            'view.group_today' : function(item){
+                return ((new Date(item.date).getDate()) === (new Date(1989, 2, curr).getDate()));
             },
             'view.group_brain' : function(item){
                 return parseInt(item.attributes.type) === 3;
@@ -98,11 +100,6 @@ RAD.view("view.task_list", RAD.Blanks.ScrollableView.extend({
         var id = $(e.currentTarget).data('model-id');
         console.log(id);
 
-//        this.publish('view.redactor',{
-//            autocreate : true,
-//            extras : id
-//        });
-
         this.publish('navigation.show', {
             content : 'view.redactor',
             container_id : '#screen',
@@ -110,8 +107,6 @@ RAD.view("view.task_list", RAD.Blanks.ScrollableView.extend({
             extras : id,
             autocreate : true
         });
-
-
     }
 
 }));

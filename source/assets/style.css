@@ -19,8 +19,8 @@ body {
     height: 200px;
 }
 
-.task_list {
-
+.task_list.collapsed {
+    display: none;
 }
 
 .task.even {

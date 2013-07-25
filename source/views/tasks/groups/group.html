@@ -1,5 +1,5 @@
-{{# var mods = _.filter(this.model.models, this.filter);}}
 <div class="group">
+    {{# var mods = _.filter(this.model.models, this.filter);}}
     <div class="groupTitle">{{= this.groupName }}<span class="count">{{= mods.length }}</span></div>
     <div class="task_list">
         {{# _(mods).each(function(mod, index){ }}
@@ -10,8 +10,8 @@
             <div class="repeat hidden">  {{= item.repeat }} </div>
             <div class="date hidden">  {{= item.date }} </div>
             <div class="text">  {{= item.text }} </div>
-            <div class="type {{='type_' + item.type;}}"></div>
             <div class="time">  {{= item.time }} </div>
+            <div class="type {{='type_' + item.type;}}"></div>
         </div>
         {{# }) }}
     </div>

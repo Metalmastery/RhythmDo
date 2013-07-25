@@ -16,10 +16,20 @@ RAD.view(["view.group_brain", "view.group_emo", "view.group_strength", "view.gro
         'tap .groupTitle' : 'toggleGroup'
     },
 
+    collapsed : false,
+
     toggleGroup : function(){
         var self = this;
-        this.$el.find('.task_list').slideToggle('fast', function(){self.publish('taskListRefresh', {});});
 
+        this.$el.find('.task_list').slideToggle('fast', function(){
+            self.publish('taskListRefresh', {});
+            self.collapsed = !self.collapsed;
+        }).toggleClass('collapsed', !self.collapsed);
+
+    },
+
+    onEndRender : function(){
+        this.$el.find('.task_list').toggleClass('collapsed', this.collapsed);
     },
 
     onNewExtras : function(data){
@@ -28,6 +38,7 @@ RAD.view(["view.group_brain", "view.group_emo", "view.group_strength", "view.gro
         }
         if (typeof data.filter === 'function'){
             this.filter = data.filter;
+
         }
         if (data.groupName && data.groupName.length){
             this.groupName = data.groupName;
