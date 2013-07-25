@@ -121,8 +121,6 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
 //                self.scrollBio.scrollSpeed = 0;
 //          }
 
-            console.log('callback');
-
             self.scrollBio.currentDay += self.scrollBio.scrollSpeed / 24;
 
             if (Math.abs(self.scrollBio.currentDay - self.lastDay) > 1) {
@@ -145,12 +143,14 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
         window.cancelAnimationFrame(this.drawing.currentAnimation);
         var curr = this.application.currentDay;
         this.publish('view.group_today', {
+            data : null,
             extras : {
                 filter : function(item){
-                    return ((new Date(item.date).getDate()) === (new Date(1989, 2, curr).getDate()));
+                    return ((new Date(item.attributes.date).getDate()) === (new Date(1989, 2, curr).getDate()) + 1);
                 }
             }
         });
+        console.log('need render');
     },
 
     swipeGraph : function(e){

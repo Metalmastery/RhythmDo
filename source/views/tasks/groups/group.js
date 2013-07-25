@@ -28,6 +28,11 @@ RAD.view(["view.group_brain", "view.group_emo", "view.group_strength", "view.gro
 
     },
 
+    onStartRender : function(){
+        console.log('render started');
+
+    },
+
     onEndRender : function(){
         this.$el.find('.task_list').toggleClass('collapsed', this.collapsed);
     },
@@ -36,18 +41,23 @@ RAD.view(["view.group_brain", "view.group_emo", "view.group_strength", "view.gro
         if (!data){
             return false;
         }
-        if (typeof data.filter === 'function'){
-            this.filter = data.filter;
-
-        }
         if (data.groupName && data.groupName.length){
             this.groupName = data.groupName;
         }
-        this.model = data.model;
+        if (data.model) {
+            this.model = data.model;
+        }
+        if (typeof data.filter === 'function'){
+            this.filter = data.filter;
+            if (!data.model) {
+                this.render();
+            }
+
+        }
     },
 
     onReceiveMsg : function(c,d){
-
+        this.onNewExtras(d.extras)
     },
 
     filter : function(){

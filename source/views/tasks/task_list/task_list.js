@@ -46,6 +46,7 @@ RAD.view("view.task_list", RAD.Blanks.ScrollableView.extend({
 
         var filtersList = {
             'view.group_today' : function(item){
+                console.log((new Date(item.date).getDate()) === (new Date(1989, 2, curr).getDate()));
                 return ((new Date(item.date).getDate()) === (new Date(1989, 2, curr).getDate()));
             },
             'view.group_brain' : function(item){
