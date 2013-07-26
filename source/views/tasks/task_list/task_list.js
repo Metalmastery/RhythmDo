@@ -8,8 +8,6 @@
 RAD.view("view.task_list", RAD.Blanks.ScrollableView.extend({
     url : 'source/views/tasks/task_list/task_list.html',
 
-//    className: 'positionRelative',
-
     events: {
         'swipe .task' : 'removeTask',
         'swipe h3' : 'createRedactor',
@@ -33,46 +31,25 @@ RAD.view("view.task_list", RAD.Blanks.ScrollableView.extend({
         {
             content : 'view.group_today',
             container_id : '#today'
+        },
+        {
+            content : 'view.group_tomorrow',
+            container_id : '#tomorrow'
+        },
+        {
+            content : 'view.group_week',
+            container_id : '#week'
         }
 
     ],
+
+    currentDay : 0,
 
     onInitialize : function(){
         this.model = RAD.model('task_list');
 
         this.subscribe('taskListRefresh', this.refreshScroll, this);
 
-        var curr = this.application.currentDay;
-
-        var filtersList = {
-            'view.group_today' : function(item){
-                console.log((new Date(item.date).getDate()) === (new Date(1989, 2, curr).getDate()));
-                return ((new Date(item.date).getDate()) === (new Date(1989, 2, curr).getDate()));
-            },
-            'view.group_brain' : function(item){
-                return parseInt(item.attributes.type) === 3;
-            },
-            'view.group_emo' : function(item){
-                return parseInt(item.attributes.type) === 2;
-            },
-            'view.group_strength' : function(item){
-                return parseInt(item.attributes.type) === 1;
-            }
-
-        };
-
-        for (var filter in filtersList) {
-            if (filtersList.hasOwnProperty(filter)) {
-                this.publish(filter, {
-                    autocreate : true,
-                    extras : {
-                        model : this.model,
-                        filter : filtersList[filter],
-                        groupName : filter.split('_')[1]
-                    }
-                });
-            }
-        }
     },
 
     removeTask : function(e){

@@ -142,15 +142,9 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
     animationStop : function(){
         window.cancelAnimationFrame(this.drawing.currentAnimation);
         var curr = this.application.currentDay;
-        this.publish('view.group_today', {
-            data : null,
-            extras : {
-                filter : function(item){
-                    return ((new Date(item.attributes.date).getDate()) === (new Date(1989, 2, curr).getDate()) + 1);
-                }
-            }
+        this.publish('current_day_changed', {
+            currentDay : curr
         });
-        console.log('need render');
     },
 
     swipeGraph : function(e){
@@ -211,7 +205,6 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
         }
 
 
-        //for (var days = 0; days<visualRange+1; days++) {
         for (var days = 0; days<arr.length-1; days++) {
             var begin = canvas.width - (this.scrollBio.currentDay - Math.floor(this.scrollBio.currentDay)) * visualDayWidth,
                 value= 'translate(' + (begin - days * visualDayWidth) + 'px)';
@@ -221,24 +214,9 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
             this.list[days].style.oTransform = value;
             this.list[days].style.msTransform = value;
             this.list[days].style.mozTransform = value;
-            //this.list[days].data_coord = begin - days * visualDayWidth;
 
-//            if (this.list[0].data_coord == canvas.width) {
-//                console.log('jump');
-//
-//            }
-//
             this.list.eq(arr.length - days - 2).find('.monthday').text(arr[days] ? arr[days][3] : '');
             this.list.eq(arr.length - days - 2).find('.weekday').text(arr[days] ? arr[days][4] : '');
-            //this.list.eq(days).find('.weekday').text(new Date(1989, 2, 1, (this.scrollBio.currentDay-days) * 24).getDay()); //a.toLocaleFormat('%a')
-
-
-            //this.list[days].innerHTML = Math.floor(this.scrollBio.currentDay - days + this.scrollBio.range + 1);
-
-            //context.moveTo(begin - days * visualDayWidth, 0);
-            //context.fillText(arr[visualRange-days][3].toLocaleFormat('%a'), begin - days * visualDayWidth, 30);
-//            //context.bezierCurveTo(begX + halfWidth, 5 + begY - 10 * arr[i+3], endX - halfHeight, 5 + endY - 10 * arr[i], endX, 5 + endY);
-//            context.lineTo(begin - days * visualDayWidth, 100);
         }
     },
 
@@ -246,19 +224,13 @@ RAD.view("view.graph", RAD.Blanks.View.extend({
         var birth = new Date(1989, 2, 1),
             middleDay = new Date (1989, 2, 1, current * 24);
 
-        //var b = new Date();
-
         middleDay = middleDay || b;
         var range = this.scrollBio.range;
         var dates = [];
         var middleDayTimestamp = middleDay.getTime();
-//        for (var d=-this.scrollBio.range - 1; d<= this.scrollBio.range + 1; d++) {
         for (var d= - 1; d<= this.scrollBio.range*2 + 1; d++) {
             dates.push(new Date(middleDayTimestamp + this.scrollBio.dayLength*d));
-            //dates.push(new Date(1989, 2, middleDay));
         }
-//        dates.push(new Date(middleDay.getTime() - this.scrollBio.dayLength*range));
-//        dates.push(new Date(middleDay.getTime() + this.scrollBio.dayLength*range));
         var periods = [23, 28, 33];
 
         var res = [];

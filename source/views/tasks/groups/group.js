@@ -18,23 +18,88 @@ RAD.view(["view.group_brain", "view.group_emo", "view.group_strength", "view.gro
 
     collapsed : false,
 
+    onInitialize : function(){
+        this.model = RAD.model('task_list');
+        this.subscribe('current_day_changed', this.currentDayChanged, this);
+
+        var self = this;
+
+        var filterList = {
+            'view.group_today' : function(item){
+                return ((new Date(item.attributes.date)).getDate() === (new Date(1989, 2, self.currentDay)).getDate() + 1);
+            },
+            'view.group_tomorrow' : function(item){
+                return ((new Date(item.attributes.date)).getDate() === (new Date(1989, 2, self.currentDay)).getDate() + 2);
+            },
+            'view.group_week' : function(item){
+                return ((new Date(item.attributes.date).getDate()) - (new Date(1989, 2, self.currentDay).getDate()) < 7);
+            },
+            'view.group_brain' : function(item){
+                return parseInt(item.attributes.type) === 3;
+            },
+            'view.group_emo' : function(item){
+                return parseInt(item.attributes.type) === 2;
+            },
+            'view.group_strength' : function(item){
+                return parseInt(item.attributes.type) === 1;
+            }
+
+        };
+
+        this.filter = filterList[this.viewID];
+        this.groupName = this.viewID.split('_')[1];
+    },
+
+    currentDayChanged : function(c, data){
+        this.currentDay = data.currentDay;
+        this.render();
+    },
+
     toggleGroup : function(){
         var self = this;
 
-        this.$el.find('.task_list').slideToggle('fast', function(){
-            self.publish('taskListRefresh', {});
+        var tasks = this.$el.find('.task_list .task');
+        if (tasks.length) {
             self.collapsed = !self.collapsed;
-        }).toggleClass('collapsed', !self.collapsed);
+            var i = 0;
+
+            function callback(){
+                i++;
+                if (tasks.length === i){
+                    self.publish('taskListRefresh', {});
+                }
+                tasks.eq(i).slideToggle(50, callback);
+            }
+
+            tasks.eq(i).slideToggle(50, callback);
+
+//            tasks.each(function(i){
+//                var el = $(this);
+//
+//
+////                setTimeout(function(){
+////                    el.slideToggle(200, function(){el.find('div').not('.hidden').fadeToggle(200);});
+////
+////                }, 200*i )
+//
+//            });
+        }
+
+
+
+//        this.$el.find('.task_list').slideToggle('fast', function(){
+//            self.publish('taskListRefresh', {});
+//            self.collapsed = !self.collapsed;
+//        }).toggleClass('collapsed', !self.collapsed);
 
     },
 
     onStartRender : function(){
-        console.log('render started');
 
     },
 
     onEndRender : function(){
-        this.$el.find('.task_list').toggleClass('collapsed', this.collapsed);
+        this.$el.find('div.task_list .task').toggle(this.collapsed);
     },
 
     onNewExtras : function(data){
@@ -49,10 +114,6 @@ RAD.view(["view.group_brain", "view.group_emo", "view.group_strength", "view.gro
         }
         if (typeof data.filter === 'function'){
             this.filter = data.filter;
-            if (!data.model) {
-                this.render();
-            }
-
         }
     },
 

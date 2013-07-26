@@ -27,7 +27,6 @@ RAD.service('service.storage', RAD.Blanks.Service.extend({
 
         var data = localStorage.getItem('test');
         if (data) {
-            //this.publish('storage.dataRestored', JSON.parse(data));
             this.model.set(JSON.parse(data));
         }
     },
