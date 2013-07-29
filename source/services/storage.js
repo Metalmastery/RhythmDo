@@ -40,7 +40,7 @@ RAD.service('service.storage', RAD.Blanks.Service.extend({
 
     saveData : function(data){
         "use strict";
-        localStorage.setItem('userData', JSON.stringify({birthDate : this.application.birthDate, tasks : this.model.toJSON()}));
+        localStorage.setItem('userData', JSON.stringify({birthDate : this.application.bio.birthDate, tasks : this.model.toJSON()}));
     }
 
 }));

@@ -32,7 +32,13 @@ RAD.view(["view.group_brain", "view.group_emo", "view.group_strength", "view.gro
                 return ((new Date(item.attributes.date)).getDate() === (new Date(1989, 2, self.currentDay)).getDate() + 2);
             },
             'view.group_week' : function(item){
-                return ((new Date(item.attributes.date).getDate()) - (new Date(1989, 2, self.currentDay).getDate()) < 7);
+	            var itemDate = new Date(item.attributes.date),
+		            currentDay = new Date(1989, 2, self.currentDay),
+			        dayOfWeek = currentDay.getDay(),
+		            beginWeek = currentDay.getTime() - dayOfWeek * 86400000,
+		            endWeek = currentDay.getTime() + (8-dayOfWeek) * 86400000;
+
+                return itemDate.getTime() >= beginWeek && itemDate.getTime() <= endWeek;
             },
             'view.group_brain' : function(item){
                 return parseInt(item.attributes.type) === 3;
