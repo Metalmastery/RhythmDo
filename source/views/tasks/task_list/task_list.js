@@ -10,9 +10,8 @@ RAD.view("view.task_list", RAD.Blanks.ScrollableView.extend({
 
     events: {
         'swipe .task' : 'removeTask',
-        'swipe h3' : 'createRedactor',
+        'swipe .groupTitle' : 'createRedactor',
         'tap .task' : 'changeRedactor'
-
     },
 
     children : [
@@ -53,8 +52,6 @@ RAD.view("view.task_list", RAD.Blanks.ScrollableView.extend({
     },
 
     removeTask : function(e){
-        //console.log('tap', e);
-
         var direction = e.originalEvent.swipe.direction;
         if (direction === "left" && e.originalEvent.swipe.speed > 0) {
             this.model.remove($(e.currentTarget).data('model-id'));
@@ -76,7 +73,6 @@ RAD.view("view.task_list", RAD.Blanks.ScrollableView.extend({
 
     changeRedactor : function(e){
         var id = $(e.currentTarget).data('model-id');
-        console.log(id);
 
         this.publish('navigation.show', {
             content : 'view.redactor',

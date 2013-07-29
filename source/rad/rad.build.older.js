@@ -1,7 +1,7 @@
 (function (document, window) {
-    var defaultOptions = {
+    'use strict';
+    var core, register, defaultOptions = {
         defaultBackstack: false,
-        backstackType: 'custom',
         defaultAnimation: 'slide',
         animationTimeout: 3000,
         debug: false
@@ -16,168 +16,6 @@
         } else {
             func(args);
         }
-    }
-
-    function isArray(value) {
-        return (Object.prototype.toString.call(value) === '[object Array]');
-    }
-
-    function namespace(destination, obj) {
-        var parts = destination.split('.'),
-            parent = window.RAD,
-            pl,
-            i;
-        if (parts[0] === "RAD") {
-            parts = parts.slice(1);
-        }
-        pl = parts.length;
-        for (i = 0; i < pl; i += 1) {
-            //create a property if it doesn't exist
-            if (parent[parts[i]] === undefined) {
-                if (i === pl - 1) {
-                    parent[parts[i]] = obj;
-                } else {
-                    parent[parts[i]] = {};
-                }
-            }
-            parent = parent[parts[i]];
-        }
-        return parent;
-    }
-
-    function ScriptLoader() {
-        var loader = this,
-            isLoaded = false;
-
-        function loadScript(url, checkCallback) {
-            var script = document.createElement("script");
-
-            script.type = "text/javascript";
-            script.async = true;
-
-            if (script.readyState) {  //IE
-                script.onreadystatechange = function () {
-                    if (script.readyState === "loaded" || script.readyState === "complete") {
-                        script.onreadystatechange = null;
-                        checkCallback();
-                    }
-                };
-            } else {  //Others
-                script.onload = checkCallback;
-                script.onerror = checkCallback;
-            }
-
-            script.src = url;
-            document.head.appendChild(script);
-        }
-
-        function loadArray(urls, callback, context) {
-            var i, l = urls.length, counter = 0;
-
-            loader.arr = null;
-            loader.callback = null;
-            loader.context = null;
-
-            function check() {
-                counter += 1;
-                if (counter === l) {
-                    execute(callback, null, context);
-                }
-            }
-
-            for (i = 0; i < l; i += 1) {
-                loadScript(urls[i], check);
-            }
-        }
-
-        function onLoad() {
-            isLoaded = true;
-            loader.loadScripts = loadArray;
-            if (loader.arr && loader.callback) {
-                loader.loadScripts(loader.arr, loader.callback, loader.context);
-            }
-        }
-
-        loader.loadScripts = function (urls, callback, context) {
-            loader.arr = urls;
-            loader.callback = callback;
-            loader.context = context;
-        };
-
-        if (window.attachEvent) {
-            window.attachEvent('onload', onLoad);
-        } else {
-            window.addEventListener('load', onLoad, false);
-        }
-
-        return loader;
-    }
-
-    function prepareEnvironment() {
-        var isIPad = (/ipad/gi).test(window.navigator.appVersion),
-            isAndroid = (/android/gi).test(window.navigator.appVersion),
-            overlay = document.querySelector('#overlay'),
-            style = document.createElement("style"),
-            theme = 'html,body{position:relative;height:100%;overflow:hidden;-ms-touch-action:none;-ms-touch-select:none}body{margin:0;-webkit-text-size-adjust:100%;-webkit-touch-callout:none;-webkit-text-size-adjust:none;-webkit-highlight:none;-webkit-tap-highlight-color:rgba(0,0,0,0)}html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{-moz-user-select:none;-o-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none}a,input,textarea,button,div{-webkit-tap-highlight-color:rgba(0,0,0,0);-moz-user-select:text;-o-user-select:text;-khtml-user-select:text;-webkit-user-select:text;-ms-user-select:text;user-select:text}img{border-style:none}input,textarea,select{vertical-align:middle}form,fieldset{margin:0;padding:0;border-style:none}div[data-role=view]{position:absolute;top:0;left:0;width:100%;height:100%;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}#screen{position:relative;height:100%;overflow:hidden}#overlay{display:none}#overlay{position:absolute;z-index:1000;left:0;top:0;width:100%;height:100%}#overlay.show{display:block}.lightbox{position:absolute;z-index:999;left:0;top:0;width:100%;height:100%;opacity:0;text-align:center;white-space:nowrap;-webkit-transition:opacity 300ms ease;-moz-transition:opacity 300ms ease;-ms-transition:opacity 300ms ease;-o-transition:opacity 300ms ease;transition:opacity 300ms ease}.lightbox.show{opacity:1}.lightbox:after{content:"";display:inline-block;vertical-align:middle;width:1px;height:100%}.lightbox-frame{position:relative;display:inline-block;vertical-align:middle;width:100%;text-align:left;white-space:normal;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box;-moz-transform:scale(0.5,.5);-webkit-transform:scale(0.5,.5);-o-transform:scale(0.5,.5);-ms-transform:scale(0.5,.5);transform:scale(0.5,.5);-webkit-transition:-webkit-transform 300ms ease;-moz-transition:-moz-transform 300ms ease;-ms-transition:-ms-transform 300ms ease;-o-transition:-o-transform 300ms ease;transition:transform 300ms ease}.lightbox.show .lightbox-frame{-moz-transform:scale(1,1);-webkit-transform:scale(1,1);-o-transform:scale(1,1);-ms-transform:scale(1,1);transform:scale(1,1)}.toast{z-index:999;position:absolute;width:auto!important;max-width:50%!important;height:auto!important;opacity:0;-webkit-transition:opacity 300ms ease;-moz-transition:opacity 300ms ease;-ms-transition:opacity 300ms ease;-o-transition:opacity 300ms ease;transition:opacity 300ms ease;text-align:center;display:inline-block}.toast.show{opacity:1;-webkit-transition:opacity 10ms ease;-moz-transition:opacity 10ms ease;-ms-transition:opacity 10ms ease;-o-transition:opacity 10ms ease;transition:opacity 10ms ease}.popup{position:absolute;z-index:999;opacity:0;-webkit-transition:opacity 300ms ease;-moz-transition:opacity 300ms ease;-ms-transition:opacity 300ms ease;-o-transition:opacity 300ms ease;transition:opacity 300ms ease}.popup.show{opacity:1}.slide-in,.slide-out{-webkit-transition:-webkit-transform 350ms ease;-moz-transition:-moz-transform 350ms ease;-ms-transition:-ms-transform 350ms ease;-o-transition:-o-transform 350ms ease;transition:transform 350ms ease}.new-page.slide-in{-webkit-transform:translate3d(100%,0,0);-moz-transform:translate3d(100%,0,0);-ms-transform:translate3d(100%,0,0);-o-transform:translate3d(100%,0,0);transform:translate3d(100%,0,0)}.old-page.slide-in{-webkit-transform:translate3d(0,0,0);-moz-transform:translate3d(0,0,0);-ms-transform:translate3d(0,0,0);-o-transform:translate3d(0,0,0);transform:translate3d(0,0,0)}.animate>.new-page.slide-in{-webkit-transform:translate3d(0,0,0);-moz-transform:translate3d(0,0,0);-ms-transform:translate3d(0,0,0);-o-transform:translate3d(0,0,0);transform:translate3d(0,0,0)}.animate>.old-page.slide-in{-webkit-transform:translate3d(-100%,0,0);-moz-transform:translate3d(-100%,0,0);-ms-transform:translate3d(-100%,0,0);-o-transform:translate3d(-100%,0,0);transform:translate3d(-100%,0,0)}.new-page.slide-out{-webkit-transform:translate3d(-100%,0,0);-moz-transform:translate3d(-100%,0,0);-ms-transform:translate3d(-100%,0,0);-o-transform:translate3d(-100%,0,0);transform:translate3d(-100%,0,0)}.old-page.slide-out{-webkit-transform:translate3d(0,0,0);-moz-transform:translate3d(0,0,0);-ms-transform:translate3d(0,0,0);-o-transform:translate3d(0,0,0);transform:translate3d(0,0,0)}.animate>.new-page.slide-out{-webkit-transform:translate3d(0,0,0);-moz-transform:translate3d(0,0,0);-ms-transform:translate3d(0,0,0);-o-transform:translate3d(0,0,0);transform:translate3d(0,0,0)}.animate>.old-page.slide-out{-webkit-transform:translate3d(100%,0,0);-moz-transform:translate3d(100%,0,0);-ms-transform:translate3d(100%,0,0);-o-transform:translate3d(100%,0,0);transform:translate3d(100%,0,0)}.new-page.fade-in,.new-page.fade-out{opacity:0;-webkit-transition:opacity 350ms ease;-moz-transition:opacity 350ms ease;-ms-transition:opacity 350ms ease;-o-transition:opacity 350ms ease;transition:opacity 350ms ease}.old-page.fade-in,.old-page.fade-out{opacity:1;-webkit-transition:opacity 175ms 175ms ease;-moz-transition:opacity 175ms 175ms ease;-ms-transition:opacity 175ms 175ms ease;-o-transition:opacity 175ms 175ms ease;transition:opacity 175ms 175ms ease}.animate>.new-page.fade-in,.animate>.new-page.fade-out{opacity:1}.animate>.old-page.fade-in,.animate>.old-page.fade-out{opacity:0}';
-
-        style.appendChild(document.createTextNode(theme));
-        document.head.appendChild(style);
-
-        _.templateSettings = {
-            evaluate:    /\{\{#([\s\S]+?)\}\}/g,            // {{# console.log("blah") }}
-            interpolate: /\{\{[^#\{]([\s\S]+?)[^\}]\}\}/g,  // {{ title }}
-            escape:      /\{\{\{([\s\S]+?)\}\}\}/g         // {{{ title }}}
-        };
-
-        // prevent scrolling
-        window.addEventListener('touchmove', function (e) {
-            e.preventDefault();
-        }, false);
-
-        //disable text select
-        document.body.onselectstart = function () {
-            return false;
-        };
-
-        //setup specify device class
-        if (isIPad) {
-            window.document.body.className = 'i-pad';
-        } else if (isAndroid) {
-            window.document.body.className = 'android';
-        }
-
-        //stopPropagation from overlay
-        function stopProp(event) {
-            event.stopPropagation();
-            event.preventDefault();
-        }
-
-        overlay.addEventListener('click', stopProp, false);
-        overlay.addEventListener('touchstart', stopProp, false);
-        overlay.addEventListener('touchmove', stopProp, false);
-        overlay.addEventListener('touchend', stopProp, false);
-    }
-
-    function modelMethod(modelID, Model, instantiate) {
-        var model = Model, id = modelID;
-        if (typeof Model === 'function' && (instantiate === undefined || instantiate === true)) {
-            model = new Model();
-        }
-
-        if(modelID.indexOf('RAD.models.') === -1){
-            id = 'RAD.models.' + modelID;
-        }
-
-        return namespace(id, model);
-    }
-
-    function registerApp(Application, instantiate) {
-        var application = Application;
-        if (typeof Application === 'function' && (instantiate === undefined || instantiate === true)) {
-            application = new Application(window.RAD.core);
-        }
-        RAD.application = application;
-        return application;
     }
 
     //mediator
@@ -214,12 +52,11 @@
                     length,
                     subscription,
                     receiver,
-                    publisher,
                     parts = channel.split('.'),
                     currentChannel;
 
-                if (!window.RAD.core.isInitialize) {
-                    window.RAD.core.initialize();
+                if (!RAD.core.isInitialize) {
+                    RAD.core.initialize();
                 }
 
                 //prepare View if it needed
@@ -237,8 +74,7 @@
                 }(channel, arguments[1]));
 
                 if (core.options.debug) {
-                    publisher = this ?  this.moduleID : undefined;
-                    window.console.log(publisher + " publish:", arguments);
+                    window.console.log("publish:", arguments);
                 }
 
                 for (index = 0, length = parts.length; index < length; index += 1) {
@@ -333,7 +169,7 @@
         self.startViewOrService = function (viewID, extras) {
             var Creator,
                 view = viewData[viewID].instance;
-            if (!view) {
+            if (view === null || view === undefined) {
                 Creator = viewData[viewID].creator;
 
                 if (typeof Creator !== "function") {
@@ -356,7 +192,7 @@
 
         self.startPlugin = function (viewID) {
             var view = viewData[viewID].instance;
-            if (!view) {
+            if (view === null || view === undefined) {
                 viewData[viewID].instance = viewData[viewID].creator(this, viewID);
             }
             if (this.options.debug) {
@@ -372,7 +208,7 @@
                 instance;
             if (data && data.instance) {
                 instance = data.instance;
-                if (instance instanceof window.RAD.Blanks.View) {
+                if (instance instanceof RAD.Blanks.View) {
                     instance.unbindModel();
                 }
 
@@ -464,11 +300,14 @@
             if (options) {
                 self.options = options;
             }
-            if (self.options.plugins && isArray(self.options.plugins)) {
+            if (self.options.plugins && window.RAD.utils.isArray(self.options.plugins)) {
                 self.registerAll(self.options.plugins);
             }
 
-            prepareEnvironment();
+            if (window.RAD && typeof window.RAD.prepareEnvironment === 'function') {
+                window.RAD.prepareEnvironment();
+            }
+
             for (viewID in viewData) {
                 if (viewData.hasOwnProperty(viewID)) {
                     parts = viewID.split('.');
@@ -503,570 +342,1118 @@
         return self;
     }
 
-    window.RAD = {
-        core: new Core(window.jQuery, document, window),
-        model: modelMethod,
-        application: registerApp,
-        namespace: namespace
-    };
-
-    namespace('RAD.view', namespace('RAD.service', namespace('RAD.plugin', function (id, fabric) {
+    core = new Core(window.jQuery, document, window);
+    register = function (id, fabric) {
         var i, l;
-        if (isArray(id)) {
+        if (window.RAD.utils.isArray(id)) {
             for (i = 0, l = id.length; i < l; i += 1) {
-                window.RAD.core.register(id[i], fabric);
+                core.register(id[i], fabric);
             }
         } else {
-            window.RAD.core.register(id, fabric);
+            core.register(id, fabric);
         }
-    })));
-    namespace('RAD.views', {});
-    namespace('RAD.services', {});
-    namespace('RAD.plugins', {});
-    namespace('RAD.models', {});
-    namespace('RAD.utils', {});
-    namespace('RAD.scriptLoader', new ScriptLoader());
-    namespace('RAD.Class', (function () {
-        var self = function () {
-        };
+    };
 
-        function isFn(fn) {
-            return typeof fn === "function";
-        }
-
-        self.extend = function (proto) {
-            var key, k = function (magic) { // call initialize only if there's no magic cookie
-                if (magic !== isFn && isFn(this.initialize)) {
-                    this.initialize.apply(this, arguments);
+    function modelMethod(modelID, model, instantiate) {
+        var parts = modelID.split('.'),
+            parent = window.RAD.models,
+            pl,
+            i;
+        pl = parts.length;
+        for (i = 0; i < pl; i += 1) {
+            if (parent[parts[i]] === undefined) {
+                if (i === pl - 1) {
+                    if (model) {
+                        if (typeof model === 'function' && (instantiate === undefined || instantiate === true)) {
+                            parent[parts[i]] = new model();
+                        } else {
+                            parent[parts[i]] = model;
+                        }
+                    }
+                } else {
+                    parent[parts[i]] = {};
                 }
-            };
-            k.prototype = new this(isFn); // use our private method as magic cookie
-            for (key in proto) {
-                (function (fn, sfn) { // create a closure
-                    k.prototype[key] = !isFn(fn) || !isFn(sfn) ? fn : // add _super method
-                        function () {
-                            this._super = sfn;
-                            return fn.apply(this, arguments);
-                        };
-                }(proto[key], k.prototype[key]));
             }
-            k.prototype.constructor = k;
-            k.extend = this.extend || this.create;
-            return k;
+            parent = parent[parts[i]];
+        }
+        return parent;
+    }
+
+    function registerApp(application, instantiate){
+        if (typeof application === 'function' && (instantiate === undefined || instantiate === true)) {
+           RAD.application = new application(RAD.core);
+        } else {
+            RAD.application = application;
+        }
+    }
+
+    window.RAD = {
+//      namespaces
+        views: {},
+        services: {},
+        plugins: {},
+        models: {},
+        utils: {},
+
+//      functionality
+        core: core,
+        view: register,
+        service: register,
+        plugin: register,
+        model: modelMethod,
+        application: registerApp,
+
+        Class: null
+    };
+
+    window.RAD.scriptLoader = (function () {
+        var loader = {},
+            isLoaded = false;
+
+        function loadScript(url, checkCallback) {
+            var script = document.createElement("script");
+
+            script.type = "text/javascript";
+            script.async = true;
+
+            if (script.readyState) {  //IE
+                script.onreadystatechange = function () {
+                    if (script.readyState === "loaded" || script.readyState === "complete") {
+                        script.onreadystatechange = null;
+                        checkCallback();
+                    }
+                };
+            } else {  //Others
+                script.onload = function () {
+                    checkCallback();
+                };
+            }
+
+            script.src = url;
+            document.head.appendChild(script);
+        }
+
+        function loadArray(urls, callback, context) {
+            var i, l = urls.length, counter = 0;
+
+            loader.arr = null;
+            loader.callback = null;
+            loader.context = null;
+
+            function check() {
+                counter += 1;
+                if (counter === l) {
+                    execute(callback, null, context);
+                }
+            }
+
+            for (i = 0; i < l; i += 1) {
+                loadScript(urls[i], check);
+            }
+        }
+
+        function onLoad() {
+            isLoaded = true;
+            loader.loadScripts = loadArray;
+            if (loader.arr && loader.callback) {
+                loader.loadScripts(loader.arr, loader.callback, loader.context);
+            }
+        }
+
+        loader.loadScripts = function (urls, callback, context) {
+            loader.arr = urls;
+            loader.callback = callback;
+            loader.context = context;
         };
-        return self;
-    }()));
+
+        if (window.attachEvent) {
+            window.attachEvent('onload', onLoad);
+        } else {
+            window.addEventListener('load', onLoad, false);
+        }
+
+        return loader;
+    }());
+
+    window.RAD.prepareEnvironment = function () {
+        var isIPad = (/ipad/gi).test(window.navigator.appVersion),
+            isAndroid = (/android/gi).test(window.navigator.appVersion),
+            overlay = document.querySelector('#overlay');
+
+        _.templateSettings = {
+            evaluate:    /\{\{#([\s\S]+?)\}\}/g,            // {{# console.log("blah") }}
+            interpolate: /\{\{[^#\{]([\s\S]+?)[^\}]\}\}/g,  // {{ title }}
+            escape:      /\{\{\{([\s\S]+?)\}\}\}/g         // {{{ title }}}
+        };
+
+        // prevent scrolling
+        window.addEventListener('touchmove', function (e) {
+            e.preventDefault();
+        }, false);
+
+        //disable text select
+        document.body.onselectstart = function () {
+            return false;
+        };
+
+        //setup specify device class
+        if (isIPad) {
+            window.document.body.className = 'i-pad';
+        } else if (isAndroid) {
+            window.document.body.className = 'android';
+        }
+
+        //stopPropagation from overlay
+        function stopProp(event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
+
+        overlay.addEventListener('click', stopProp, false);
+        overlay.addEventListener('touchstart', stopProp, false);
+        overlay.addEventListener('touchmove', stopProp, false);
+        overlay.addEventListener('touchend', stopProp, false);
+    };
 
 }(document, window));
 
-RAD.namespace('RAD.Blanks.Deferred', function () {
-    return {
-        listeners: [],
-        done: function (fn) {
-            this.listeners.push(fn);
-        },
-        doneFirstTask: function (fn) {
-            this.firstTask = fn;
-        },
-        doneLastTask: function (fn) {
-            this.lastTask = fn;
-        },
-        resolve: function () {
-            var self = this, index, length, fn;
-            self.resolve = function () {
-            };
-            self.done = function (fn) {
-                if (typeof fn === 'function') {
-                    fn();
-                }
-            };
-            self.doneLastTask = self.doneFirstTask = self.done;
-            if (typeof self.firstTask === 'function') {
-                self.firstTask();
-            }
+(function() {
+    var rules = 'html,body{position:relative;height:100%;overflow:hidden;-ms-touch-action:none;-ms-touch-select:none}body{margin:0;-webkit-text-size-adjust:100%;-webkit-touch-callout:none;-webkit-text-size-adjust:none;-webkit-highlight:none;-webkit-tap-highlight-color:rgba(0,0,0,0)}html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{-moz-user-select:none;-o-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none}a,input,textarea,button,div{-webkit-tap-highlight-color:rgba(0,0,0,0);-moz-user-select:text;-o-user-select:text;-khtml-user-select:text;-webkit-user-select:text;-ms-user-select:text;user-select:text}img{border-style:none}input,textarea,select{vertical-align:middle}form,fieldset{margin:0;padding:0;border-style:none}div[data-role=view]{position:absolute;top:0;left:0;width:100%;height:100%;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}#screen{position:relative;height:100%;overflow:hidden}#overlay{display:none}#overlay{position:absolute;z-index:1000;left:0;top:0;width:100%;height:100%}#overlay.show{display:block}.lightbox{position:absolute;z-index:999;left:0;top:0;width:100%;height:100%;opacity:0;text-align:center;white-space:nowrap;-webkit-transition:opacity 300ms ease;-moz-transition:opacity 300ms ease;-ms-transition:opacity 300ms ease;-o-transition:opacity 300ms ease;transition:opacity 300ms ease}.lightbox.show{opacity:1}.lightbox:after{content:"";display:inline-block;vertical-align:middle;width:1px;height:100%}.lightbox-frame{position:relative;display:inline-block;vertical-align:middle;width:100%;text-align:left;white-space:normal;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box;-moz-transform:scale(0.5,.5);-webkit-transform:scale(0.5,.5);-o-transform:scale(0.5,.5);-ms-transform:scale(0.5,.5);transform:scale(0.5,.5);-webkit-transition:-webkit-transform 300ms ease;-moz-transition:-moz-transform 300ms ease;-ms-transition:-ms-transform 300ms ease;-o-transition:-o-transform 300ms ease;transition:transform 300ms ease}.lightbox.show .lightbox-frame{-moz-transform:scale(1,1);-webkit-transform:scale(1,1);-o-transform:scale(1,1);-ms-transform:scale(1,1);transform:scale(1,1)}.toast{z-index:999;position:absolute;width:auto!important;max-width:50%!important;height:auto!important;opacity:0;-webkit-transition:opacity 300ms ease;-moz-transition:opacity 300ms ease;-ms-transition:opacity 300ms ease;-o-transition:opacity 300ms ease;transition:opacity 300ms ease;text-align:center;display:inline-block}.toast.show{opacity:1;-webkit-transition:opacity 10ms ease;-moz-transition:opacity 10ms ease;-ms-transition:opacity 10ms ease;-o-transition:opacity 10ms ease;transition:opacity 10ms ease}.popup{position:absolute;z-index:999;opacity:0;-webkit-transition:opacity 300ms ease;-moz-transition:opacity 300ms ease;-ms-transition:opacity 300ms ease;-o-transition:opacity 300ms ease;transition:opacity 300ms ease}.popup.show{opacity:1}.slide-in,.slide-out{-webkit-transition:-webkit-transform 350ms ease;-moz-transition:-moz-transform 350ms ease;-ms-transition:-ms-transform 350ms ease;-o-transition:-o-transform 350ms ease;transition:transform 350ms ease}.new-page.slide-in{-webkit-transform:translate3d(100%,0,0);-moz-transform:translate3d(100%,0,0);-ms-transform:translate3d(100%,0,0);-o-transform:translate3d(100%,0,0);transform:translate3d(100%,0,0)}.old-page.slide-in{-webkit-transform:translate3d(0,0,0);-moz-transform:translate3d(0,0,0);-ms-transform:translate3d(0,0,0);-o-transform:translate3d(0,0,0);transform:translate3d(0,0,0)}.animate>.new-page.slide-in{-webkit-transform:translate3d(0,0,0);-moz-transform:translate3d(0,0,0);-ms-transform:translate3d(0,0,0);-o-transform:translate3d(0,0,0);transform:translate3d(0,0,0)}.animate>.old-page.slide-in{-webkit-transform:translate3d(-100%,0,0);-moz-transform:translate3d(-100%,0,0);-ms-transform:translate3d(-100%,0,0);-o-transform:translate3d(-100%,0,0);transform:translate3d(-100%,0,0)}.new-page.slide-out{-webkit-transform:translate3d(-100%,0,0);-moz-transform:translate3d(-100%,0,0);-ms-transform:translate3d(-100%,0,0);-o-transform:translate3d(-100%,0,0);transform:translate3d(-100%,0,0)}.old-page.slide-out{-webkit-transform:translate3d(0,0,0);-moz-transform:translate3d(0,0,0);-ms-transform:translate3d(0,0,0);-o-transform:translate3d(0,0,0);transform:translate3d(0,0,0)}.animate>.new-page.slide-out{-webkit-transform:translate3d(0,0,0);-moz-transform:translate3d(0,0,0);-ms-transform:translate3d(0,0,0);-o-transform:translate3d(0,0,0);transform:translate3d(0,0,0)}.animate>.old-page.slide-out{-webkit-transform:translate3d(100%,0,0);-moz-transform:translate3d(100%,0,0);-ms-transform:translate3d(100%,0,0);-o-transform:translate3d(100%,0,0);transform:translate3d(100%,0,0)}.new-page.fade-in,.new-page.fade-out{opacity:0;-webkit-transition:opacity 350ms ease;-moz-transition:opacity 350ms ease;-ms-transition:opacity 350ms ease;-o-transition:opacity 350ms ease;transition:opacity 350ms ease}.old-page.fade-in,.old-page.fade-out{opacity:1;-webkit-transition:opacity 175ms 175ms ease;-moz-transition:opacity 175ms 175ms ease;-ms-transition:opacity 175ms 175ms ease;-o-transition:opacity 175ms 175ms ease;transition:opacity 175ms 175ms ease}.animate>.new-page.fade-in,.animate>.new-page.fade-out{opacity:1}.animate>.old-page.fade-in,.animate>.old-page.fade-out{opacity:0}',
+        style = document.createElement("style");
+    style.appendChild(document.createTextNode(rules));
+    document.head.appendChild(style);
+})();
 
-            for (index = 0, length = self.listeners.length; index < length; index += 1) {
-                fn = self.listeners[index];
-                if (typeof fn === 'function') {
-                    fn();
-                }
-            }
-
-            if (typeof self.lastTask === 'function') {
-                self.lastTask();
-            }
-            delete self.listeners;
-        }
+RAD.Class = RAD.Class || (function () {
+    "use strict";
+    var self = function () {
     };
-});
 
-RAD.namespace('RAD.Blanks.View', Backbone.View.extend({
-    className: 'backbone-view',
+    function isFn(fn) {
+        return typeof fn === "function";
+    }
 
-    attributes: {
-        'data-role': 'view'
-    },
-
-    listen: ['add', 'remove', 'fetch', 'sort', 'change', 'reset'],
-
-    getChildren: function () {
-        if (!this.children) {
-            this.children = [];
-        }
-        return this.children;
-    },
-
-    initialize: function () {
-        var self = this,
-            children,
-            core,
-            extras = self.options.extras;
-
-        function unEscape(str) {
-            if (!str) return str;
-            return str.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
-        }
-
-        self.loader = RAD.Blanks.Deferred();
-        self.renderRequest = true;
-
-        // transfer options
-        self.viewID = self.options.viewID;
-        core = self.options.core;
-        self.publish = core.publish;
-        self.subscribe = core.subscribe;
-        self.unsubscribe = core.unsubscribe;
-        self.finish = function () {
-            core.stop(self.viewID);
+    self.extend = function (proto) {
+        var key, k = function (magic) { // call initialize only if there's no magic cookie
+            if (magic !== isFn && isFn(this.initialize)) {
+                this.initialize.apply(this, arguments);
+            }
         };
-        self.application = self.options.application;
-
-        //delete options
-        delete self.options;
-
-        children = _.clone(self.getChildren());
-        self.children = children;
-
-        $.get(self.url, function (data) {
-            var innerTemplate, wrapper, i, l, templArr;
-
-            templArr = window.$('<div></div>').html(data).find('[data-template]');
-            if (templArr.length > 0) { self.innerTemplate = []; }
-            for (i = 0, l = templArr.length; i < l; i += 1) {
-                wrapper = templArr.get(i);
-                innerTemplate = wrapper.innerHTML;
-                self.innerTemplate[i] = _.template(unEscape(innerTemplate));
-            }
-
-            self.template = _.template(data);
-            self.bindModel(self.model);
-            self.loader.resolve();
-        }, 'text');
-
-        self.subscribe(self.viewID, self.receiveMsg, self);
-
-        self.oninit();
-        self.onInitialize();
-        self.setExtras(extras);
-
-        return self;
-    },
-
-    setExtras: function (extras) {
-        if (extras !== this.extras) {
-            this.onNewExtras(extras);
-            this.extras = extras;
+        k.prototype = new this(isFn); // use our private method as magic cookie
+        for (key in proto) {
+            (function (fn, sfn) { // create a closure
+                k.prototype[key] = !isFn(fn) || !isFn(sfn) ? fn : // add _super method
+                    function () {
+                        this._super = sfn;
+                        return fn.apply(this, arguments);
+                    };
+            }(proto[key], k.prototype[key]));
         }
+        k.prototype.constructor = k;
+        k.extend = this.extend || this.create;
+        return k;
+    };
+    return self;
+}());
+
+RAD.utils.ElementCreator = function (tagName, attributes) {
+    var element = document.createElement(tagName);
+    if (attributes) {
+        for (var i in attributes) {
+            element[i] = attributes[i];
+        }
+    }
+    return element;
+};
+RAD.utils.trim = function (string) {
+    return string.replace(/^\s+|\s+$/g, '');
+};
+RAD.utils.removeMultipleSpaces = function (string) {
+    return string.replace(/\s{2,}/g, ' ');
+};
+RAD.utils.isArray = function (value) {
+    var result = false;
+    if (Object.prototype.toString.call(value) === '[object Array]') {
+        result = true;
+    }
+
+    return result;
+};
+/*
+ * Return an element position {top:px, left:px} relative to parent element.
+ * If parent elem not set - relative to browser window.
+ */
+RAD.utils.getCoords = function (elem, parent) {
+    'use strict';
+
+    var parentRect, pTop, pLeft,
+        scrollTop = window.pageYOffset,
+        scrollLeft = window.pageXOffset,
+        elemRect = elem.getBoundingClientRect(),
+        top = elemRect.top + scrollTop,
+        left = elemRect.left + scrollLeft;
+
+    if (parent) {
+        parentRect = parent.getBoundingClientRect();
+        pTop = parentRect.top + scrollTop;
+        pLeft = parentRect.left + scrollLeft;
+        top = top - pTop;
+        left = left - pLeft;
+    }
+
+    return { top:Math.round(top), left:Math.round(left) };
+};
+RAD.utils.escape = function (str) {
+    'use strict';
+    if (!str) return str;
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+};
+RAD.utils.unescape = function (str) {
+    'use strict';
+    if (!str) return str;
+    return str.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
+};
+RAD.utils.encodeURI = function (str) {
+    'use strict';
+    return encodeURIComponent(str).replace(/[!'()]/g, escape).replace(/\*/g, "%2A");
+};
+RAD.utils.decodeURI = function (str) {
+    'use strict';
+    return decodeURIComponent((str + '').replace(/\+/g, '%20'));
+};
+// remove className form elem
+RAD.utils.removeClass = function (elem, className) {
+    'use strict';
+    var pattern = '(?:^|\\s)' + className + '(?!\\S)',
+        expression = new RegExp(pattern, 'g');
+    return elem.className = elem.className.replace(expression, '');
+};
+RAD.utils.dispatchResizeEvent = function (target) {
+    'use strict';
+
+    var event = document.createEvent('Event');
+
+    if (!target) {
+        return false;
+    }
+    event.initEvent('scrollRefresh', true, false);
+    target.dispatchEvent(event);
+};
+RAD.utils.Base64 = {
+    // private property
+    _keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+
+    // public method for encoding
+    encode:function (input) {
+        var output = "";
+        var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+        var i = 0;
+        var Base64 = RAD.utils.Base64;
+
+        input = Base64._utf8_encode(input);
+
+        while (i < input.length) {
+
+            chr1 = input.charCodeAt(i++);
+            chr2 = input.charCodeAt(i++);
+            chr3 = input.charCodeAt(i++);
+
+            enc1 = chr1 >> 2;
+            enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+            enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+            enc4 = chr3 & 63;
+
+            if (isNaN(chr2)) {
+                enc3 = enc4 = 64;
+            } else if (isNaN(chr3)) {
+                enc4 = 64;
+            }
+
+            output = output +
+                Base64._keyStr.charAt(enc1) + Base64._keyStr.charAt(enc2) +
+                Base64._keyStr.charAt(enc3) + Base64._keyStr.charAt(enc4);
+
+        }
+
+        return output;
     },
 
-    bindModel: function (model) {
-        var self = this, i;
-        if (model) {
-            self.model = model;
-            for (i = this.listen.length - 1; i > -1; i -=1) {
-                self.listenTo(model, self.listen[i], self.render);
+    // public method for decoding
+    decode:function (input) {
+        var output = "";
+        var chr1, chr2, chr3;
+        var enc1, enc2, enc3, enc4;
+        var i = 0;
+        var Base64 = RAD.utils.Base64;
+
+        input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+
+        while (i < input.length) {
+
+            enc1 = Base64._keyStr.indexOf(input.charAt(i++));
+            enc2 = Base64._keyStr.indexOf(input.charAt(i++));
+            enc3 = Base64._keyStr.indexOf(input.charAt(i++));
+            enc4 = Base64._keyStr.indexOf(input.charAt(i++));
+
+            chr1 = (enc1 << 2) | (enc2 >> 4);
+            chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+            chr3 = ((enc3 & 3) << 6) | enc4;
+
+            output = output + String.fromCharCode(chr1);
+
+            if (enc3 != 64) {
+                output = output + String.fromCharCode(chr2);
             }
-            if (self.template && !self.renderRequest) {
-                model.trigger('change');
+            if (enc4 != 64) {
+                output = output + String.fromCharCode(chr3);
+            }
+
+        }
+
+        output = Base64._utf8_decode(output);
+
+        return output;
+
+    },
+
+    // private method for UTF-8 encoding
+    _utf8_encode:function (string) {
+        string = string.replace(/\r\n/g, "\n");
+        var utftext = "";
+
+        for (var n = 0; n < string.length; n++) {
+
+            var c = string.charCodeAt(n);
+
+            if (c < 128) {
+                utftext += String.fromCharCode(c);
+            }
+            else if ((c > 127) && (c < 2048)) {
+                utftext += String.fromCharCode((c >> 6) | 192);
+                utftext += String.fromCharCode((c & 63) | 128);
+            }
+            else {
+                utftext += String.fromCharCode((c >> 12) | 224);
+                utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+                utftext += String.fromCharCode((c & 63) | 128);
+            }
+
+        }
+
+        return utftext;
+    },
+
+// private method for UTF-8 decoding
+    _utf8_decode:function (utftext) {
+        var string = "";
+        var i = 0;
+        var c = 0, c1 = 0, c2 = 0;
+
+        while (i < utftext.length) {
+
+            c = utftext.charCodeAt(i);
+
+            if (c < 128) {
+                string += String.fromCharCode(c);
+                i++;
+            }
+            else if ((c > 191) && (c < 224)) {
+                c1 = utftext.charCodeAt(i + 1);
+                string += String.fromCharCode(((c & 31) << 6) | (c1 & 63));
+                i += 2;
+            }
+            else {
+                c1 = utftext.charCodeAt(i + 1);
+                c2 = utftext.charCodeAt(i + 2);
+                string += String.fromCharCode(((c & 15) << 12) | ((c1 & 63) << 6) | (c2 & 63));
+                i += 3;
+            }
+
+        }
+        return string;
+    }
+};
+
+RAD.utils.QueryFactory = function () {
+    "use strict";
+    var self = this,
+        lastTask;
+
+    function Query(options) {
+
+        var query = this,
+            listeners = [],
+            success,
+            error,
+            context;
+
+        function shift(a) {
+            var result = [], i;
+            for (i = 1; i < a.length; i += 1) {
+                result.push(a[i]);
+            }
+            return result;
+        }
+
+        function apply(func) {
+            var args = shift(arguments);
+            if (typeof func !== "function") {
+                return;
+            }
+            if (context && context instanceof Object) {
+                func.apply(context, args);
+            } else {
+                func.apply(query, args);
             }
         }
-    },
 
-    unbindModel: function (forceRender) {
-        if (this.model) {
-            this.stopListening(this.model);
-            this.model = null;
-            if (forceRender) {
-                this.render();
-            }
+        function isArray(vArg) {
+            return (Object.prototype.toString.call(vArg) === "[object Array]");
         }
-    },
 
-    changeModel: function (newModel) {
-        var self = this;
-        self.unbindModel();
-        self.bindModel(newModel);
-    },
+        if (typeof options === "object") {
+            success = options.success;
+            error = options.error;
+            context = options.context;
+        }
 
-    render: function () {
-        var self = this,
-            json = (self.model) ? self.model.toJSON() : undefined,
-            children,
-            index,
-            length,
-            arr;
+        query.error = function (data) {
+            apply(error, data);
+        };
 
-        function insertSubview(parent, data) {
-            var content = RAD.core.getView(data.content, data.extras),
-                container = parent.$(data.container_id);
+        query.success = function (data) {
+            apply(success, data);
+        };
 
-            if (data && data.backstack) {
-                RAD.core.publish("router.beginTransition", data);
-            }
+        query.then = function (fn) {
+            listeners.push(fn);
+            return this;
+        };
 
-            content.appendIn(container, function () {
-                container.attr('view', data.content);
-                if (typeof data.callback === 'function') {
-                    if (typeof data.context === 'object') {
-                        data.callback.call(data.context);
+        query.next = function (data) {
+            var index,
+                length,
+                listener;
+
+            if (listeners.length > 0) {
+                listener = listeners[0];
+                if (isArray(listener)) {
+                    if (!listener.isAlreadyRunning) {
+                        listener.isAlreadyRunning = true;
+                        listener.whileCounter = 0;
+                        for (index = 0, length = listener.length; index < length; index += 1) {
+                            apply(listener[index], this, data);
+                        }
                     } else {
-                        data.callback();
+                        listener.whileCounter += 1;
+                        if (listener.whileCounter === listener.length) {
+                            listeners.shift();
+                            apply(listeners.shift(), this, data);
+                        }
+                    }
+                } else {
+                    apply(listeners.shift(), this, data);
+                }
+            } else {
+                this.success(data);
+            }
+        };
+
+        query.when = function () {
+            var i, l, array = [];
+            for (i = 0, l = arguments.length; i < l; i += 1) {
+                array.push(arguments[i]);
+            }
+            listeners.push(array);
+            return this;
+        };
+
+        query.resolve = function (data) {
+            this.next(data);
+
+            this.then = this.when = this.resolve = function () {
+                throw new Error("You try use already resolved query");
+            };
+        };
+
+        return query;
+    }
+
+    self.createQuery = function (option) {
+        lastTask = new Query(option);
+        return lastTask;
+    };
+
+    self.lastQuery = function () {
+        return lastTask;
+    };
+
+    return self;
+};
+
+RAD.utils.serializeFormToObject = function (formSelector) {
+    var o = {},
+        a = $(formSelector).find('input, select, textarea, button'),
+        name, value, i,l;
+
+    for (i = 0, l = a.length; i < l; i+=1){
+        name = a.get(i).getAttribute('name') || a.get(i).id||a.get(i).className.replace(' ', '');
+        value = a.get(i).value || '';
+
+        if (o[name] !== undefined) {
+            if (!o[name].push) {
+                o[name] = [o[name]];
+            }
+            o[name].push(value);
+        } else {
+            o[name] = value;
+        }
+    }
+
+    return o;
+};
+
+RAD.utils.serializeFormToString = function (formSelector) {
+    var result;
+
+    try {
+        result = JSON.stringify(RAD.utils.serializeFormToObject(formSelector));
+    } catch (e) {
+        result = '';
+    }
+    return result;
+};
+
+RAD.Blanks = (function (window, document) {
+    'use strict';
+
+    var blanks = {},
+        RAD = window.RAD,
+        underscore = window._;
+
+    function Deferred() {
+        return {
+            listeners: [],
+            done: function (fn) {
+                this.listeners.push(fn);
+            },
+            doneFirstTask: function (fn) {
+                this.firstTask = fn;
+            },
+            doneLastTask: function (fn) {
+                this.lastTask = fn;
+            },
+            resolve: function () {
+                var self = this, index, length, fn;
+                self.resolve = function () {
+                };
+                self.done = function (fn) {
+                    if (typeof fn === 'function') {
+                        fn();
+                    }
+                };
+                self.doneLastTask = self.doneFirstTask = self.done;
+                if (typeof self.firstTask === 'function') {
+                    self.firstTask();
+                }
+
+                for (index = 0, length = self.listeners.length; index < length; index += 1) {
+                    fn = self.listeners[index];
+                    if (typeof fn === 'function') {
+                        fn();
                     }
                 }
-            });
-        }
 
-        self.onStartRender();
-
-        //detach children
-        children = self.getChildren();
-        for (index = 0, length = children.length; index < length; index += 1) {
-            RAD.core.getView(children[index].content, children[index].extras).detach();
-        }
-
-        try {
-            if (self.innerTemplate && !self.renderRequest) {
-                for (index = 0, length = self.innerTemplate.length; index < length; index += 1) {
-                    $(self.$inner[index]).html(self.innerTemplate[index].apply(self, [{model: json}]));
+                if (typeof self.lastTask === 'function') {
+                    self.lastTask();
                 }
+                delete self.listeners;
+            }
+        };
+    }
+
+    blanks.Deferred = Deferred;
+
+    function detachSubview(parent, data) {
+        var content = RAD.core.getView(data.content, data.extras);
+        content.detach();
+    }
+
+    function insertSubview(parent, data) {
+        var content = RAD.core.getView(data.content, data.extras),
+            container = parent.$el.find(data.container_id);
+
+        if (data && data.backstack) {
+            RAD.core.publish("router.beginTransition", data);
+        }
+
+        content.appendIn(container, function () {
+            container.attr('view', data.content);
+            if (typeof data.callback === 'function') {
+                if (typeof data.context === 'object') {
+                    data.callback.call(data.context);
+                } else {
+                    data.callback();
+                }
+            }
+        });
+    }
+
+    blanks.View = window.Backbone.View.extend({
+        className: 'backbone-view',
+        attributes: {
+            'data-role': 'view'
+        },
+
+        getChildren: function () {
+            if (!this.children) {
+                this.children = [];
+            }
+            return this.children;
+        },
+
+        initialize: function () {
+            var self = this,
+                children,
+                core;
+
+            self.loader = new Deferred();
+            self.renderRequest = true;
+
+            // transfer options
+            self.viewID = self.options.viewID;
+            core = self.options.core;
+            self.publish = core.publish;
+            self.subscribe = core.subscribe;
+            self.unsubscribe = core.unsubscribe;
+            self.$ = core.$;
+            self.finish = function () {
+                core.stop(self.viewID);
+            };
+            self.application = self.options.application;
+            self.extras = self.options.extras;
+
+            //delete options
+            delete self.options;
+
+            children = underscore.clone(self.getChildren());
+            self.children = children;
+
+            $.get(self.url, function (data) {
+                var innerTemplate, wrapper, i, l, templArr;
+
+                templArr = window.$('<div></div>').html(data).find('[data-template]');
+                if (templArr.length > 0) { self.innerTemplate = []; }
+                for (i = 0, l = templArr.length; i < l; i += 1) {
+                    wrapper = templArr.get(i);
+                    innerTemplate = wrapper.innerHTML;
+                    self.innerTemplate[i] = underscore.template(RAD.utils.unescape(innerTemplate));
+                }
+
+                self.template = underscore.template(data);
+                self.bindModel(self.model);
+                self.loader.resolve();
+            }, 'text');
+
+            self.subscribe(self.viewID, self.receiveMsg, self);
+
+            self.oninit();
+            self.onInitialize();
+            self.setExtras(self.extras);
+
+            return self;
+        },
+
+        setExtras: function (extras) {
+            this.onNewExtras(extras);
+            this.extras = extras;
+        },
+
+        bindModel: function (model) {
+            var self = this;
+            if (model) {
+                self.model = model;
+
+                self.listenTo(model, 'add', self.render);
+                self.listenTo(model, 'remove', self.render);
+                self.listenTo(model, 'fetch', self.render);
+                self.listenTo(model, 'sort', self.render);
+                self.listenTo(model, 'change', self.render);
+                self.listenTo(model, 'reset', self.render);
+
+                if (self.template) {
+                    model.trigger('change');
+                }
+            }
+        },
+
+        unbindModel: function () {
+            if (this.model) {
+                this.stopListening(this.model);
+                this.model = null;
+                this.render();
+            }
+        },
+
+        changeModel: function (newModel) {
+            var self = this;
+            self.unbindModel();
+            self.bindModel(newModel);
+        },
+
+        render: function () {
+            var self = this,
+                json = (self.model) ? self.model.toJSON() : undefined,
+                children,
+                index,
+                length,
+                arr;
+
+            self.onStartRender();
+
+            //detach children
+            children = self.getChildren();
+            for (index = 0, length = children.length; index < length; index += 1) {
+                detachSubview(self, children[index]);
+            }
+
+            if (self.innerTemplate && self.$el.html().length > 0) {
+                for (index = 0, length = self.innerTemplate.length; index < length; index += 1) {
+                    self.t_m_p = self.innerTemplate[index];
+                    $(self.$inner[index]).html(self.t_m_p({model: json}));
+                }
+                delete self.t_m_p;
             } else {
                 self.$el.html(self.template({model: json}));
 
                 if (self.innerTemplate) {
                     self.$inner = [];
-                    arr = self.$('[data-template]');
+                    arr = self.$el.find('[data-template]');
                     for (index = 0, length = self.innerTemplate.length; index < length; index += 1) {
                         self.$inner[index] = arr.get(index);
                     }
                 }
             }
-        } catch (e) {
-            window.console.log('Error rendering in' + self.viewID + ': ' + e.toString());
+
+            //attach children
+            for (index = 0, length = children.length; index < length; index += 1) {
+                insertSubview(self, children[index]);
+            }
+
+            self.onrender();
+            self.onEndRender();
+
+            self.initScrollRefresh();
+            self.renderRequest = false;
+
             return self;
-        }
+        },
 
-        //attach children
-        for (index = 0, length = children.length; index < length; index += 1) {
-            insertSubview(self, children[index]);
-        }
+        appendIn: function (container, callback) {
+            var self = this, $container = $(container);
 
-        self.onrender();
-        self.onEndRender();
+            if (!container || $container.length === 0) {
+                window.console.log('Container for ' + self.viewID + ' doesn\'t exist!');
+                return;
+            }
 
-        self.initScrollRefresh();
-        self.renderRequest = false;
+            function onEnd() {
+                self.attachScroll();
+                callback();
+            }
 
-        return self;
-    },
-
-    appendIn: function (container, callback) {
-        var self = this, $container = $(container);
-
-        if (!container || $container.length === 0) {
-            window.console.log('Container for ' + self.viewID + ' doesn\'t exist!');
-            return;
-        }
-
-        function onEnd() {
-            self.attachScroll();
-            callback();
-        }
-
-        $container.append(self.$el);
-        if (self.renderRequest) {
-            self.loader.doneFirstTask(function () {
-                self.render();
+            $container.append(self.$el);
+            if (self.renderRequest) {
+                self.loader.doneFirstTask(function () {
+                    self.render();
+                    onEnd();
+                });
+            } else {
                 onEnd();
+            }
+        },
+
+        initScrollRefresh: function (target) {
+            var elem = target || this.el,
+                event = document.createEvent('Event');
+
+            event.initEvent('scrollRefresh', true, true);
+            elem.dispatchEvent(event);
+
+            this.refreshScroll();
+        },
+
+        receiveMsg: function msgFunc(msg, data) {
+            var self = this,
+                parts = msg.split('.');
+
+            switch (parts[2]) {
+                case 'attach':
+                    self.loader.done(function () {
+                        self.onattach();
+                        self.onStartAttach(msg, data);
+                    });
+                    break;
+                case 'detach':
+                    self.ondetach();
+                    self.onEndDetach(msg, data);
+                    break;
+                case 'attach_complete':
+                    self.loader.doneLastTask(function () {
+                        self.onEndAttach(msg, data);
+                    });
+                    break;
+                default:
+                    self.onReceiveMsg(msg, data);
+                    break;
+            }
+
+            return self;
+        },
+
+        detach: function () {
+            var self = this;
+            self.detachScroll();
+            self.$el.detach();
+        },
+
+        destroy: function () {
+            var property,
+                self = this;
+
+            self.onDestroy();
+            self.ondestroy();
+            self.unbindModel();
+            self.off(null, null, self);
+
+            self.unsubscribe(self.viewID, self);
+
+            //COMPLETELY UNBIND THE VIEW
+            self.undelegateEvents();
+            self.$el.removeData().unbind();
+
+            //Remove view from DOM
+            self.remove();
+            window.Backbone.View.prototype.remove.call(self);
+
+            for (property in self) {
+                if (self.hasOwnProperty(property)) {
+                    delete self[property];
+                }
+            }
+
+            return this;
+        },
+
+        //stubs for inner service callback functions
+        oninit: function () {},
+        onattach: function () {},
+        ondetach: function () {},
+        onrender: function () {},
+        ondestroy: function () {},
+
+        attachScroll: function () {},
+        refreshScroll: function () {},
+        detachScroll: function () {},
+
+        //stubs for external service callback functions
+        onInitialize: function () {},
+        onNewExtras: function () {},
+        onReceiveMsg: function () {},
+        onStartRender: function () {},
+        onEndRender: function () {},
+        onStartAttach: function () {},
+        onEndAttach: function () {},
+        onEndDetach: function () {},
+        onDestroy: function () {}
+    });
+
+    blanks.ScrollableView = blanks.View.extend({
+
+        className: 'scroll-view',
+        offsetY: 0,
+
+        attachScroll: function () {
+            var self = this,
+                scrollView = self.el.querySelector('.scroll-view') || self.el;
+            self.detachScroll();
+            self.loader.done(function () {
+                if (self.renderRequest) {
+                    return;
+                }
+                self.mScroll = new window.iScroll(scrollView, {
+                    bounce: false,
+                    onBeforeScrollStart: function (e) {
+                        var target = e.target;
+
+                        while (target.nodeType !== 1) {
+                            target = target.parentNode;
+                        }
+                        if (target.tagName !== 'SELECT' && target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
+                            e.preventDefault();
+                        }
+                    }
+                });
             });
-        } else {
-            onEnd();
-        }
-    },
+        },
 
-    initScrollRefresh: function (target) {
-        var elem = target || this.el,
-            event = document.createEvent('Event');
+        onattach: function () {
+            var self = this;
+            window.setTimeout(function () {
+                if (self.mScroll) {
+                    self.mScroll.refresh();
+                    self.mScroll.scrollTo(0, self.offsetY, 0);
+                }
+            }, 0);
+        },
 
-        event.initEvent('scrollRefresh', true, true);
-        elem.dispatchEvent(event);
+        refreshScroll: function () {
+            if (this.mScroll) {
+                this.mScroll.refresh();
+            }
+        },
 
-        this.refreshScroll();
-    },
-
-    receiveMsg: function msgFunc(msg, data) {
-        var self = this,
-            parts = msg.split('.');
-
-        switch (parts[2]) {
-            case 'attach':
-                self.loader.done(function () {
-                    self.onattach();
-                    self.onStartAttach(msg, data);
-                });
-                break;
-            case 'detach':
-                self.ondetach();
-                self.onEndDetach(msg, data);
-                break;
-            case 'attach_complete':
-                self.loader.doneLastTask(function () {
-                    self.onEndAttach(msg, data);
-                });
-                break;
-            default:
-                self.onReceiveMsg(msg, data);
-                break;
-        }
-
-        return self;
-    },
-
-    detach: function () {
-        var self = this;
-        self.detachScroll();
-        self.$el.detach();
-    },
-
-    destroy: function () {
-        var property,
-            self = this;
-
-        self.onDestroy();
-        self.ondestroy();
-        self.unbindModel();
-        self.off(null, null, self);
-
-        self.unsubscribe(self.viewID, self);
-
-        //COMPLETELY UNBIND THE VIEW
-        self.undelegateEvents();
-        self.$el.removeData().unbind();
-
-        //Remove view from DOM
-        self.remove();
-        window.Backbone.View.prototype.remove.call(self);
-
-        for (property in self) {
-            if (self.hasOwnProperty(property)) {
-                delete self[property];
+        detachScroll: function () {
+            var self = this;
+            if (self.mScroll) {
+                self.offsetY = self.mScroll.y;
+                self.mScroll.destroy();
+                self.mScroll = null;
             }
         }
+    });
 
-        return this;
-    },
+    blanks.Toast = blanks.View.extend({
+        className: 'toast',
 
-    //stubs for inner service callback functions
-    oninit: function () {},
-    onattach: function () {},
-    ondetach: function () {},
-    onrender: function () {},
-    ondestroy: function () {},
+        closeTimeOut: undefined,
 
-    attachScroll: function () {},
-    refreshScroll: function () {},
-    detachScroll: function () {},
+        showTime: 4000,
 
-    //stubs for external service callback functions
-    onInitialize: function () {},
-    onNewExtras: function () {},
-    onReceiveMsg: function () {},
-    onStartRender: function () {},
-    onEndRender: function () {},
-    onStartAttach: function () {},
-    onEndAttach: function () {},
-    onEndDetach: function () {},
-    onDestroy: function () {}
-}));
+        close: function () {
+            window.clearTimeout(this.closeTimeOut);
 
-RAD.namespace('RAD.Blanks.Service', RAD.Class.extend({
+            var options = {
+                content: this.viewID
+            };
+            $(document.body).off('click.close');
+            this.publish('navigation.toast.close', options);
+        },
+
+        onattach: function () {
+            var self = this;
+            self.closeTimeOut = window.setTimeout(function () {
+                self.close();
+            }, self.showTime);
+            $(document.body).one('click.close', function () {
+                self.close();
+            });
+        }
+    });
+
+    blanks.Popup = blanks.ScrollableView.extend({
+        className: 'popup',
+
+        close: function () {
+            var self = this,
+                options = {
+                    content: self.viewID,
+                    destroy: self.onCloseDestroy
+                },
+                viewID,
+                array = self.viewID.split('.');
+            viewID = array[array.length - 1];
+
+            $(document.body).off('tapdown.' + viewID);
+            $(document.body).off('click.' + viewID);
+
+            self.publish('navigation.popup.close', options);
+        },
+
+        onattach: function (msg, data) {
+            var self = this,
+                viewID,
+                array = self.viewID.split('.');
+
+            blanks.ScrollableView.prototype.onattach.call(self);
+
+            viewID = array[array.length - 1];
+            function close() {
+                self.close();
+            }
+            function stopPropagation(e) {
+                e.stopPropagation();
+            }
+
+            if (self.outSideClose) {
+                self.$el.on('tapdown.' + viewID, stopPropagation);
+                self.$el.on('click.' + viewID, stopPropagation);
+                $(document.body).one('tapdown.' + viewID, close);
+                $(document.body).one('click.' + viewID, close);
+            }
+
+            $(window).one('orientationchange.' + viewID, close);
+        },
+
+        ondetach: function () {
+            var self = this,
+                viewID,
+                array = self.viewID.split('.');
+
+            viewID = array[array.length - 1];
+
+            $(document.body).off('tapdown.' + viewID);
+            $(document.body).off('click.' + viewID);
+            self.$el.off('tapdown.' + viewID);
+            self.$el.off('click.' + viewID);
+            $(window).off('orientationchange.' + viewID);
+        }
+    });
+
+    return blanks;
+}(window, document));
+
+RAD.Blanks.Service = RAD.Class.extend({
     initialize: function (options) {
+        "use strict";
         this.publish = options.core.publish;
         this.subscribe = options.core.subscribe;
         this.unsubscribe = options.core.unsubscribe;
         this.serviceID = this.viewID = options.viewID;
-        this.application = options.application;
+        this.application = options.animation;
 
         this.subscribe(this.serviceID, this.onReceiveMsg, this);
         this.onInitialize();
     },
     destroy: function () {
+        "use strict";
         this.onDestroy();
         this.unsubscribe(null, this);
     },
-    onInitialize: function () {},
-    onReceiveMsg: function () {},
-    onDestroy: function () {}
-}));
-
-RAD.namespace('RAD.Blanks.ScrollableView', RAD.Blanks.View.extend({
-
-    className: 'scroll-view',
-    offsetY: 0,
-
-    attachScroll: function () {
-        var self = this,
-            scrollView = self.el.querySelector('.scroll-view') || self.el;
-        self.detachScroll();
-        self.loader.done(function () {
-            if (self.renderRequest) {
-                return;
-            }
-            self.mScroll = new window.iScroll(scrollView, {
-                bounce: false,
-                onBeforeScrollStart: function (e) {
-                    var target = e.target;
-
-                    while (target.nodeType !== 1) {
-                        target = target.parentNode;
-                    }
-                    if (target.tagName !== 'SELECT' && target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
-                        e.preventDefault();
-                    }
-                }
-            });
-        });
+    onInitialize: function () {
+        "use strict";
     },
-
-    onattach: function () {
-        var self = this;
-        window.setTimeout(function () {
-            if (self.mScroll) {
-                self.mScroll.refresh();
-                self.mScroll.scrollTo(0, self.offsetY, 0);
-            }
-        }, 0);
+    onReceiveMsg: function () {
+        "use strict";
     },
-
-    refreshScroll: function () {
-        if (this.mScroll) {
-            this.mScroll.refresh();
-        }
-    },
-
-    detachScroll: function () {
-        var self = this;
-        if (self.mScroll) {
-            self.offsetY = self.mScroll.y;
-            self.mScroll.destroy();
-            self.mScroll = null;
-        }
+    onDestroy: function () {
+        "use strict";
     }
-}));
+});
 
-RAD.namespace('RAD.Blanks.Toast', RAD.Blanks.View.extend({
-    className: 'toast',
+RAD.plugin("plugin.fastclick", function (core, id) {
+    'use strict';
 
-    closeTimeOut: undefined,
-
-    showTime: 4000,
-
-    close: function () {
-        clearTimeout(this.closeTimeOut);
-
-        var options = {
-            content: this.viewID
-        };
-        $(document.body).off('click.close');
-        this.publish('navigation.toast.close', options);
-    },
-
-    onattach: function () {
-        var self = this;
-        self.closeTimeOut = window.setTimeout(function () {
-            self.close();
-        }, self.showTime);
-        $(document.body).one('click.close', function () {
-            self.close();
-        });
-    }
-}));
-
-RAD.namespace('RAD.Blanks.Popup', RAD.Blanks.ScrollableView.extend({
-    className: 'popup',
-
-    close: function () {
-        var self = this,
-            options = {
-                content: self.viewID,
-                destroy: self.onCloseDestroy
-            },
-            viewID,
-            array = self.viewID.split('.');
-        viewID = array[array.length - 1];
-
-        $(document.body).off('tapdown.' + viewID);
-        $(document.body).off('click.' + viewID);
-
-        self.publish('navigation.popup.close', options);
-    },
-
-    onattach: function (msg, data) {
-        var self = this,
-            viewID,
-            array = self.viewID.split('.');
-
-        RAD.Blanks.ScrollableView.prototype.onattach.call(self);
-
-        viewID = array[array.length - 1];
-        function close() {
-            self.close();
-        }
-        function stopPropagation(e) {
-            e.stopPropagation();
-        }
-
-        if (self.outSideClose) {
-            self.$el.on('tapdown.' + viewID, stopPropagation);
-            self.$el.on('click.' + viewID, stopPropagation);
-            $(document.body).one('tapdown.' + viewID, close);
-            $(document.body).one('click.' + viewID, close);
-        }
-
-        $(window).one('orientationchange.' + viewID, close);
-    },
-
-    ondetach: function () {
-        var self = this,
-            viewID,
-            array = self.viewID.split('.');
-
-        viewID = array[array.length - 1];
-
-        $(document.body).off('tapdown.' + viewID);
-        $(document.body).off('click.' + viewID);
-        self.$el.off('tapdown.' + viewID);
-        self.$el.off('click.' + viewID);
-        $(window).off('orientationchange.' + viewID);
-    }
-}));
-
-RAD.plugin("plugin.fastclick", function (core) {
-    var self = this;
+    var document = window.document,
+        body = document.body,
+        self = {moduleID: id},
+        GHOST_CLICK_TIMEOUT = 500,
+        TOUCH_DIFFERENCE = 10,
+        coordinates = [];
 
     function Swiper(element) {
         var swiper = this,
             lastMove,
-            TOUCH_DIFFERENCE = 10,
             preLastMove;
 
         function extractCoord(e) {
@@ -1172,7 +1559,7 @@ RAD.plugin("plugin.fastclick", function (core) {
             swiper.isDown = true;
             swiper.touchStartTime = new Date().getTime();
 
-            lastMove = preLastMove = {
+            preLastMove = {
                 screenX: 0,
                 screenY: 0,
                 timeStamp: new Date().getTime()
@@ -1194,11 +1581,7 @@ RAD.plugin("plugin.fastclick", function (core) {
 
         swiper.cancel = function (e) {
             if (swiper.isDown) {
-                if (swiper.touch) {
-                    swiper.up(e);
-                } else {
-                    fireEvent("tapcancel", e);
-                }
+                fireEvent("tapcancel", e);
             }
         };
 
@@ -1295,13 +1678,143 @@ RAD.plugin("plugin.fastclick", function (core) {
         return swiper;
     }
 
+    function preventGhostClick(x, y) {
+        coordinates.push(x, y);
+        window.setTimeout(function () {
+            coordinates.splice(0, 2);
+        }, GHOST_CLICK_TIMEOUT);
+    }
+
+    function onClick(event) {
+        var x, y, i;
+
+        for (i = 0; i < coordinates.length; i += 2) {
+            x = coordinates[i];
+            y = coordinates[i + 1];
+            if (Math.abs(event.screenX - x) < TOUCH_DIFFERENCE && Math.abs(event.screenY - y) < TOUCH_DIFFERENCE) {
+                event.preventDefault();
+                event.stopPropagation();
+                return true;
+            }
+        }
+        preventGhostClick(event.screenX, event.screenY);
+        return false;
+    }
+
+    function onTouchStart(e) {
+        self.startX = e.touches[0].screenX;
+        self.startY = e.touches[0].screenY;
+        self.touchStartTime = new Date().getTime();
+        self.move = false;
+        self.cancelsed = false;
+
+        return true;
+    }
+
+    function onTouchCancel() {
+        self.cancelsed = true;
+    }
+
+    function onTouchMove(e) {
+        if (Math.abs(e.touches[0].screenX - self.startX) > TOUCH_DIFFERENCE || (Math.abs(e.touches[0].screenY - self.startY) > TOUCH_DIFFERENCE)) {
+            self.move = true;
+        }
+    }
+
+    function sendClick(event, newType) {
+        var clickEvent, touch;
+
+        touch = event.changedTouches[0];
+        clickEvent = window.document.createEvent('MouseEvents');
+        clickEvent.initMouseEvent(newType, true, true, window, 1,
+            touch.screenX, touch.screenY, touch.clientX, touch.clientY,
+            false, false, false, false, 0, null);
+        event.target.dispatchEvent(clickEvent);
+    }
+
+    function onTouchEnd(event) {
+        var touch = event.changedTouches[0],
+            duration = new Date().getTime() - self.touchStartTime;
+        if (self.move || self.cancelsed || duration > 200) {
+            return false;
+        }
+
+        // On some Android devices activeElement needs to be blurred otherwise the synthetic click will have no effect
+        if (window.document.activeElement && window.document.activeElement !== event.target) {
+            window.document.activeElement.blur();
+        }
+
+        sendClick(event, 'click');
+
+        if (event.target.focus) {
+            event.target.focus();
+        }
+        preventGhostClick(touch.screenX, touch.screenY);
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        return true;
+    }
+
+    function isAndroid() {
+        return window.navigator.userAgent.indexOf('Android') > 0;
+    }
+
+    function fastClickNeeded() {
+        var metaViewport;
+
+        // Devices that don't support touch don't need FastClick
+        if (window.ontouchstart === undefined) {
+            return false;
+        }
+
+        if ((/Chrome\/[0-9]+/).test(window.navigator.userAgent)) {
+
+            // Chrome on Android with user-scalable="no" doesn't need FastClick
+            if (isAndroid()) {
+                metaViewport = document.querySelector('meta[name=viewport]');
+                if (metaViewport && metaViewport.content.indexOf('user-scalable=no') !== -1) {
+                    return false;
+                }
+
+                // Chrome desktop doesn't need FastClick
+            } else {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     //  constructor
-    self.swipe = new Swiper(core.document.body);
+    self.swipe = new Swiper(body);
+    if (fastClickNeeded()) {
+        body.addEventListener('click', onClick, true);
+        body.addEventListener('touchstart', onTouchStart, false);
+        body.addEventListener('touchend', onTouchEnd, false);
+        body.addEventListener('touchmove', onTouchMove, false);
+        body.addEventListener('touchcancel', onTouchCancel, false);
+    }
+
+    // destuctor
+    self.destroy = function () {
+        if (fastClickNeeded()) {
+            body.removeEventListener('click', onClick, true);
+            body.removeEventListener('touchstart', onTouchStart, false);
+            body.removeEventListener('touchend', onTouchEnd, false);
+            body.removeEventListener('touchmove', onTouchMove, false);
+            body.removeEventListener('touchcancel', onTouchCancel, false);
+        }
+        this.swipe.destroy();
+    };
 
     return self;
 });
 
 RAD.plugin("plugin.navigator", function (core, id) {
+    'use strict';
+
     var self = {},
         window = core.window,
         defaultAnimation = core.options.defaultAnimation || 'slide',
@@ -1722,7 +2235,7 @@ RAD.plugin("plugin.navigator", function (core, id) {
             apply(data.callback, data.context, newView);
             overlay.removeClass('show');
             $element.off(transEndEventName, endFunc);
-            core.publish(data.content + '.' + 'attach', null);
+            core.publish(data.content + '.' + 'attach', null); //TODO only root view receive onStartAttach
             newView = null;
         };
 
@@ -1775,10 +2288,10 @@ RAD.plugin("plugin.navigator", function (core, id) {
             overlay.removeClass('show');
             oldElement.off(transEndEventName, endFunc);
 
-            core.publish(data.content + '.' + 'detach', null);
+            core.publish(data.content + '.' + 'detach', null); //TODO only root view receive onEndDetach
 
             //destroy dialog
-            if (!data || data.destroy === undefined || data.destroy === true) {
+            if (!data || data.destroy === undefined || data.destroy) {
                 core.stop(data.content);
             } else {
                 oldDialog.isShown = false;
@@ -1793,10 +2306,6 @@ RAD.plugin("plugin.navigator", function (core, id) {
         }, animationTimeout);
 
         oldElement.removeClass('show');
-    }
-
-    function isArray(value) {
-        return (Object.prototype.toString.call(value) === '[object Array]');
     }
 
     function onNavigationEvent(channel, data) {
@@ -1814,7 +2323,7 @@ RAD.plugin("plugin.navigator", function (core, id) {
 
         switch (parts[1]) {
             case 'show':
-                if (isArray(data)) {
+                if (window.RAD.utils.isArray(data)) {
                     for (index = 0, length = data.length; index < length; index += 1) {
                         initBackstack(data[index]);
                         animator.animate(data[index], false);
@@ -1858,22 +2367,14 @@ RAD.plugin("plugin.navigator", function (core, id) {
 });
 
 RAD.plugin("plugin.router", function (core, id) {
+    'use strict';
+
     var self = {},
         router,
-        stubStack = [],
         toForward = false,
         START_URL = 'index.html',
         ID_SEPARATOR = '%%%',
-        routerType = (function (type) {
-            var newAPI = (typeof history.pushState === 'function'),
-                result = newAPI ? "native" : "hashbang",
-                types = ["native", "hashbang", "custom"];
-
-            if (type && types.indexOf(type) > 0) {
-                result = type;
-            }
-            return result;
-        }(core.options.backstackType));
+        newAPI = (typeof history.pushState === 'function');
 
     function getRootView(el) {
         var result,
@@ -1938,7 +2439,7 @@ RAD.plugin("plugin.router", function (core, id) {
     }
 
     function packURL(urlObj, timestamp) {
-        return encodeURIComponent(JSON.stringify(urlObj)).replace(/[!'()]/g, escape).replace(/\*/g, "%2A") + '$$$' + timestamp;
+        return RAD.utils.encodeURI(JSON.stringify(urlObj)) + '$$$' + timestamp;
     }
 
     function unpackURL(packURLString) {
@@ -1946,7 +2447,7 @@ RAD.plugin("plugin.router", function (core, id) {
             tmpArr;
 
         tmpArr = packURLString.split('$$$');
-        result.urlObj = JSON.parse(decodeURIComponent((tmpArr[0] + '').replace(/\+/g, '%20')));
+        result.urlObj = JSON.parse(RAD.utils.decodeURI(tmpArr[0]));
         result.timestamp = tmpArr[1];
 
         return result;
@@ -2044,20 +2545,11 @@ RAD.plugin("plugin.router", function (core, id) {
             var self = this;
 
             //enable entry in native history
-            switch (routerType) {
-                case "native":
-                    history.pushState({url: newUrl, id: self.currentID}, null, null);
-                    break;
-                case "hashbang":
-                    toForward = true;
-                    window.location.href = START_URL + '#!' + newUrl + ID_SEPARATOR + self.currentID;
-                    break;
-                case "custom":
-                    if (stubStack.last) {
-                        stubStack.push(stubStack.last);
-                    }
-                    stubStack.last = {state: {url: newUrl, id: self.currentID}};
-                    break;
+            if (newAPI) {
+                history.pushState({url: newUrl, id: self.currentID}, null, null);
+            } else {
+                toForward = true;
+                window.location.href = START_URL + '#!' + newUrl + ID_SEPARATOR + self.currentID;
             }
 
             self.lastURL = newUrl;
@@ -2087,18 +2579,7 @@ RAD.plugin("plugin.router", function (core, id) {
 
         back: function () {
             this.toBack = true;
-            switch (routerType) {
-                case "native":
-                case "hashbang":
-                    history.back();
-                    break;
-                case "custom":
-                    var state = stubStack.pop();
-                    if (state) {
-                        router.onPopState(state);
-                    }
-                    break;
-            }
+            history.back();
         },
 
         clearAndBlock: function () {
@@ -2109,8 +2590,6 @@ RAD.plugin("plugin.router", function (core, id) {
             this.currentID = Math.floor(Math.random() * 100000);
 
             this.stack.clear();
-            stubStack = [];
-            stubStack.last = null;
         },
 
         extractDiffer: function (oldLayout, newLayout) {
@@ -2205,28 +2684,27 @@ RAD.plugin("plugin.router", function (core, id) {
     self.viewID = id;
     core.subscribe('router', onMessage, self);
 
-    switch (routerType) {
-        case "native":
-            core.window.onpopstate = function (event) {
-                router.onPopState(event);
-            };
-            break;
-        case "hashbang":
-            $(window).bind('hashchange', function () {
-                var tmp = window.location.href.substring(window.location.href.lastIndexOf('#!') + 2),
-                    strings = tmp.split(ID_SEPARATOR),
-                    href = strings[0],
-                    id = parseInt(strings[1], 10);
+    if (!newAPI) {
+        $(window).bind('hashchange', function () {
+            var tmp = window.location.href.substring(window.location.href.lastIndexOf('#!') + 2),
+                strings = tmp.split(ID_SEPARATOR),
+                href = strings[0],
+                id = parseInt(strings[1], 10),
+                event;
 
-                if (!toForward) {
-                    router.onPopState({state: {id: id, url: href}});
-                }
-                toForward = false;
-            });
-            break;
-        case "custom":
-            // do nothing because use 'router.back' message
-            break;
+            if (!toForward) {
+                event = {state: {
+                    id: id,
+                    url: href
+                }};
+                router.onPopState(event);
+            }
+            toForward = false;
+        });
+    } else {
+        core.window.onpopstate = function (event) {
+            router.onPopState(event);
+        };
     }
 
     self.destroy = function () {

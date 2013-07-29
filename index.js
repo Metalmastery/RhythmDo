@@ -9,6 +9,7 @@
 
         "source/views/start_page.js",
         "source/views/graph/graph.js",
+        "source/views/graphV2/graphV2.js",
         "source/views/tasks/task/task.js",
         "source/views/tasks/task_list/task_list.js",
         "source/views/tasks/groups/group.js",
