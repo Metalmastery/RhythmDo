@@ -25,6 +25,7 @@ RAD.view("view.graphV3", RAD.Blanks.View.extend({
 	    weekDayArray : [],
 	    canvasHeight : 100,
         isMoving : false,
+        isAnimating : false,
         moveBasePosition : 0
     },
 
@@ -83,23 +84,33 @@ RAD.view("view.graphV3", RAD.Blanks.View.extend({
 	},
 
     startMove : function(e){
-        if (!this.drawing.isMoving){
+        if (!this.drawing.isAnimating){
             this.drawing.isMoving = true;
             this.drawing.moveBasePosition = e.originalEvent.tapdown.clientX;
+        } else {
+            console.log('start move cancelled');
         }
     },
 
     stopMove : function(e){
-        this.drawing.isMoving = false;
-        var shift = e.originalEvent.tapup.clientX - this.drawing.moveBasePosition;
+        if (this.drawing.isMoving && !this.drawing.isAnimating){
+            this.drawing.isMoving = false
+            var shift = e.originalEvent.tapup.clientX - this.drawing.moveBasePosition;
 
-        this.moveWrapper(shift, true);
+            this.moveWrapper(shift, true);
 
-        this.snapToDay(shift);
+            this.snapToDay(shift);
+        } else {
+            console.log('stop move cancelled');
+        }
     },
 
     moveGraph : function(e){
-        this.moveWrapper(this.drawing.wrapperPosition + (e.originalEvent.tapmove.clientX - this.drawing.moveBasePosition), false);
+        if (this.drawing.isMoving && !this.drawing.isAnimating){
+            this.moveWrapper(this.drawing.wrapperPosition + (e.originalEvent.tapmove.clientX - this.drawing.moveBasePosition), false);
+        } else {
+            console.log('moving cancelled');
+        }
     },
 
     snapToDay : function(diff){
@@ -119,7 +130,8 @@ RAD.view("view.graphV3", RAD.Blanks.View.extend({
         }, speed = 44;
 
         if (!this.drawing.isMoving){
-            this.startAnimation(speed * directions[e.originalEvent.swipe.direction]);
+            //this.startAnimation(speed * directions[e.originalEvent.swipe.direction]);
+
         }
     },
 
@@ -188,7 +200,7 @@ RAD.view("view.graphV3", RAD.Blanks.View.extend({
     },
 
     animateTo : function(left, count, rearrangeSide){
-        console.log(arguments);
+
         var self = this,
             container = this.drawing.animationWrapper,
             position = this.drawing.wrapperPosition + left,
@@ -196,7 +208,7 @@ RAD.view("view.graphV3", RAD.Blanks.View.extend({
             transition = '-webkit-transform ' + (100 * count) + 'ms',
             eventName = 'webkitTransitionEnd oTransitionEnd transitionend msTransitionEnd';
 
-        this.drawing.isMoving = true;
+        this.drawing.isAnimating = true;
         this.drawing.wrapperPosition = position;
         this.drawing.animationWrapper
             .addClass('animated')
@@ -212,7 +224,7 @@ RAD.view("view.graphV3", RAD.Blanks.View.extend({
             .on(eventName, callback);
 
         function callback(){
-            self.drawing.isMoving = false;
+            self.drawing.isAnimating = false;
             container
                 .removeClass('animated')
                 .off(eventName, callback);
