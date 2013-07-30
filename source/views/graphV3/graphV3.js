@@ -11,8 +11,8 @@ RAD.view("view.graphV3", RAD.Blanks.View.extend({
     events : {
         'swipe .graph_container' : 'swipeGraph',
         'tapmove .graph_container' : 'moveGraph',
-        'tapdown .graph_container' : 'stopGraph',
-        'tapup .graph_container' : 'toggleMove'
+        'tapdown .graph_container' : 'startMove',
+        'tapup .graph_container' : 'stopMove'
     },
 
     drawing : {
@@ -23,11 +23,13 @@ RAD.view("view.graphV3", RAD.Blanks.View.extend({
 	    contextArray : [],
 	    monthDayArray : [],
 	    weekDayArray : [],
-	    canvasHeight : 100
+	    canvasHeight : 100,
+        isMoving : false,
+        moveBasePosition : 0
     },
 
 	onEndRender : function(){
-		var visualRange = Math.round(this.$el.width() / this.drawing.visualDayWidth) + 3,
+		var visualRange = Math.round(this.$el.width() / this.drawing.visualDayWidth) * 3 + 3,
 			aniWrap = this.$('.animationWrap');
 
 
@@ -52,17 +54,15 @@ RAD.view("view.graphV3", RAD.Blanks.View.extend({
 			listSize = self.drawing.visualDayWidth;
 
 		for (var key=0; key < self.drawing.visualRange; key++){
-			var li = dayLi.clone().appendTo(daysList).css({
-				margin : 0,
-				padding: '0 4px'
-			});
+			var li = dayLi.clone().appendTo(daysList);
 			listSize += self.drawing.visualDayWidth;
 			var canvas = li.find('canvas').attr({
 					width : self.drawing.visualDayWidth,
 					height: 100
 				}).css({
 					position: 'absolute',
-					top : 0
+					top : 0,
+                    left : -4
 				});
 			self.drawing.canvasArray.push(canvas[0]);
 			self.drawing.contextArray.push(canvas[0].getContext('2d'));
@@ -75,90 +75,203 @@ RAD.view("view.graphV3", RAD.Blanks.View.extend({
 
 		this.drawing.list = daysList;
 
-		this.moveWrapper(-self.drawing.visualDayWidth, true);
+		this.moveWrapper(-self.drawing.visualDayWidth * self.drawing.visualRange / 3, true);
 
-		this.drawRange(this.getBounds(this.application.bio.currentDay));
+		this.drawRange(this.getBounds(this.application.bio.currentDay, null, -self.drawing.visualRange / 3,-self.drawing.visualRange / 3));
+
+
 	},
+
+    startMove : function(e){
+        if (!this.drawing.isMoving){
+            this.drawing.isMoving = true;
+            this.drawing.moveBasePosition = e.originalEvent.tapdown.clientX;
+        }
+    },
+
+    stopMove : function(e){
+        this.drawing.isMoving = false;
+        var shift = e.originalEvent.tapup.clientX - this.drawing.moveBasePosition;
+
+        this.moveWrapper(shift, true);
+
+        this.snapToDay(shift);
+    },
+
+    moveGraph : function(e){
+        this.moveWrapper(this.drawing.wrapperPosition + (e.originalEvent.tapmove.clientX - this.drawing.moveBasePosition), false);
+    },
+
+    snapToDay : function(diff){
+        var dayWidth = this.drawing.visualDayWidth,
+            backSwipeDelta = 30,
+            side = diff > 0 ? 1 : -1,
+            steps = Math.round((diff + side*backSwipeDelta) / dayWidth),
+            next = steps * dayWidth,
+            shift = (Math.abs(diff) > 10) ? (next - diff) : -diff;
+        this.animateTo(shift, Math.abs(steps), diff);
+    },
 
     swipeGraph : function(e){
         var directions = {
             'left' : -1,
             'right' : 1
-        }, speed = e.originalEvent.swipe.speed < 0 ? 20 : 20;
+        }, speed = 44;
 
-        this.startAnimation(speed * directions[e.originalEvent.swipe.direction]);
+        if (!this.drawing.isMoving){
+            this.startAnimation(speed * directions[e.originalEvent.swipe.direction]);
+        }
     },
 
     onInitialize : function(){
-        var vendors = ['ms', 'moz', 'webkit', 'o'];
-        for (x = 0; x < vendors.length && !window.requestAnimationFrame; x += 1) {
-            window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
-            window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame']
-                || window[vendors[x] + 'CancelRequestAnimationFrame'];
-        }
+        (function () {
+            "use strict";
+            var lastTime = 0,
+                x,
+                currTime,
+                timeToCall,
+                id,
+                vendors = ['ms', 'moz', 'webkit', 'o'];
+            for (x = 0; x < vendors.length && !window.requestAnimationFrame; x += 1) {
+                window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
+                window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame']
+                    || window[vendors[x] + 'CancelRequestAnimationFrame'];
+            }
 
-        if (!window.requestAnimationFrame) {
-            window.requestAnimationFrame = function (callback, element) {
-                currTime = new Date().getTime();
-                timeToCall = Math.max(0, 16 - (currTime - lastTime));
-                id = window.setTimeout(function () { callback(currTime + timeToCall); },
-                    timeToCall);
-                lastTime = currTime + timeToCall;
-                return id;
-            };
-        }
+            if (!window.requestAnimationFrame) {
+                window.requestAnimationFrame = function (callback, element) {
+                    currTime = new Date().getTime();
+                    timeToCall = Math.max(0, 16 - (currTime - lastTime));
+                    id = window.setTimeout(function () { callback(currTime + timeToCall); },
+                        timeToCall);
+                    lastTime = currTime + timeToCall;
+                    return id;
+                };
+            }
+
+            if (!window.cancelAnimationFrame) {
+                window.cancelAnimationFrame = function (id) {
+                    clearTimeout(id);
+                };
+            }
+        }());
     },
 
-    startAnimation : function(speed, limit){
+    startAnimation : function(speed, limit, startPosition){
+        console.log('start', this.drawing.wrapperPosition / 135);
         var self = this,
-            diff = 0;
+            diff = 0,
+            side = speed;
         limit = limit || 1;
+        startPosition = startPosition || 0;
+        this.drawing.isMoving = true;
 
         self.drawing.currentAnimation = window.requestAnimationFrame(callback, null);
         function callback (){
             diff += speed;
+            console.log(diff);
 
+            //speed *= 0.8;
             if (Math.abs(diff) > 135 * limit) {
                 self.stopAnimation();
                 diff = (diff > 0 ? 135 : -135);
-                self.moveWrapper(diff, true);
+                self.moveWrapper(diff + startPosition, true);
 
-                self.rearrangeDaysList(speed);
+                self.rearrangeDaysList(side);
                 diff = 0;
             } else {
-                self.moveWrapper(self.drawing.wrapperPosition + diff, false);
+                self.moveWrapper(self.drawing.wrapperPosition + diff + startPosition, false);
 
                 self.drawing.currentAnimation = window.requestAnimationFrame(callback, null);
             }
         }
     },
 
-    stopAnimation : function(){
-        window.cancelAnimationFrame(this.drawing.currentAnimation);
+    animateTo : function(left, count, rearrangeSide){
+        console.log(arguments);
+        var self = this,
+            container = this.drawing.animationWrapper,
+            position = this.drawing.wrapperPosition + left,
+            value = 'translate3d('+position+'px, 0, 0)',
+            transition = '-webkit-transform ' + (100 * count) + 'ms',
+            eventName = 'webkitTransitionEnd oTransitionEnd transitionend msTransitionEnd';
+
+        this.drawing.isMoving = true;
+        this.drawing.wrapperPosition = position;
+        this.drawing.animationWrapper
+            .addClass('animated')
+            .css({
+    //            '-webkit-transition': transition,
+    //            'transition': transition,
+                '-webkit-transform': value,
+                '-moz-transform': value,
+                '-ms-transform': value,
+                '-o-transform': value,
+                'transform': value
+            })
+            .on(eventName, callback);
+
+        function callback(){
+            self.drawing.isMoving = false;
+            container
+                .removeClass('animated')
+                .off(eventName, callback);
+            if (left/rearrangeSide > 0 || count >= 0){
+                self.rearrangeDaysList(rearrangeSide, count);
+            }
+        }
     },
 
-    rearrangeDaysList : function(speed){
+    stopAnimation : function(){
+        console.log('stop');
+
+        window.cancelAnimationFrame(this.drawing.currentAnimation);
+        this.drawing.isMoving = false;
+    },
+
+    rearrangeDaysList : function(speed, count){
+        console.log('rearrange');
         var side = speed > 0 ? 1 : -1,
 	        list = this.drawing.list,
 	        elem = null,
+            count = count || 1,
 	        dayWidth = this.drawing.visualDayWidth;
 
-	    this.application.bio.currentDay -= side;
-	    var curr = this.application.bio.currentDay;
-	    this.publish('current_day_changed', {
-		    currentDay : curr
-	    });
+        for (var day = 0; day < count; day++){
+            this.application.bio.currentDay -= side;
 
-        if (side < 0) {
-	        elem = list.find('li:first').detach().appendTo(list);
-        } else {
-	        elem = list.find('li:last').detach().prependTo(list);
+            if (side < 0) {
+                elem = list.find('li:first').detach().appendTo(list);
+            } else {
+                elem = list.find('li:last').detach().prependTo(list);
+            }
+            this.prepareDay(side, elem);
+            this.moveWrapper(-side*dayWidth, true);
         }
-	    this.prepareDay(side, elem);
-	    this.moveWrapper(-side*dayWidth, true);
+
+        var curr = this.application.bio.currentDay;
+
+        this.publish('current_day_changed', {
+            currentDay : curr
+        });
+
+//	    this.application.bio.currentDay -= side;
+//	    var curr = this.application.bio.currentDay;
+//	    this.publish('current_day_changed', {
+//		    currentDay : curr
+//	    });
+//
+//        if (side < 0) {
+//	        elem = list.find('li:first').detach().appendTo(list);
+//        } else {
+//	        elem = list.find('li:last').detach().prependTo(list);
+//        }
+//	    this.prepareDay(side, elem);
+//	    this.moveWrapper(-side*dayWidth, true);
     },
 
 	prepareDay : function(side, elem){
+        console.log(this.application.bio.currentDay);
 		var redrawingDay;
 		if (side < 0) {
 			redrawingDay = this.application.bio.currentDay + this.drawing.visualRange - 2
@@ -166,13 +279,9 @@ RAD.view("view.graphV3", RAD.Blanks.View.extend({
 			redrawingDay = this.application.bio.currentDay - 1
 		}
 
-		var days = this.getBounds(redrawingDay, 1, 0, 0);
+		var days = this.getBounds(redrawingDay, 1, -this.drawing.visualRange / 3 + 1, 0);
 		this.drawOneDay(days, elem);
 	},
-
-    toggleMoving : function(){
-
-    },
 
     getBounds : function(current, range, offsetLeft, offsetRight){
         var birth = this.application.bio.birthDateTimestamp,
@@ -197,12 +306,11 @@ RAD.view("view.graphV3", RAD.Blanks.View.extend({
             colors = this.drawing.colors,
             halfHeight = this.drawing.canvasHalfHeight,
             visualDayWidth = this.drawing.visualDayWidth,
-	        firstRedrawingDay = index || 0,
-            self = this;
+	        firstRedrawingDay = index || 0;
 
-	    for (var i = firstRedrawingDay; i < days.length-3; i++) {
+	    for (var i = firstRedrawingDay; i < days.length-1; i++) {
 
-		    canvas = this.drawing.canvasArray[i]
+		    canvas = this.drawing.canvasArray[i];
 		    context = this.drawing.contextArray[i];
 		    monthDay = this.drawing.monthDayArray[i];
 		    weekDay = this.drawing.weekDayArray[i];
@@ -244,8 +352,6 @@ RAD.view("view.graphV3", RAD.Blanks.View.extend({
 		    context.clearRect(0, 0, canvas[0].width, canvas[0].height);
 		    context.lineWidth = 2;
 
-	        window.canvas = canvas
-
 		    for (var bio = 0; bio < 3; bio++) {
 			    context.beginPath();
 
@@ -280,6 +386,7 @@ RAD.view("view.graphV3", RAD.Blanks.View.extend({
         aniWrap[0].style.oTransform = initTransition;
         aniWrap[0].style.msTransform = initTransition;
         aniWrap[0].style.mozTransform = initTransition;
+
     }
 }));
 

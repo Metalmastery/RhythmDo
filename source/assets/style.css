@@ -97,11 +97,11 @@ canvas {
 .days li {
     list-style: none;
     background-color: #273d55;
-    /*position: absolute;*/
+    position: relative;
     height: 178px;
     width: 127px;
     float: left;
-    margin-right: 8px;
+    margin:0 4px;
 }
 
 .days li .weekday {
@@ -126,7 +126,7 @@ canvas {
     position: absolute;
     height: 178px;
     top: 0;
-    left: 89px;
+    left: 4px;
     background-color: #000;
     opacity: 0.25;
     width: 127px;
@@ -134,6 +134,12 @@ canvas {
 
 .animationWrap {
     height: 178px;
+    position: absolute;
+}
+
+.animated {
+    -webkit-transition: -webkit-transform 300ms;
+    transition: -webkit-transform 300ms;
 }
 
 .group {
