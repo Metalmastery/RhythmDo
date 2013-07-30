@@ -11,7 +11,7 @@
 //	      "source/views/graph/graph.js",
 //        "source/views/graphV2/graphV2.js",
         "source/views/graphV3/graphV3.js",
-        "source/views/graphV3/graphV3.js",
+        "source/views/stat/stat.js",
         "source/views/stat/stat.js",
         "source/views/tasks/task_list/task_list.js",
         "source/views/tasks/groups/group.js",
