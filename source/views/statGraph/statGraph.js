@@ -65,7 +65,7 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
 
                 context.moveTo(begX, begY);
                 context.quadraticCurveTo(begX + visualDayWidth/2, begY - diff / 2 + (Math.abs(diff) < 30 ? factor*sideSign : 1), endX, endY);
-
+                // TODO completely fix the smoothing of curve & edges matching
                 context.strokeStyle = colors[bio];
                 context.stroke();
             }
