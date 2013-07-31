@@ -12,9 +12,211 @@ body {
     position: relative;
 }
 
+.main {
+    height: 100%;
+    position: relative;
+}
+
+.positionRelative {
+    position: relative !important;
+}
+
+/*=============*/
+/* graph begin */
+/*=============*/
+
 .graph {
     margin-top: 40px;
     height: 200px;
+}
+
+canvas {
+    margin-top: 42px;
+}
+
+.graph_container {
+    height: auto;
+}
+
+.days {
+    height: 100%;
+    left: 0;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    /*width: 100%;*/
+    margin: 0;
+    color: #fff;
+}
+.days li {
+    list-style: none;
+    background-color: #273d55;
+    position: relative;
+    height: 178px;
+    width: 127px;
+    float: left;
+    margin:0 4px;
+}
+
+.days li .bottomHalf {
+    background-color: #9e170e;
+    opacity: 0.1;
+    width: 100%;
+    height: 50%;
+}
+
+.days li .topHalf {
+    background-color: #000;
+    opacity: 0.1;
+    width: 100%;
+    height: 50%;
+}
+
+.days li .monthday {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    margin-top: 25px;
+}
+
+.days li .weekday {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#days_pointer {
+    position: absolute;
+    height: 178px;
+    top: 0;
+    left: 4px;
+    background-color: #000;
+    opacity: 0.25;
+    width: 127px;
+}
+
+.animationWrap {
+    height: 178px;
+    position: absolute;
+}
+
+.animated {
+    -webkit-transition: -webkit-transform 300ms;
+    transition: -webkit-transform 300ms;
+}
+
+/*===========*/
+/* graph end */
+/*===========*/
+
+/*==================*/
+/* stat graph begin */
+/*==================*/
+
+.stat .graph {
+    margin-top: 0px;
+    height: 460px;
+}
+
+.stat canvas {
+    margin-top: 70px;
+}
+
+.stat .graph_container {
+    height: auto;
+}
+
+.stat .days {
+    height: 440px;
+    left: 0;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    margin: 0;
+    color: #fff;
+}
+.stat .days li {
+    list-style: none;
+    background-color: #273d55;
+    /*position: relative;*/
+    position: absolute;
+    height: 438px;
+
+    top : 0;
+    /*float: left;*/
+}
+
+.stat .days li .bottomHalf {
+    background-color: #9e170e;
+    opacity: 0.1;
+    width: 100%;
+    height: 50%;
+}
+
+.stat .days li .topHalf {
+    background-color: #000;
+    opacity: 0.1;
+    width: 100%;
+    height: 50%;
+}
+
+.stat .days li .monthday {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    margin-top: 25px;
+}
+
+.stat .days li .weekday {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.stat #days_pointer {
+    position: absolute;
+    height: 178px;
+    top: 0;
+    left: 4px;
+    background-color: #000;
+    opacity: 0.25;
+    width: 127px;
+}
+
+.stat .animationWrap {
+    height: 544px;
+    position: absolute;
+}
+
+.stat .animated {
+    -webkit-transition: -webkit-transform 300ms;
+    transition: -webkit-transform 300ms;
+}
+
+/*================*/
+/* stat graph end */
+/*================*/
+
+/*=================*/
+/* task list begin */
+/*=================*/
+
+.list {
+    bottom: 0;
+    overflow: auto;
+    position: absolute;
+    top: 200px;
+    width: 100%;
 }
 
 .task_list.collapsed {
@@ -59,101 +261,6 @@ body {
     background: url('../img/brain.png') no-repeat center;
 }
 
-.main {
-    height: 100%;
-    position: relative;
-}
-
-.list {
-    bottom: 0;
-    overflow: auto;
-    position: absolute;
-    top: 200px;
-    width: 100%;
-}
-
-canvas {
-    /*height: 150px;*/
-    opacity: 0.8;
-    margin-top: 42px;
-}
-
-.graph_container {
-    height: auto;
-}
-
-.days {
-    height: 100%;
-    left: 0;
-    overflow: hidden;
-    position: absolute;
-    top: 0;
-    /*width: 100%;*/
-    margin: 0;
-    color: #fff;
-}
-.days li {
-    list-style: none;
-    background-color: #273d55;
-    position: relative;
-    height: 178px;
-    width: 127px;
-    float: left;
-    margin:0 4px;
-}
-
-.days li .bottomHalf {
-    background-color: #d8524a;
-    opacity: 0.2;
-    width: 100%;
-    height: 50%;
-}
-
-.days li .topHalf {
-    background-color: #000;
-    opacity: 0.2;
-    width: 100%;
-    height: 50%;
-}
-
-.days li .monthday {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    text-align: center;
-    margin-top: 25px;
-}
-
-.days li .weekday {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-#days_pointer {
-    position: absolute;
-    height: 178px;
-    top: 0;
-    left: 4px;
-    background-color: #000;
-    opacity: 0.25;
-    width: 127px;
-}
-
-.animationWrap {
-    height: 178px;
-    position: absolute;
-}
-
-.animated {
-    -webkit-transition: -webkit-transform 300ms;
-    transition: -webkit-transform 300ms;
-}
-
 .group {
     color: #ffffff;
 }
@@ -172,6 +279,54 @@ canvas {
     width: 100px;
 }
 
-.positionRelative {
-    position: relative !important;
+/*===============*/
+/* task list end */
+/*===============*/
+
+/*===============*/
+/* monitor begin */
+/*===============*/
+.bio_monitor {
+    bottom: 0;
+    overflow: auto;
+    position: absolute;
+    top: 440px;
+    width: 100%;
 }
+
+.monitor .block_wrap {
+    margin: 0 auto;
+    overflow: hidden;
+    width: 600px;
+}
+
+.monitor .block_wrap .block {
+    width: 170px;
+    height: 240px;
+    float: left;
+    margin: 10px;
+}
+.block .info {
+    width: 158px;
+    height: 158px;
+    margin: 0 auto;
+    border-radius: 79px;
+    background: #000;
+    opacity: 0.1;
+}
+
+.block .icon {
+    margin: 0 auto;
+    width: 46px;
+    height: 46px;
+}
+.block .icon.strength {
+    background: url('../img/strength.png') no-repeat center;
+}
+.block .icon.emo {
+    background: url('../img/heart.png') no-repeat center;
+}
+.block .icon.brain {
+    background: url('../img/brain.png') no-repeat center;
+}
+

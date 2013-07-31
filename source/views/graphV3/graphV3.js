@@ -5,7 +5,7 @@
  * Time: 2:15 PM
  * To change this template use File | Settings | File Templates.
  */
-RAD.view("view.graphV3", RAD.Blanks.View.extend({
+RAD.namespace("views.graphV3Base", RAD.Blanks.View.extend({
     url : 'source/views/graphV3/graphV3.html',
 
     events : {
@@ -15,72 +15,81 @@ RAD.view("view.graphV3", RAD.Blanks.View.extend({
         'tapup .graph_container' : 'stopMove'
     },
 
-    drawing : {
-        colors : ['#40b2e4', '#f75d55', '#01d5be'],
-        visualDayWidth: 135,
-        wrapperPosition : 0,
-	    canvasArray : [],
-	    contextArray : [],
-	    monthDayArray : [],
-	    weekDayArray : [],
-	    canvasHeight : 100,
-        isMoving : false,
-        isAnimating : false,
-        moveBasePosition : 0
+    drawing : {},
+
+    onNewExtras : function(data){
+
+    },
+
+    initVisual : function(){
+        var aniWrap = this.$('.animationWrap');
+
+        _(this.drawing).defaults({
+            canvasWidth : 135,
+            canvasHeight : 100,
+            canvasHalfHeight : 50,
+            requestAF : window.requestAnimationFrame,
+            cancelAF : window.cancelAnimationFrame,
+            currentAnimation : null,
+            animationWrapper : aniWrap,
+            visualDayWidth: 135,
+            daysMargin : 4,
+            colors : ['#40b2e4', '#f75d55', '#01d5be'],
+            wrapperPosition : 0,
+            canvasArray : [],
+            contextArray : [],
+            monthDayArray : [],
+            weekDayArray : [],
+            isMoving : false,
+            isAnimating : false,
+            moveBasePosition : 0,
+            daysPosAbsolute : false
+        });
+
+        this.drawing.visualRange = Math.round(this.$el.width() / this.drawing.visualDayWidth) * 3 + 3;
+
+        var self = this,
+            daysList = self.$el.find('ul.days'),
+            dayLi = daysList.find('li'),
+            daysPointer = self.$el.find('#days_pointer').css({
+                top : daysList.eq(-2).css('top'),
+                left : daysList.eq(-2).css('left')
+            })[0],
+            listSize = self.drawing.visualDayWidth;
+
+        for (var key=0; key < self.drawing.visualRange; key++){
+            var li = dayLi.clone().appendTo(daysList).css({
+                margin: '0 ' + self.drawing.daysMargin + 'px',
+                left: self.drawing.daysPosAbsolute ? listSize : '',
+                width: self.drawing.visualDayWidth - 2*self.drawing.daysMargin
+            });
+            listSize += self.drawing.visualDayWidth;
+            var canvas = li.find('canvas').attr({
+                width : self.drawing.canvasWidth,
+                height: self.drawing.canvasHeight
+            }).css({
+                    position: 'absolute',
+                    top : 0,
+                    left : -this.drawing.daysMargin
+                });
+            self.drawing.canvasArray.push(canvas[0]);
+            self.drawing.contextArray.push(canvas[0].getContext('2d'));
+            self.drawing.monthDayArray.push(li.find('.monthday')[0]);
+            self.drawing.weekDayArray.push(li.find('.weekday')[0]);
+
+        }
+        dayLi.remove();
+        daysList[0].style.width = listSize + 'px';
+
+        this.drawing.list = daysList;
+
+        this.moveWrapper(-self.drawing.visualDayWidth * self.drawing.visualRange / 3, true);
+
+        this.drawRange(this.getBounds(this.application.bio.currentDay, null, -self.drawing.visualRange / 3,-self.drawing.visualRange / 3));
     },
 
 	onEndRender : function(){
-		var visualRange = Math.round(this.$el.width() / this.drawing.visualDayWidth) * 3 + 3,
-			aniWrap = this.$('.animationWrap');
-
-
-		_(this.drawing).extend({
-			canvasWidth : this.drawing.visualDayWidth,
-			canvasHeight : this.drawing.canvasHeight,
-			visualRange : visualRange,
-			canvasHalfHeight : this.drawing.canvasHeight / 2,
-			requestAF : window.requestAnimationFrame,
-			cancelAF : window.cancelAnimationFrame,
-			currentAnimation : null,
-			animationWrapper : aniWrap
-		});
-
-		var self = this,
-			daysList = self.$el.find('ul.days'),
-			dayLi = daysList.find('li'),
-			daysPointer = self.$el.find('#days_pointer').css({
-				top : daysList.eq(-2).css('top'),
-				left : daysList.eq(-2).css('left')
-			})[0],
-			listSize = self.drawing.visualDayWidth;
-
-		for (var key=0; key < self.drawing.visualRange; key++){
-			var li = dayLi.clone().appendTo(daysList);
-			listSize += self.drawing.visualDayWidth;
-			var canvas = li.find('canvas').attr({
-					width : self.drawing.visualDayWidth,
-					height: 100
-				}).css({
-					position: 'absolute',
-					top : 0,
-                    left : -4
-				});
-			self.drawing.canvasArray.push(canvas[0]);
-			self.drawing.contextArray.push(canvas[0].getContext('2d'));
-			self.drawing.monthDayArray.push(li.find('.monthday')[0]);
-			self.drawing.weekDayArray.push(li.find('.weekday')[0]);
-
-		}
-		dayLi.remove();
-		daysList[0].style.width = listSize + 'px';
-
-		this.drawing.list = daysList;
-
-		this.moveWrapper(-self.drawing.visualDayWidth * self.drawing.visualRange / 3, true);
-
-		this.drawRange(this.getBounds(this.application.bio.currentDay, null, -self.drawing.visualRange / 3,-self.drawing.visualRange / 3));
-
-
+        this.initVisual();
 	},
 
     startMove : function(e){
@@ -311,6 +320,9 @@ RAD.view("view.graphV3", RAD.Blanks.View.extend({
 
     drawRange : function(days, index){
 
+        console.log(days.length);
+        console.log(this.drawing.canvasArray.length);
+
         var canvas = null,
             context = null,
 	        monthDay = null,
@@ -328,14 +340,14 @@ RAD.view("view.graphV3", RAD.Blanks.View.extend({
 		    weekDay = this.drawing.weekDayArray[i];
 
 		    context.clearRect(0, 0, canvas.width, canvas.height);
-		    context.lineWidth = 2;
+		    context.lineWidth = 4;
 
 	        for (var bio = 0; bio < 3; bio++) {
 		        context.beginPath();
 
 			    var begX = 0;
 			    var begY = halfHeight - days[i][bio]*(halfHeight-3);
-			    var endX = visualDayWidth;
+			    var endX = canvas.width;
 			    var endY = halfHeight - days[i+1][bio]*(halfHeight-3);
 
 			    context.moveTo(begX, begY);
@@ -369,7 +381,7 @@ RAD.view("view.graphV3", RAD.Blanks.View.extend({
 
 			    var begX = 0;
 			    var begY = halfHeight - days[0][bio]*(halfHeight-3);
-			    var endX = visualDayWidth;
+			    var endX = canvas[0].width;
 			    var endY = halfHeight - days[1][bio]*(halfHeight-3);
 
 			    context.moveTo(begX, begY);
@@ -401,4 +413,6 @@ RAD.view("view.graphV3", RAD.Blanks.View.extend({
 
     }
 }));
+
+RAD.view("view.graphV3", RAD.views.graphV3Base.extend({}));
 

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+
+    <title>Scroll</title>
+    <link rel="stylesheet" href="index.css"/>
+    <script type="text/javascript" src="fastclick.js"></script>
+    <script type="text/javascript" src="index.js"></script>
+</head>
+<body>
+
+<div class="list-view">
+</div>
+<script type="text/javascript">
+    var element = document.querySelector('.list-view'), adapter = new ListViewAdapter(null, null);
+    document.body.swiper = new Swiper(document.body);
+    element.listView = new ListView(element, adapter, {direction: "vertical"});
+
+    // prevent scrolling on iOS
+    window.addEventListener('touchmove', function (e) {
+        e.preventDefault();
+    }, false);
+
+</script>
+</body>
+</html>
