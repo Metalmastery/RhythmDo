@@ -32,6 +32,26 @@
     }
 }());
 
+//Math.easeInOutQuad = function (currentTime, startValue, changeInValue, duration) {
+//    currentTime /= duration / 2;
+//    if (currentTime < 1) {
+//        return changeInValue / 2 * currentTime * currentTime + startValue;
+//    }
+//    currentTime -= 1;
+//    return -changeInValue / 2 * (currentTime * (currentTime - 2) - 1) + startValue;
+//};
+//
+
+function makeEaseInOut(delta, progress) {
+    var result;
+    if (progress < 0.5) {
+        result = delta(2 * progress) / 2;
+    } else {
+        result = (2 - delta(2 * (1 - progress))) / 2;
+    }
+    return result;
+}
+
 function ListView(element, adapter, options) {
     "use strict";
     var FRICTION_FACTOR = 0.94,
@@ -56,114 +76,6 @@ function ListView(element, adapter, options) {
 
         mLastAdapterPosition = 0,
         mWrapperShiftPosition = 0;
-
-    function extractLastCoordinate(e, eventName, pressed) {
-        var currentPoint = (mDirection === "vertical") ? e[eventName].screenY : e[eventName].screenX,
-            delta = mLastPointerCoordinate - currentPoint;
-        if (pressed && delta !== 0) {
-            mListView.shift(delta, false);
-        }
-        mLastPointerCoordinate = currentPoint;
-    }
-
-    function tick() {
-        var now = new Date().getTime(),
-            delta = (now - mLastTickTime) * mLastVelocity;
-        mListView.shift(delta);
-        mLastVelocity *= FRICTION_FACTOR;
-        if (typeof mLastVelocity === 'number' && Math.abs(mLastVelocity) > MIN_VELOCITY && !mPointerIsDown) {
-            mLastTickTime = now;
-            mRequestAnimationID = window.requestAnimationFrame(tick, null);
-        } else {
-            mLastVelocity = 0;
-            mListView.shift(mWrapperShiftPosition % 1, false);
-        }
-    }
-
-    function eventSwipe(e) {
-        var isVertical = (mDirection === "vertical" && (e.swipe.direction === "top" || e.swipe.direction === "bottom")),
-            isHorizontal = (mDirection !== "vertical" && (e.swipe.direction === "left" || e.swipe.direction === "right"));
-
-        if (isVertical || isHorizontal) {
-            mLastVelocity = (e.swipe.direction === "top" || e.swipe.direction === "left") ? e.swipe.speed : -e.swipe.speed;
-            mLastVelocity = (Math.abs(mLastVelocity) > MAX_VELOCITY) ? MAX_VELOCITY * (mLastVelocity / Math.abs(mLastVelocity)) : mLastVelocity;
-            mPointerIsDown = false;
-            mLastTickTime = new Date().getTime();
-            tick();
-        }
-    }
-
-    function eventTapDown(e) {
-        mPointerIsDown = true;
-        window.cancelAnimationFrame(mRequestAnimationID);
-        mLastPointerCoordinate = (mDirection === "vertical") ? e.tapdown.screenY : e.tapdown.screenX;
-    }
-
-    function eventTapMove(e) {
-        extractLastCoordinate(e, 'tapmove', mPointerIsDown);
-    }
-
-    function eventTapUp(e) {
-        extractLastCoordinate(e, 'tapup', mPointerIsDown);
-        mPointerIsDown = false;
-    }
-
-    function eventTapCancel() {
-        mClearCancel = setTimeout(function () {
-            mPointerIsDown = false;
-        }, 50);
-    }
-
-    function eventTapClear() {
-        if (mPointerIsDown) {
-            clearTimeout(mClearCancel);
-        }
-    }
-
-    function eventResize() {
-        mParentSize = (mDirection === 'vertical') ? mListWrapper.offsetHeight : mListWrapper.offsetWidth;
-        mListView.shift(mWrapperShiftPosition, true);
-    }
-
-    mListView.shift = function (delta, forced) {
-        var value;
-        if (!forced && (typeof delta !== 'number' || delta === 0)) {
-            return;
-        }
-        mWrapperShiftPosition -= delta;
-        value = (mDirection === "vertical") ? "translate(0px, " + mWrapperShiftPosition + "px) scale(1) translateZ(0px)"
-            : "translate(" + mWrapperShiftPosition + "px, 0) scale(1) translateZ(0px)";
-
-        mListWrapper.style.webkitTransform = value;
-        mListWrapper.style.transform = value;
-        mListWrapper.style.oTransform = value;
-        mListWrapper.style.msTransform = value;
-        mListWrapper.style.mozTransform = value;
-
-        removeInvisibleItems();
-        if (delta < 0) {
-            fillFromUpOrLeft(mLastAdapterPosition);
-        } else {
-            fillToBottomOrRight(mLastAdapterPosition);
-        }
-    };
-
-    mListView.getPosition = function () {
-        return mWrapperShiftPosition;
-    };
-
-    mListView.destroy = function () {
-        mContainer.removeEventListener('swipe', eventSwipe);
-        mContainer.removeEventListener('tapdown', eventTapDown);
-        mContainer.removeEventListener('tapmove', eventTapMove);
-        mContainer.removeEventListener('tapup', eventTapUp);
-        mContainer.removeEventListener('tapcancel', eventTapCancel);
-        mContainer.removeEventListener('tapclear', eventTapClear);
-
-        window.removeEventListener('resize', eventResize);
-    };
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     function getFullSizeWithMargin(element) {
         var elmHeight, elmMargin;
@@ -201,7 +113,9 @@ function ListView(element, adapter, options) {
         //fill by items from adapter
         var lastBottom = itemPosition * mItemSize + mWrapperShiftPosition, i, l, item, fragment;
 
-        if (!(itemPosition < adapter.getCountItems() && lastBottom < mParentSize)) {return; }
+        if (!(itemPosition < adapter.getCountItems() && lastBottom < mParentSize)) {
+            return;
+        }
 
         //create container for rest items
         fragment = document.createDocumentFragment();
@@ -252,10 +166,133 @@ function ListView(element, adapter, options) {
         }
     }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    function extractLastCoordinate(e, eventName, pressed) {
+        var currentPoint = (mDirection === "vertical") ? e[eventName].screenY : e[eventName].screenX,
+            delta = mLastPointerCoordinate - currentPoint;
+        if (pressed && delta !== 0) {
+            mListView.shift(delta, false);
+        }
+        mLastPointerCoordinate = currentPoint;
+    }
+
+    function tick() {
+        var now = new Date().getTime(),
+            delta = (now - mLastTickTime) * mLastVelocity;
+        mListView.shift(delta);
+        mLastVelocity *= FRICTION_FACTOR;
+        if (typeof mLastVelocity === 'number' && Math.abs(mLastVelocity) > MIN_VELOCITY && !mPointerIsDown) {
+            mLastTickTime = now;
+            mRequestAnimationID = window.requestAnimationFrame(tick, null);
+        } else {
+            mLastVelocity = 0;
+            mListView.shift(mWrapperShiftPosition % 1, false);
+        }
+    }
+
+    function eventSwipe(e) {
+        var isVertical = (mDirection === "vertical" && (e.swipe.direction === "top" || e.swipe.direction === "bottom")),
+            isHorizontal = (mDirection !== "vertical" && (e.swipe.direction === "left" || e.swipe.direction === "right"));
+
+        if (isVertical || isHorizontal) {
+            mLastVelocity = (e.swipe.direction === "top" || e.swipe.direction === "left") ? e.swipe.speed : -e.swipe.speed;
+            mLastVelocity = (Math.abs(mLastVelocity) > MAX_VELOCITY) ? MAX_VELOCITY * (mLastVelocity / Math.abs(mLastVelocity)) : mLastVelocity;
+            mPointerIsDown = false;
+            mLastTickTime = new Date().getTime();
+
+            console.log(mLastVelocity / FRICTION_FACTOR);
+
+            tick();
+        }
+    }
+
+    function eventTapDown(e) {
+        mPointerIsDown = true;
+        window.cancelAnimationFrame(mRequestAnimationID);
+        mLastPointerCoordinate = (mDirection === "vertical") ? e.tapdown.screenY : e.tapdown.screenX;
+    }
+
+    function eventTapMove(e) {
+        extractLastCoordinate(e, 'tapmove', mPointerIsDown);
+    }
+
+    function eventTapUp(e) {
+        extractLastCoordinate(e, 'tapup', mPointerIsDown);
+        mPointerIsDown = false;
+    }
+
+    function eventTapCancel() {
+        mClearCancel = setTimeout(function () {
+            mPointerIsDown = false;
+        }, 50);
+    }
+
+    function eventTapClear() {
+        if (mPointerIsDown) {
+            clearTimeout(mClearCancel);
+        }
+    }
+
+    function eventResize() {
+        mParentSize = (mDirection === 'vertical') ? mListWrapper.offsetHeight : mListWrapper.offsetWidth;
+        mListView.shift(mWrapperShiftPosition, true);
+    }
+
+    mListView.shift = function (delta, forced) {
+        var value;
+        if (!forced && (typeof delta !== 'number' || delta === 0)) {
+            return;
+        }
+        mWrapperShiftPosition -= delta;
+        value = (mDirection === "vertical") ? "translate3d(0, " + mWrapperShiftPosition + "px, 0) scale(1)"
+            : "translate3d(" + mWrapperShiftPosition + "px, 0, 0) scale(1)";
+
+        mListWrapper.style.webkitTransform = value;
+        mListWrapper.style.transform = value;
+        mListWrapper.style.oTransform = value;
+        mListWrapper.style.msTransform = value;
+        mListWrapper.style.mozTransform = value;
+
+        removeInvisibleItems();
+        if (delta < 0) {
+            fillFromUpOrLeft(mLastAdapterPosition);
+        } else {
+            fillToBottomOrRight(mLastAdapterPosition);
+        }
+    };
+
+    mListView.getPosition = function () {
+        return mWrapperShiftPosition;
+    };
+
+    mListView.destroy = function () {
+        mContainer.removeEventListener('swipe', eventSwipe);
+        mContainer.removeEventListener('tapdown', eventTapDown);
+        mContainer.removeEventListener('tapmove', eventTapMove);
+        mContainer.removeEventListener('tapup', eventTapUp);
+        mContainer.removeEventListener('tapcancel', eventTapCancel);
+        mContainer.removeEventListener('tapclear', eventTapClear);
+
+        window.removeEventListener('resize', eventResize);
+    };
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     //constructor part
     mListWrapper = document.createElement('div');
     mListWrapper.style.width = '100%';
     mListWrapper.style.height = '100%';
+
+    mListWrapper.style.margin = 0;
+    mListWrapper.style.position = 'absolute';
+    mListWrapper.style.webkitTransition = '-webkit-transform 0ms';
+    mListWrapper.style.transition = '-webkit-transform 0ms';
+    mListWrapper.style.webkitTransformOrigin = '0px 0px';
+
+    mContainer.style.overflow = 'hidden';
+    mContainer.style.position = 'relative';
+
     mContainer.appendChild(mListWrapper);
 
     mContainer.addEventListener('swipe', eventSwipe, false);
@@ -286,7 +323,6 @@ function ListViewAdapter(dataArray, template) {
     adapter.getItem = function (position) {
         var element = document.createElement('div');
         element.innerHTML = '<div class="img" style="' + "background: #cccccc url('http://lorempixel.com/60/60/') no-repeat;" + '"></div><span>item:' + position + '</span>';
-//        element.innerHTML = '<img src="http://lorempixel.com/60/60/" style=""/><span>item:' + position + '</span>';
 
         element.className = 'item';
         return element;

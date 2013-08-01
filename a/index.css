@@ -51,12 +51,6 @@ html, body {
     width: 60px;
     height: 60px;
 
-    -webkit-transform: translate3d(0, 0, 0);
-    -moz-transform: translate3d(0, 0, 0);
-    -ms-transform: translate3d(0, 0, 0);
-    -o-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
-
     vertical-align: middle;
 }
 
@@ -78,17 +72,6 @@ html, body {
 }
 
 .list-view {
-    position: relative;
     height: 100%;
     width: 100%;
-
-    overflow: hidden;
-}
-
-.list-view > div {
-    position: absolute;
-
-    -webkit-transition: -webkit-transform 0ms;
-    transition: -webkit-transform 0ms;
-    -webkit-transform-origin: 0px 0px;
 }
