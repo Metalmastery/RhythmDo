@@ -31,7 +31,7 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
     },
 
     drawRange : function(days, index){
-        console.log('STAT');
+
         var canvas = null,
             context = null,
             monthDay = null,
