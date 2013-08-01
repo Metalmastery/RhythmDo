@@ -146,7 +146,7 @@ body {
     /*position: relative;*/
     position: absolute;
     height: 438px;
-
+    font: 14px Arial;
     top : 0;
     /*float: left;*/
 }

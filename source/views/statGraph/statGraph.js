@@ -26,8 +26,6 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
             elem = null,
             count = count || 1,
             dayWidth = this.drawing.visualDayWidth;
-
-
     },
 
     drawRange : function(days, index){
@@ -49,16 +47,18 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
             monthDay = this.drawing.monthDayArray[i];
             weekDay = this.drawing.weekDayArray[i];
 
+
             context.clearRect(0, 0, canvas.width, canvas.height);
-            context.lineWidth = 2;
+            context.lineWidth = 5;
+            context.lineCap = 'square';
 
             for (var bio = 0; bio < 3; bio++) {
                 context.beginPath();
 
                 var begX = 0,
-                    begY = halfHeight - days[i][bio]*(halfHeight-3),
+                    begY = halfHeight - days[i][bio]*(halfHeight-10),
                     endX = canvas.width,
-                    endY = halfHeight - days[i+1][bio]*(halfHeight-3),
+                    endY = halfHeight - days[i+1][bio]*(halfHeight-10),
 
                     diff = (begY - endY),
                     sideSign = begY > halfHeight ? 1 : -1;

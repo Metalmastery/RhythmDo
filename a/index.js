@@ -43,6 +43,7 @@ function ListView(element, adapter, options) {
         mContainer = element,
         mListWrapper,
         mDirection = (options && options.direction) ? options.direction : "vertical",
+        mParentSize,
 
         mClearCancel,
         mLastVelocity = 0,
@@ -119,6 +120,11 @@ function ListView(element, adapter, options) {
         }
     }
 
+    function eventResize() {
+        mParentSize = (mDirection === 'vertical') ? mListWrapper.offsetHeight : mListWrapper.offsetWidth;
+        mListView.shift(mWrapperShiftPosition, true);
+    }
+
     mListView.shift = function (delta, forced) {
         var value;
         if (!forced && (typeof delta !== 'number' || delta === 0)) {
@@ -153,6 +159,8 @@ function ListView(element, adapter, options) {
         mContainer.removeEventListener('tapup', eventTapUp);
         mContainer.removeEventListener('tapcancel', eventTapCancel);
         mContainer.removeEventListener('tapclear', eventTapClear);
+
+        window.removeEventListener('resize', eventResize);
     };
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -178,27 +186,31 @@ function ListView(element, adapter, options) {
         }
     }
 
+    function setItemPosition(item, position) {
+        item.style.position = 'absolute';
+        var value = (mDirection === "vertical") ? "translate3d(0, " + position + "px, 0)" : "translate3d(" + position + "px, 0, 0)";
+
+        item.style.webkitTransform = value;
+        item.style.transform = value;
+        item.style.oTransform = value;
+        item.style.msTransform = value;
+        item.style.mozTransform = value;
+    }
+
     function fillToBottomOrRight(itemPosition) {
         //fill by items from adapter
-        var lastBottom = itemPosition * mItemSize + mWrapperShiftPosition, i, l, parentHeight = (mDirection === 'vertical') ? mListWrapper.offsetHeight : mListWrapper.offsetWidth, item, fragment;
+        var lastBottom = itemPosition * mItemSize + mWrapperShiftPosition, i, l, item, fragment;
 
-        if (!(itemPosition < adapter.getCountItems() && lastBottom < parentHeight)) {return; }
+        if (!(itemPosition < adapter.getCountItems() && lastBottom < mParentSize)) {return; }
 
         //create container for rest items
         fragment = document.createDocumentFragment();
-        for (i = itemPosition, l = adapter.getCountItems(); i < l && lastBottom < parentHeight; i += 1) {
+        for (i = itemPosition, l = adapter.getCountItems(); i < l && lastBottom < mParentSize; i += 1) {
             item = adapter.getItem(i);
-            item.style.position = 'absolute';
-            if (mDirection === 'vertical') {
-                item.style.width = '100%';
-                item.style.top = (i * mItemSize) + 'px';
-            } else {
-                item.style.height = '100%';
-                item.style.left = (i * mItemSize) + 'px';
-            }
-
-            mVisibleItems.push({item: item, position: (i * mItemSize), id: i});
+            setItemPosition(item, i * mItemSize);
             fragment.appendChild(item);
+
+            mVisibleItems.push({item: item, position: i * mItemSize, id: i});
             lastBottom += mItemSize;
         }
 
@@ -212,17 +224,10 @@ function ListView(element, adapter, options) {
         fragment = document.createDocumentFragment();
         while (i >= 0 && i * mItemSize > -mItemSize - mWrapperShiftPosition) {
             item = adapter.getItem(i);
-            item.style.position = 'absolute';
-            if (mDirection === 'vertical') {
-                item.style.width = '100%';
-                item.style.top = (i * mItemSize) + 'px';
-            } else {
-                item.style.height = '100%';
-                item.style.left = (i * mItemSize) + 'px';
-            }
-
+            setItemPosition(item, i * mItemSize);
             fragment.appendChild(item);
-            mVisibleItems.unshift({item: item, position: (i * mItemSize), id: i});
+
+            mVisibleItems.unshift({item: item, position: i * mItemSize, id: i});
             i -= 1;
         }
         mListWrapper.appendChild(fragment);
@@ -230,12 +235,11 @@ function ListView(element, adapter, options) {
 
     function removeInvisibleItems() {
         var i, itemHandler,
-            parentSize = (mDirection === 'vertical') ? mListWrapper.offsetHeight : mListWrapper.offsetWidth,
             fromDownOrRight;
 
         for (i = mVisibleItems.length - 1; i >= 0; i -= 1) {
             itemHandler = mVisibleItems[i];
-            fromDownOrRight = itemHandler.position > parentSize - mWrapperShiftPosition;
+            fromDownOrRight = itemHandler.position > mParentSize - mWrapperShiftPosition;
 
             if ((itemHandler.position + mItemSize < -mWrapperShiftPosition) || fromDownOrRight) {
                 mListWrapper.removeChild(itemHandler.item);
@@ -249,7 +253,6 @@ function ListView(element, adapter, options) {
     }
 
     //constructor part
-
     mListWrapper = document.createElement('div');
     mListWrapper.style.width = '100%';
     mListWrapper.style.height = '100%';
@@ -262,6 +265,9 @@ function ListView(element, adapter, options) {
     mContainer.addEventListener('tapcancel', eventTapCancel, false);
     mContainer.addEventListener('tapclear', eventTapClear, false);
 
+    window.addEventListener('resize', eventResize, false);
+
+    mParentSize = (mDirection === 'vertical') ? mListWrapper.offsetHeight : mListWrapper.offsetWidth;
     calculateItemSize();
     fillToBottomOrRight(mLastAdapterPosition);
     mListView.shift(mWrapperShiftPosition, true);
@@ -274,13 +280,14 @@ function ListViewAdapter(dataArray, template) {
     var adapter = this;
 
     adapter.getCountItems = function () {
-        return 10;
+        return 1000;
     };
 
     adapter.getItem = function (position) {
         var element = document.createElement('div');
+        element.innerHTML = '<div class="img" style="' + "background: #cccccc url('http://lorempixel.com/60/60/') no-repeat;" + '"></div><span>item:' + position + '</span>';
+//        element.innerHTML = '<img src="http://lorempixel.com/60/60/" style=""/><span>item:' + position + '</span>';
 
-        element.innerHTML = 'item:' + position;
         element.className = 'item';
         return element;
     };

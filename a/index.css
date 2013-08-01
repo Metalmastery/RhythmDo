@@ -15,7 +15,7 @@ html, body {
     overflow: hidden;
 }
 
-.scroll-view > div{
+.scroll-view > div {
     position: absolute;
 
     height: 100%;
@@ -36,14 +36,45 @@ html, body {
     background-color: #17b7f9;
 }
 
-.item{
+.item {
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
 
     margin: 0 0 1px 0;
 
-    padding: 10px;
     background-color: #17b7f9;
+    width: 100%;
+}
+
+.item .img,  .item img{
+    display: inline-block;
+    width: 60px;
+    height: 60px;
+
+    -webkit-transform: translate3d(0, 0, 0);
+    -moz-transform: translate3d(0, 0, 0);
+    -ms-transform: translate3d(0, 0, 0);
+    -o-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+
+    vertical-align: middle;
+}
+
+.item span {
+    vertical-align: middle;
+    text-transform: uppercase;
+    font-family: sans-serif;
+
+    color: #ffffff;
+    padding-left: 20px;
+
+    -webkit-user-select: none;  /* Chrome all / Safari all */
+    -moz-user-select: none;     /* Firefox all */
+    -ms-user-select: none;      /* IE 10+ */
+
+    /* No support for these yet, use at own risk */
+    -o-user-select: none;
+    user-select: none;
 }
 
 .list-view {
@@ -54,7 +85,7 @@ html, body {
     overflow: hidden;
 }
 
-.list-view > div{
+.list-view > div {
     position: absolute;
 
     -webkit-transition: -webkit-transform 0ms;
