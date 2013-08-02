@@ -17,15 +17,67 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
         canvasHalfHeight : 150,
         visualDayWidth : 38,
         daysMargin : 2,
-        daysPosAbsolute : true
+        daysPosAbsolute : true,
+        graphParts : [[],[],[]]
     },
 
-    rearrangeDaysList : function(speed, count){
-        var side = speed > 0 ? 1 : -1,
-            list = this.drawing.list,
-            elem = null,
-            count = count || 1,
-            dayWidth = this.drawing.visualDayWidth;
+    getBioRange : function(startDay, endDay){
+        var birth = this.application.bio.birthDateTimestamp,
+            res = [];
+        for (var d= startDay; d <= endDay; d++) {
+            res.push(this.application.bio.getBioForDay(new Date(birth + 86400000*d)));
+        }
+        return res;
+    },
+
+    prepareGraphParts : function(width, height, lineWidth){
+
+        if (!width || !height) {
+            return false;
+        }
+
+        var self = this,
+            canvas = document.createElement('canvas'),
+            context = canvas.getContext('2d'),
+            halfHeight = height / 2,
+            days = this.getBioRange(0, 34),
+            colors = this.drawing.colors,
+            periods = [23, 28, 33],
+            offset = 3;
+
+            canvas.width = width;
+            canvas.height = height;
+
+        for (var i = 0; i < periods.length; i++){
+            for (var j = 0; j < periods[i]; j++){
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                context.lineWidth = 4;
+
+                context.beginPath();
+
+                var begX = 0;
+                var begY = halfHeight - days[j][i]*(halfHeight-offset);
+                var endX = canvas.width;
+                var endY = halfHeight - days[j+1][i]*(halfHeight-offset);
+
+                context.moveTo(begX, begY);
+                context.lineTo(endX, endY);
+
+                context.strokeStyle = colors[i];
+                context.closePath();
+                context.stroke();
+
+                self.drawing.graphParts[i][j] = context.getImageData(0, 0, canvas.width, canvas.height);
+            }
+        }
+        console.log(self.drawing.graphParts);
+        var ct = $('li canvas').eq(50)[0].getContext('2d');
+
+
+        ct.globalAlpha = 0.5;
+        ct.putImageData(self.drawing.graphParts[2][0], 0, 0);
+        ct.globalCompositeOperation = 'darker';
+            ct.putImageData(self.drawing.graphParts[1][3], 0, 0);
     },
 
     drawRange : function(days, index){
@@ -73,6 +125,7 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
             monthDay.innerHTML = days[i][3];
             weekDay.innerHTML = days[i][4];
         }
+        this.prepareGraphParts(this.drawing.visualDayWidth, this.drawing.canvasHalfHeight);
     },
     snapToDay : function(diff){
         var dayWidth = this.drawing.visualDayWidth,

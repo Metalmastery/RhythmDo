@@ -42,10 +42,10 @@ RAD.view("view.monitor", RAD.Blanks.View.extend({
 
 	onInitialize : function(){
 		var self = this;
-		this.subscribe('monitor.ready', this.test, this);
-//		window.setInterval(function(){
-//			self.test();
-//		}, 3000);
+//		this.subscribe('monitor.ready', this.test, this);
+		window.setInterval(function(){
+			self.test();
+		}, 3000);
 	},
 
 	test : function(){
@@ -253,9 +253,8 @@ RAD.view("view.monitor", RAD.Blanks.View.extend({
             offset = - Math.PI / 2,
             size = self.drawing.canvasArray[0].height,
             radius = radius || size/2 - 13,
-            lineWidth = lineWidth || 10,
+            lineWidth = lineWidth || 15,
             opacity = opacity || 1;
-
 //        for (var i = 0; i<arrayBio.length; i++) {
         sign = value > 0 ? 1 : -1;
         roundValue = Math.abs(value) * 2 * Math.PI;

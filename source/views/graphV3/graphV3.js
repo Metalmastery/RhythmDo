@@ -320,9 +320,6 @@ RAD.namespace("views.graphV3Base", RAD.Blanks.View.extend({
 
     drawRange : function(days, index){
 
-        console.log(days.length);
-        console.log(this.drawing.canvasArray.length);
-
         var canvas = null,
             context = null,
 	        monthDay = null,

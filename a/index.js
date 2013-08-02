@@ -32,31 +32,10 @@
     }
 }());
 
-//Math.easeInOutQuad = function (currentTime, startValue, changeInValue, duration) {
-//    currentTime /= duration / 2;
-//    if (currentTime < 1) {
-//        return changeInValue / 2 * currentTime * currentTime + startValue;
-//    }
-//    currentTime -= 1;
-//    return -changeInValue / 2 * (currentTime * (currentTime - 2) - 1) + startValue;
-//};
-//
-
-function makeEaseInOut(delta, progress) {
-    var result;
-    if (progress < 0.5) {
-        result = delta(2 * progress) / 2;
-    } else {
-        result = (2 - delta(2 * (1 - progress))) / 2;
-    }
-    return result;
-}
-
 function ListView(element, adapter, options) {
     "use strict";
-    var FRICTION_FACTOR = 0.94,
+    var DRAG_FACTOR = 0.8,
         MAX_VELOCITY = 10,
-        MIN_VELOCITY = 0.01,
 
 
         mListView = this,
@@ -66,16 +45,60 @@ function ListView(element, adapter, options) {
         mParentSize,
 
         mClearCancel,
-        mLastVelocity = 0,
         mRequestAnimationID,
-        mLastTickTime,
         mPointerIsDown = false,
         mLastPointerCoordinate,
         mItemSize,
         mVisibleItems = [],
 
         mLastAdapterPosition = 0,
-        mWrapperShiftPosition = 0;
+        mWrapperShiftPosition = 0,
+
+        //you can use formulas from http://gizma.com/easing/
+        scroller = {
+            easeInQuad: function (t, b, c, d) {
+                t /= d;
+                return c * t * t + b;
+            },
+
+            signum: function (number) {
+                return number && number / Math.abs(number);
+            },
+
+            start: function (startVelocity, min, max, type) {
+                var FRICTION_FACTOR = 0.6;
+
+                this.startVelocity = startVelocity;
+                this.deltaVelocity = -startVelocity; // to 0
+                this.duration = (startVelocity / FRICTION_FACTOR) * 1000;
+
+                this.startTime = new Date().getTime();
+                this.lastTime = this.startTime;
+                this.type = type;
+
+                this.min = min;
+                this.max = max;
+            },
+
+            computeScrollOffset: function () {
+                var MIN_VELOCITY = 0.01,
+                    velocity,
+                    now = new Date().getTime(),
+                    animationTime = now - this.startTime,
+                    deltaTime  = now - this.lastTime;
+
+                this.lastTime = now;
+                velocity = this[this.type](animationTime, this.startVelocity, this.deltaVelocity, this.duration);
+                if ((Math.abs(velocity) < MIN_VELOCITY) || (this.signum(velocity) !== this.signum(this.startVelocity))) {
+                    velocity = 0;
+                }
+                //check bounds
+
+                return deltaTime * velocity;
+            }
+        };
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     function getFullSizeWithMargin(element) {
         var elmHeight, elmMargin;
@@ -166,7 +189,7 @@ function ListView(element, adapter, options) {
         }
     }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     function extractLastCoordinate(e, eventName, pressed) {
         var currentPoint = (mDirection === "vertical") ? e[eventName].screenY : e[eventName].screenX,
@@ -177,32 +200,28 @@ function ListView(element, adapter, options) {
         mLastPointerCoordinate = currentPoint;
     }
 
-    function tick() {
-        var now = new Date().getTime(),
-            delta = (now - mLastTickTime) * mLastVelocity;
-        mListView.shift(delta);
-        mLastVelocity *= FRICTION_FACTOR;
-        if (typeof mLastVelocity === 'number' && Math.abs(mLastVelocity) > MIN_VELOCITY && !mPointerIsDown) {
-            mLastTickTime = now;
+    function tick(tickTime) {
+        var shift = scroller.computeScrollOffset();
+        mListView.shift(shift);
+
+        if (shift !== 0 || tickTime === undefined) {
             mRequestAnimationID = window.requestAnimationFrame(tick, null);
         } else {
-            mLastVelocity = 0;
             mListView.shift(mWrapperShiftPosition % 1, false);
         }
     }
 
     function eventSwipe(e) {
         var isVertical = (mDirection === "vertical" && (e.swipe.direction === "top" || e.swipe.direction === "bottom")),
-            isHorizontal = (mDirection !== "vertical" && (e.swipe.direction === "left" || e.swipe.direction === "right"));
+            isHorizontal = (mDirection !== "vertical" && (e.swipe.direction === "left" || e.swipe.direction === "right")),
+            velocity;
 
         if (isVertical || isHorizontal) {
-            mLastVelocity = (e.swipe.direction === "top" || e.swipe.direction === "left") ? e.swipe.speed : -e.swipe.speed;
-            mLastVelocity = (Math.abs(mLastVelocity) > MAX_VELOCITY) ? MAX_VELOCITY * (mLastVelocity / Math.abs(mLastVelocity)) : mLastVelocity;
+            velocity = (e.swipe.direction === "top" || e.swipe.direction === "left") ? e.swipe.speed : -e.swipe.speed;
+            velocity = DRAG_FACTOR * parseFloat((Math.abs(velocity) > MAX_VELOCITY) ? MAX_VELOCITY * (velocity / Math.abs(velocity)) : velocity);
             mPointerIsDown = false;
-            mLastTickTime = new Date().getTime();
 
-            console.log(mLastVelocity / FRICTION_FACTOR);
-
+            scroller.start(velocity, 0, adapter.getCountItems() * mItemSize, "easeInQuad");
             tick();
         }
     }
