@@ -246,6 +246,17 @@ RAD.view("view.monitor", RAD.Blanks.View.extend({
 
     drawBio : function(value, index, dashed, radius, lineWidth, opacity){
 
+        CanvasRenderingContext2D.prototype.dottedArc = function(x,y,radius,startAngle,endAngle,anticlockwise) {
+            var g = 0.04, c = 0.01,  sa = startAngle, ea = startAngle + g;
+            while(ea < endAngle + g + c) {
+                this.beginPath();
+                this.arc(x,y,radius,sa,ea,anticlockwise);
+                this.stroke();
+                sa = ea + g + c;
+                ea = sa + g;
+            }
+        };
+
         var sign,
             context,
             color,
@@ -257,7 +268,8 @@ RAD.view("view.monitor", RAD.Blanks.View.extend({
             opacity = opacity || 1;
 //        for (var i = 0; i<arrayBio.length; i++) {
         sign = value > 0 ? 1 : -1;
-        roundValue = Math.abs(value) * 2 * Math.PI;
+//        roundValue = Math.abs(value ) * 2 * Math.PI;
+        roundValue = (value + 1) * Math.PI;
 
         context = self.drawing.contextArray[index];
         color = self.drawing.colors[index];
@@ -273,12 +285,13 @@ RAD.view("view.monitor", RAD.Blanks.View.extend({
         if (typeof dashed != 'undefined') {
             if (dashed) {
                 //context.setLineDash([2,3]);
+               context.dottedArc(size/2, size/2, radius, offset, offset + roundValue /** sign, sign < 0*/);
             } else {
-                //context.setLineDash([]);
+                context.arc(size/2, size/2, radius, offset, offset + roundValue /** sign, sign < 0*/);
             }
         }
         //console.log(context.getLineDash());
-        context.arc(size/2, size/2, radius, offset, offset + roundValue /** sign, sign < 0*/);
+
         context.stroke();
 //	    }
     }

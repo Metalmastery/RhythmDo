@@ -86,6 +86,7 @@ RAD.namespace("views.graphV3Base", RAD.Blanks.View.extend({
         this.moveWrapper(-self.drawing.visualDayWidth * self.drawing.visualRange / 3, true);
 
         this.drawRange(this.getBounds(this.application.bio.currentDay, null, -self.drawing.visualRange / 3,-self.drawing.visualRange / 3));
+//        this.drawRange(this.getBounds(15, null, -self.drawing.visualRange / 3,-self.drawing.visualRange / 3));
     },
 
 	onEndRender : function(){

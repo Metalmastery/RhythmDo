@@ -20,12 +20,13 @@ RAD.application = function (core) {
             var periods = [23, 28, 33],
                 day = [];
                 //birth = new Date(app.bio.birthDate);
+            var d = app.bio.getDaysFromBirth(date);
             for (var per in periods){
-                var d = app.bio.getDaysFromBirth(date);
                 day[per] = (Math.sin(2*Math.PI*d/periods[per]));
             }
             day[3] = date.getDate();
             day[4] = date.toDateString().split(' ')[0];
+            day[5] = d;
             return day;
         }
     };
