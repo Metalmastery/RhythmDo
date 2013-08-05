@@ -22,20 +22,24 @@ RAD.namespace("views.graphV3Base", RAD.Blanks.View.extend({
     },
 
     initVisual : function(){
-        var aniWrap = this.$('.animationWrap');
+        var aniWrap = this.$('.animationWrap'),
+        canvasWidth = $('ul.days li canvas').width(),
+        canvasHeight = $('ul.days li canvas').height(),
+        halfHeight = canvasHeight / 2;
 
         _(this.drawing).defaults({
-            canvasWidth : 135,
-            canvasHeight : 100,
-            canvasHalfHeight : 50,
-            requestAF : window.requestAnimationFrame,
-            cancelAF : window.cancelAnimationFrame,
+            canvasWidth : canvasWidth,
+            canvasHeight : canvasHeight,
+            canvasHalfHeight : halfHeight,
             currentAnimation : null,
             animationWrapper : aniWrap,
             visualDayWidth: 135,
             daysMargin : 4,
             colors : ['#40b2e4', '#f75d55', '#01d5be'],
             wrapperPosition : 0,
+            visibleArray : [],
+            firstElementIndex : 0,
+            lastElementIndex : 0,
             canvasArray : [],
             contextArray : [],
             monthDayArray : [],
@@ -46,6 +50,8 @@ RAD.namespace("views.graphV3Base", RAD.Blanks.View.extend({
             daysPosAbsolute : false
         });
 
+        this.drawing.visibleScreenWidth = this.$el.width();
+        console.log(this.$el.width());
         this.drawing.visualRange = Math.round(this.$el.width() / this.drawing.visualDayWidth) * 3 + 3;
 
         var self = this,
@@ -63,7 +69,7 @@ RAD.namespace("views.graphV3Base", RAD.Blanks.View.extend({
                 left: self.drawing.daysPosAbsolute ? listSize : '',
                 width: self.drawing.visualDayWidth - 2*self.drawing.daysMargin
             });
-            listSize += self.drawing.visualDayWidth;
+
             var canvas = li.find('canvas').attr({
                 width : self.drawing.canvasWidth,
                 height: self.drawing.canvasHeight
@@ -72,18 +78,27 @@ RAD.namespace("views.graphV3Base", RAD.Blanks.View.extend({
                     top : 0,
                     left : -this.drawing.daysMargin
                 });
+            self.drawing.visibleArray.push({
+                element : li[0],
+                id : key,
+                position : listSize
+            });
             self.drawing.canvasArray.push(canvas[0]);
             self.drawing.contextArray.push(canvas[0].getContext('2d'));
             self.drawing.monthDayArray.push(li.find('.monthday')[0]);
             self.drawing.weekDayArray.push(li.find('.weekday')[0]);
-
+            listSize += self.drawing.visualDayWidth;
         }
         dayLi.remove();
         daysList[0].style.width = listSize + 'px';
+        self.drawing.listSize = listSize;
+
 
         this.drawing.list = daysList;
 
-        this.moveWrapper(-self.drawing.visualDayWidth * self.drawing.visualRange / 3, true);
+//        this.moveWrapper(-self.drawing.visualDayWidth * self.drawing.visualRange / 3, true);
+
+        this.animation.animationWrapperPosition = -self.drawing.visualDayWidth * self.drawing.visualRange / 3;
 
         this.drawRange(this.getBounds(this.application.bio.currentDay, null, -self.drawing.visualRange / 3,-self.drawing.visualRange / 3));
 //        this.drawRange(this.getBounds(15, null, -self.drawing.visualRange / 3,-self.drawing.visualRange / 3));
@@ -232,6 +247,7 @@ RAD.namespace("views.graphV3Base", RAD.Blanks.View.extend({
                 'transform': value
             })
             .on(eventName, callback);
+            window.setTimeout(callback, 350);
 
         function callback(){
             self.drawing.isAnimating = false;
