@@ -140,7 +140,7 @@ body {
 .stat .days {
     height: 100%;
     left: 0;
-    overflow: hidden;
+    overflow: visible;
     position: absolute;
     top: 0;
     margin: 0;
@@ -149,26 +149,29 @@ body {
 .stat .days li {
     list-style: none;
     background-color: #273d55;
-    /*position: relative;*/
+
     position: absolute;
     height: 100%;
     font: 14px Arial;
     top : 0;
-    /*float: left;*/
+    float: none;
+    margin: 0;
 }
 
 .stat .days li .bottomHalf {
     background-color: #9e170e;
     opacity: 0.1;
-    width: 100%;
+    width: auto;
     height: 50%;
+    margin: 0 2px;
 }
 
 .stat .days li .topHalf {
     background-color: #000;
     opacity: 0.1;
-    width: 100%;
+    width: auto;
     height: 50%;
+    margin: 0 2px;
 }
 
 .stat .days li .monthday {

@@ -37,6 +37,123 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
         lastAdapterPosition : 0
     },
 
+    initVisual : function(){
+        var aniWrap = this.$('.animationWrap'),
+            canvasWidth = $('ul.days li canvas').width(),
+            canvasHeight = $('ul.days li canvas').height(),
+            halfHeight = canvasHeight / 2;
+
+        _(this.drawing).defaults({
+            canvasWidth : canvasWidth,
+            canvasHeight : canvasHeight,
+            canvasHalfHeight : halfHeight,
+            currentAnimation : null,
+            animationWrapper : aniWrap,
+            visualDayWidth: 135,
+            daysMargin : 4,
+            colors : ['#40b2e4', '#f75d55', '#01d5be'],
+            wrapperPosition : 0,
+            visibleArray : [],
+            firstElementIndex : 0,
+            lastElementIndex : 0,
+            canvasArray : [],
+            contextArray : [],
+            monthDayArray : [],
+            weekDayArray : [],
+            isMoving : false,
+            isAnimating : false,
+            moveBasePosition : 0,
+            daysPosAbsolute : false
+        });
+
+        this.drawing.visibleScreenWidth = this.$el.width();
+        this.drawing.visualRange = Math.round(this.$el.width() / this.drawing.visualDayWidth) * 1 + 3;
+
+        var self = this,
+            daysList = self.$el.find('ul.days'),
+            dayLi = daysList.find('li'),
+            daysPointer = self.$el.find('#days_pointer').css({
+                top : daysList.eq(-2).css('top'),
+                left : daysList.eq(-2).css('left')
+            })[0],
+            listSize = self.drawing.visualDayWidth;
+
+        for (var key=0; key < self.drawing.visualRange; key++){
+            var li = dayLi.clone().appendTo(daysList).css({
+               // margin: '0 ' + self.drawing.daysMargin + 'px',
+//                left: self.drawing.daysPosAbsolute ? listSize : '',
+                width: self.drawing.visualDayWidth //- 2*self.drawing.daysMargin
+            });
+
+            this.setItemPosition(li[0], listSize);
+
+            var canvas = li.find('canvas').attr({
+                width : self.drawing.canvasWidth,
+                height: self.drawing.canvasHeight
+            }).css({
+                    position: 'absolute',
+                    top : 0,
+                    marginLeft : -this.drawing.daysMargin
+                });
+            self.drawing.visibleArray.push({
+                element : li[0],
+                id : key,
+                position : listSize
+            });
+            self.drawing.canvasArray.push(canvas[0]);
+            self.drawing.contextArray.push(canvas[0].getContext('2d'));
+            self.drawing.monthDayArray.push(li.find('.monthday')[0]);
+            self.drawing.weekDayArray.push(li.find('.weekday')[0]);
+            listSize += self.drawing.visualDayWidth;
+        }
+        dayLi.remove();
+        daysList[0].style.width = listSize + 'px';
+        self.drawing.listSize = listSize;
+
+
+        this.drawing.list = daysList;
+
+//        this.moveWrapper(-self.drawing.visualDayWidth * self.drawing.visualRange / 3, true);
+
+        this.animation.animationWrapperPosition = -self.drawing.visualDayWidth * self.drawing.visualRange / 3;
+
+        this.drawRange(this.getBounds(this.application.bio.currentDay, null));
+//        this.drawRange(this.getBounds(15, null, -self.drawing.visualRange / 3,-self.drawing.visualRange / 3));
+    },
+
+    rearrangeDaysList : function(side){
+        var index1, index2, el, leftBorderOut, rightBorderOut, sideSign = side < 0 ? 1 : -1;
+        if (side < 0) {
+            index1 = 0;
+            index2 = this.drawing.visualRange-1;
+        } else {
+            index1 = this.drawing.visualRange-1;
+            index2 = 0;
+        }
+        var flag = true;
+        while (flag) {
+            flag = false;
+            el = this.drawing.visibleArray[index1];
+
+            leftBorderOut = el.position + this.animation.animationWrapperPosition < -100;
+            rightBorderOut = el.position + this.animation.animationWrapperPosition > this.drawing.visibleScreenWidth + 100;
+
+            if (leftBorderOut || rightBorderOut) {
+                flag = true;
+                el.position = this.drawing.visibleArray[index2].position + (this.drawing.visualDayWidth) * sideSign ;
+                el.dayFromBirth = this.drawing.visibleArray[index2].dayFromBirth + sideSign;
+
+                this.setItemPosition(el.element, el.position);
+
+                this.drawOneDay(el.dayFromBirth, el.canvas, true);
+
+                this.drawing.visibleArray.splice(index1, 1);
+
+                leftBorderOut ? this.drawing.visibleArray.push(el) : this.drawing.visibleArray.unshift(el);
+            }
+        }
+    },
+
     removeInvisibleItems : function(){
         var i, itemHandler,
             fromDownOrRight;
@@ -46,9 +163,9 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
             fromDownOrRight = itemHandler.position - this.drawing.visualDayWidth > this.drawing.visibleScreenWidth - this.animation.animationWrapperPosition;
 
             if ((itemHandler.position + this.drawing.visualDayWidth < -this.animation.animationWrapperPosition) || fromDownOrRight) {
-                console.log('removing', itemHandler);
-                this.drawing.list[0].removeChild(itemHandler.element);
-                this.drawing.visibleArray.splice(i,1);
+                //console.log('removing', itemHandler);
+                //this.drawing.list[0].removeChild(itemHandler.element);
+                //this.drawing.visibleArray.splice(i,1);
 //
 //                if (fromDownOrRht) {
 //                    mLastAdapterPosition = itemHandr.id;
@@ -109,7 +226,9 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
         this.animation.animationWrapper.style.msTransform = value;
         this.animation.animationWrapper.style.mozTransform = value;
 
-        this.removeInvisibleItems();
+        this.rearrangeDaysList(delta);
+//        console.log(delta);
+        //this.removeInvisibleItems();
         if (delta < 0) {
             this.fillToRight(this.animation.lastAdapterPosition);
         } else {
@@ -281,7 +400,7 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
         console.log(self.drawing.graphParts);
     },
 
-    drawOneDay : function(dayFromBirth, canvas){
+    drawOneDay : function(dayFromBirth, canvas, force){
 
         var self = this,
             bounds = null,
@@ -291,13 +410,20 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
             factor = 2,
             periods = [23, 28, 33],
             context = canvas.getContext('2d'),
-            width = 38,
+            width = this.drawing.visualDayWidth,
             height = 120,
             lineWidth = 10;
 
-        context.clearRect(0,0,canvas.width, canvas.height);
+        console.log(canvas.width);
+
+//        context.clearRect(0, 0, canvas.width + 100, canvas.height + 10);
+        context.clearRect(0, 0, 100, canvas.height + 10);
         context.lineWidth = lineWidth;
         context.lineCap = 'square';
+
+        if (force) {
+            //return false;
+        }
 
         for (var i = 0; i < periods.length; i++){
             cycleDay = dayFromBirth % periods[i];
@@ -332,7 +458,7 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
 
         this.prepareGraphParts(this.drawing.visualDayWidth, this.drawing.canvasHeight);
 
-        for (var i = firstRedrawingDay; i < days.length-1; i++) {
+        for (var i = firstRedrawingDay; i < this.drawing.visibleArray.length; i++) {
 
             canvas = this.drawing.canvasArray[i];
             context = this.drawing.contextArray[i];
@@ -341,6 +467,9 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
 
             monthDay.innerHTML = days[i][3];
             weekDay.innerHTML = days[i][4];
+
+            this.drawing.visibleArray[i].dayFromBirth = days[i][5];
+            this.drawing.visibleArray[i].canvas = canvas;
 
             this.drawOneDay(days[i][5], canvas);
         }
