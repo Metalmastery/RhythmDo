@@ -23,8 +23,8 @@ RAD.namespace("views.graphV3Base", RAD.Blanks.View.extend({
 
     initVisual : function(){
         var aniWrap = this.$('.animationWrap'),
-        canvasWidth = $('ul.days li canvas').width(),
-        canvasHeight = $('ul.days li canvas').height(),
+        canvasWidth = 135,
+        canvasHeight = 135,
         halfHeight = canvasHeight / 2;
 
         _(this.drawing).defaults({
@@ -96,9 +96,9 @@ RAD.namespace("views.graphV3Base", RAD.Blanks.View.extend({
 
         this.drawing.list = daysList;
 
-//        this.moveWrapper(-self.drawing.visualDayWidth * self.drawing.visualRange / 3, true);
+        this.moveWrapper(-self.drawing.visualDayWidth * self.drawing.visualRange / 3, true);
 
-        this.animation.animationWrapperPosition = -self.drawing.visualDayWidth * self.drawing.visualRange / 3;
+        //this.animation.animationWrapperPosition = -self.drawing.visualDayWidth * self.drawing.visualRange / 3;
 
         this.drawRange(this.getBounds(this.application.bio.currentDay, null, -self.drawing.visualRange / 3,-self.drawing.visualRange / 3));
 //        this.drawRange(this.getBounds(15, null, -self.drawing.visualRange / 3,-self.drawing.visualRange / 3));
