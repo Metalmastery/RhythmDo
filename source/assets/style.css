@@ -130,7 +130,7 @@ body {
 
 .stat .days canvas {
     margin-top: 70px;
-    height: 70%
+    height: 70%;
 }
 
 .stat .graph_container {
@@ -156,6 +156,7 @@ body {
     top : 0;
     float: none;
     margin: 0;
+    overflow: hidden;
 }
 
 .stat .days li .bottomHalf {
