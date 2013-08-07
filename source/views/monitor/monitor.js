@@ -20,8 +20,8 @@ RAD.view("view.monitor", RAD.Blanks.View.extend({
 		negativeArray : [],
 		colors : ['#01d5be', '#f75d55', '#40b2e4'],
         bioCycles : [23, 28, 33],
-		canvasWidth : 170,
-		canvasHeight : 170,
+		canvasWidth : 0,
+		canvasHeight : 0,
         maxBioIndex : 0,
         radius : 0
 	},
@@ -40,9 +40,8 @@ RAD.view("view.monitor", RAD.Blanks.View.extend({
         currentPulseOpacity : 1
 	},
 
-	onInitialize : function(){
+	onEndAttach : function(){
 		var self = this;
-//		this.subscribe('monitor.ready', this.test, this);
 		window.setInterval(function(){
 			self.test();
 		}, 3000);
@@ -225,10 +224,29 @@ RAD.view("view.monitor", RAD.Blanks.View.extend({
 	},
 
 	initMonitor : function (){
+		var height = this.$el.height();
+		var width = this.$el.width();
+		console.log(width, height);
+
+		var canvasSize = Math.min(height, width/3, 200);
+
+		this.drawing.canvasWidth = canvasSize;
+		this.drawing.canvasHeight = canvasSize;
+
+		this.drawing.lineWidth = Math.min(canvasSize / 10, 13);
+
+		console.log(canvasSize);
+
+		//		this.subscribe('monitor.ready', this.test, this);
+
+
 		var self = this;
 		var blocks = ['strength', 'emo', 'brain'];
 		for (var i = 0; i<blocks.length; i++) {
-			var block = self.$('.' + blocks[i]);
+			var block = self.$('.' + blocks[i]).css({
+				height : self.drawing.canvasHeight,
+				width : self.drawing.canvasWidth
+			});
 			var canvas = block.find('canvas').attr({
 				height : self.drawing.canvasHeight,
 				width : self.drawing.canvasWidth
@@ -240,34 +258,40 @@ RAD.view("view.monitor", RAD.Blanks.View.extend({
 			self.drawing.cycleTrendArray.push(block.find('.cycle_trend')[0]);
 			self.drawing.negativeArray.push(block.find('.negative')[0]);
 		}
-        self.drawing.radius = self.drawing.canvasArray[0].width / 2 - 13;
-		self.test();
+        self.drawing.radius = self.drawing.canvasArray[0].width / 2 - this.drawing.lineWidth;
+
+		self.$('.block_wrap').css({
+			width : self.drawing.canvasWidth * 3
+		});
+
+		CanvasRenderingContext2D.prototype.dottedArc = function(x,y,radius,startAngle,endAngle,anticlockwise) {
+			var g = 0.04, c = 0.01,  sa = startAngle, ea = startAngle + g;
+			while(ea < endAngle + g + c) {
+				this.beginPath();
+				this.arc(x,y,radius,sa,ea,anticlockwise);
+				this.stroke();
+				sa = ea + g + c;
+				ea = sa + g;
+			}
+		};
+
 	},
 
     drawBio : function(value, index, dashed, radius, lineWidth, opacity){
 
-        CanvasRenderingContext2D.prototype.dottedArc = function(x,y,radius,startAngle,endAngle,anticlockwise) {
-            var g = 0.04, c = 0.01,  sa = startAngle, ea = startAngle + g;
-            while(ea < endAngle + g + c) {
-                this.beginPath();
-                this.arc(x,y,radius,sa,ea,anticlockwise);
-                this.stroke();
-                sa = ea + g + c;
-                ea = sa + g;
-            }
-        };
-
-        var sign,
-            context,
-            color,
-            self = this,
-            offset = - Math.PI / 2,
-            size = self.drawing.canvasArray[0].height,
-            radius = radius || size/2 - 13,
-            lineWidth = lineWidth || 15,
-            opacity = opacity || 1;
-//        for (var i = 0; i<arrayBio.length; i++) {
         sign = value > 0 ? 1 : -1;
+
+	    var sign,
+		    context,
+		    color,
+		    self = this,
+		    offset = - Math.PI / 2,
+		    size = self.drawing.canvasArray[0].height,
+		    lineWidth = this.drawing.lineWidth,
+		    radius = radius || size/2 - lineWidth - 3,
+//            lineWidth = lineWidth || 15,
+
+		    opacity = opacity || 1;
 //        roundValue = Math.abs(value ) * 2 * Math.PI;
         roundValue = (value + 1) * Math.PI;
 
@@ -277,7 +301,7 @@ RAD.view("view.monitor", RAD.Blanks.View.extend({
 
         self.drawing.negativeArray[index].style.display = sign > 0 ? 'none' : 'block';
 
-        context.clearRect(0,0,200,200);
+        context.clearRect(0,0, self.drawing.canvasWidth, self.drawing.canvasHeight);
 
         context.strokeStyle = color;
         context.lineWidth = lineWidth;
