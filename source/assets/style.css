@@ -10,6 +10,7 @@ body {
 
 .module_holder {
     position: relative;
+    overflow: hidden;
 }
 
 .main {
@@ -63,6 +64,15 @@ body {
     opacity: 0.1;
     width: 100%;
     height: 50%;
+}
+
+.days canvas {
+    height: 100%;
+    width: 135px;
+    position: absolute;
+    top : 0;
+    left: 0;
+    margin: 0;
 }
 
 .days li .topHalf {
@@ -129,8 +139,10 @@ body {
 }
 
 .stat .days canvas {
-    margin-top: 70px;
     height: 70%;
+    position: absolute;
+    top : 15%;
+    margin: 0;
 }
 
 .stat .graph_container {
@@ -148,7 +160,7 @@ body {
 }
 .stat .days li {
     list-style: none;
-    background-color: #273d55;
+    background: none;
 
     position: absolute;
     height: 100%;
@@ -156,36 +168,39 @@ body {
     top : 0;
     float: none;
     margin: 0;
-    overflow: hidden;
+    padding: 0;
 }
 
 .stat .days li .bottomHalf {
     background-color: #9e170e;
     opacity: 0.1;
     width: auto;
-    height: 50%;
-    margin: 0 2px;
+    height: 40%;
+    margin: 0 2px 50px 2px;
 }
 
 .stat .days li .topHalf {
-    background-color: #000;
+    background: #000;
     opacity: 0.1;
     width: auto;
-    height: 50%;
-    margin: 0 2px;
+    height: 40%;
+    margin: 25px 2px 0 2px;
 }
 
 .stat .days li .monthday {
-    position: absolute;
+    position: relative;
     top: 0;
     left: 0;
-    width: 100%;
+    width: auto;
+    height: 25px;
+    line-height: 25px;
     text-align: center;
-    margin-top: 25px;
+    margin: 0 2px;
+    background: rgba(0,0,0,0.1);
 }
 
 .stat .days li .weekday {
-    position: absolute;
+    /*position: absolute;*/
     bottom: 0;
     left: 0;
     width: 100%;
@@ -194,18 +209,30 @@ body {
 }
 
 .stat #days_pointer {
-    position: absolute;
-    height: 60%;
-    top: 0;
-    left: 0;
+    height: 20%;
     background-color: #000;
     opacity: 0.25;
-    width: 2%;
+    width: 80px;
+    margin-left: 10%;
+}
+
+.stat #days_pointer_line {
+    position: absolute;
+    top: 20%;
+    height: 100%;
+    background-color: #000;
+    opacity: 0.25;
+    width: 38px;
+    margin-left: 15%;
+    margin-top: 10px;
+    margin-bottom: 50px;
 }
 
 .stat .animationWrap {
-    height: 100%;
+    height: 80%;
     position: absolute;
+    margin-top: 10px;
+    top: 20%;
 }
 
 .stat .animated {
@@ -300,62 +327,63 @@ body {
     bottom: 0;
     overflow: auto;
     position: absolute;
-    top: 62%;
+    top: 60%;
     width: 100%;
 }
 
 .monitor .block_wrap {
     margin: 0 auto;
     overflow: hidden;
-    width: 600px;
+    width: 100%;
 }
 
 .monitor .block_wrap .block {
     width: 160px;
     height: 240px;
     float: left;
-    margin: 10px;
+    margin: 20px 0;
     position: relative;
 }
 
 .block canvas {
     position: absolute;
-    top: -15px;
-    left: -5px;
+    top: -10%;
+    left: 0;
 }
 
 .block .bg {
-    width: 140px;
-    height: 140px;
+    width: 80%;
+    height: 80%;
     margin: 0 auto;
-    border-radius: 70px;
+    border-radius: 50%;
     background: #000;
     opacity: 0.1;
 }
 
 .block .negative {
     position: absolute;
-    top: 15px;
-    left: 25px;
-    width: 110px;
-    height: 110px;
-    border-radius: 55px;
+    top: 7.5%;
+    left: 17.5%;
+    width: 65%;
+    height: 65%;
+    border-radius: 50%;
     background: #b22222;
     opacity: 0.1;
 }
 
 .block .info {
-    width: 55px;
-    height: 90px;
+    width: 30%;
+    height: 40%;
     opacity: 1;
     position: absolute;
-    top: 34px;
-    left: 54px;
+    top: 20%;
+    left: 35%;
 }
 
 .block .info .cycle_day{
     color: #eee;
-    font: 40pt Arial;
+    /*font: 40pt Arial;*/
+    font: 2em Arial;
     text-align: center;
 }
 .block .info .status {
@@ -376,7 +404,7 @@ body {
 }
 
 .block .info .status .cycle_trend{
-    width: 25px;
+    /*width: 50%;*/
     height: 25px;
 }
 .block .info .status .cycle_trend.ascending{
@@ -400,4 +428,3 @@ body {
 .block .icon.brain {
     background: url('../img/brain.png') no-repeat center;
 }
-
