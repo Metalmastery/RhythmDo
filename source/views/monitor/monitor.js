@@ -42,10 +42,14 @@ RAD.view("view.monitor", RAD.Blanks.View.extend({
 
 	onEndAttach : function(){
 		var self = this;
-		window.setInterval(function(){
-			self.test();
-		}, 3000);
+        this.subscribe('monitor.show', this.receiver, this);
 	},
+
+    receiver : function(c, d){
+        var data = d.splice(0,3);
+        this.startAnimation(data);
+        console.log(data);
+    },
 
 	test : function(){
 		var testBio = [];
@@ -64,9 +68,11 @@ RAD.view("view.monitor", RAD.Blanks.View.extend({
             factor,
 		    valChanged = false,
 		    now = new Date().getTime(),
-		    time =  (now - self.animation.lasTime) / 300,
+		    time =  Math.min(now - self.animation.lasTime, 50),
 		    destination = self.animation.destinationBio,
 		    current = self.currentBio;
+
+        console.log(time);
 
 		self.animation.lasTime = now;
 
@@ -97,6 +103,7 @@ RAD.view("view.monitor", RAD.Blanks.View.extend({
 	},
 
 	startAnimation : function(destination){
+        console.log(destination);
 		var self = this;
 		self.animation.destinationBio = destination;
 
@@ -105,7 +112,7 @@ RAD.view("view.monitor", RAD.Blanks.View.extend({
                 if (res) {
                     self.animation.animID = window.requestAnimationFrame(callback);
                 } else {
-                    self.stopAnimation(true);
+                    self.stopAnimation(false);
                 }
 
 		}
@@ -129,6 +136,7 @@ RAD.view("view.monitor", RAD.Blanks.View.extend({
                 self.animation.animID = window.requestAnimationFrame(callback);
             } else {
                 self.stopAnimation();
+                console.log('stop animation');
             }
 
         }
@@ -226,7 +234,6 @@ RAD.view("view.monitor", RAD.Blanks.View.extend({
 	initMonitor : function (){
 		var height = this.$el.height();
 		var width = this.$el.width();
-		console.log(width, height);
 
 		var canvasSize = Math.min(height, width/3, 200);
 
@@ -234,11 +241,6 @@ RAD.view("view.monitor", RAD.Blanks.View.extend({
 		this.drawing.canvasHeight = canvasSize;
 
 		this.drawing.lineWidth = Math.min(canvasSize / 10, 13);
-
-		console.log(canvasSize);
-
-		//		this.subscribe('monitor.ready', this.test, this);
-
 
 		var self = this;
 		var blocks = ['strength', 'emo', 'brain'];

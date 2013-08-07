@@ -21,7 +21,7 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
     },
 
     drawing: {
-        canvasWidth : 30,
+        canvasWidth : 31,
         visualDayWidth : 30,
         daysMargin : 1,
         daysPosAbsolute : true,
@@ -53,7 +53,7 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
             animationWrapper : aniWrap,
             visualDayWidth: 135,
             daysMargin : 4,
-            colors : ['#40b2e4', '#f75d55', '#01d5be'],
+            colors : ['#01d5be', '#f75d55', '#40b2e4'],
             wrapperPosition : 0,
             visibleArray : [],
             firstElementIndex : 0,
@@ -91,7 +91,7 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
                 width : self.drawing.canvasWidth,
                 height: self.drawing.canvasHeight
             }).css({
-		        width : self.drawing.canvasWidth,
+		        width : self.drawing.canvasWidth
 	        });
             self.drawing.visibleArray.push({
                 element : li[0],
@@ -112,7 +112,7 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
         this.drawing.list = daysList;
 
 		this.shiftList(-self.drawing.visualDayWidth * 3);
-	    this.prepareGraphParts(this.drawing.visualDayWidth, this.drawing.canvasHeight);
+	    this.prepareGraphParts(this.drawing.canvasWidth, this.drawing.canvasHeight);
         this.drawRange(this.getBounds(this.application.bio.currentDay, 3));
     },
 
@@ -188,9 +188,11 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
         },
 
         start: function (startVelocity, min, max, type) {
-            var FRICTION_FACTOR = 0.6;
+//            var FRICTION_FACTOR = 0.6;
+            var FRICTION_FACTOR = 4;
 
             this.startVelocity = startVelocity;
+
             this.deltaVelocity = -startVelocity; // to 0
             this.duration = (startVelocity / FRICTION_FACTOR) * 1000;
 
@@ -239,8 +241,11 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
         }
     },
 
-    stopAnimation : function(){
+    stopAnimation : function(monitorOff){
         window.cancelAnimationFrame(this.animation.currentRAF);
+        if (!monitorOff) {
+            this.snapToDay();
+        }
     },
 
     extractLastCoordinate : function(e, eventName, pressed) {
@@ -268,16 +273,17 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
 
     },
 
-    stepAnimation : function(tickTime){
+    stepAnimation : function(){
         var self = this;
-        var callback = function(){
+        var callback = function(tickTime){
             var shift = self.scroller.computeScrollOffset();
             self.shiftList(shift);
 
             if (shift !== 0 || tickTime === undefined) {
                 self.animation.currentRAF = window.requestAnimationFrame(callback, null);
             } else {
-                self.shiftList(this.animation.animationWrapperPosition % 1, false);
+                self.shiftList(self.animation.animationWrapperPosition % 1, false);
+                self.stopAnimation();
             }
         };
         callback();
@@ -285,7 +291,7 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
 
     tapdownEvent : function(e){
         this.animation.pointerIsDown = true;
-        this.stopAnimation();
+        this.stopAnimation(true);
         this.animation.lastPointCoordinate = e.originalEvent.tapdown.screenX;
     },
 
@@ -328,10 +334,10 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
             for (var j = 0; j < periods[i]; j++){
                 var begX = 0;
                 var begY = Math.floor(halfHeight - days[j][i]*(halfHeight-offset));
-                var endX = canvas.width;
+                var endX = canvas.width-1;
                 var endY = Math.floor(halfHeight - days[j+1][i]*(halfHeight-offset));
 
-                self.drawing.graphParts[i][j] = [begX, begY, endX, endY]
+                self.drawing.graphParts[i][j] = [begX, begY, endX, endY];
             }
         }
     },
@@ -345,10 +351,10 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
 		monthDay.innerHTML = date.getDate();
 		weekDay.innerHTML = date.toDateString().split(' ')[0];
 
-		this.drawOneDay(item.dayFromBirth, item.canvas)
+		this.drawOneDay(item.dayFromBirth, item.canvas, true)
 	},
 
-    drawOneDay : function(dayFromBirth, canvas){
+    drawOneDay : function(dayFromBirth, canvas, force){
 
         var self = this,
             bounds = null,
@@ -359,12 +365,12 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
             periods = [23, 28, 33],
             context = canvas.getContext('2d'),
             width = this.drawing.visualDayWidth,
-            height = 120,
-            lineWidth = 10;
+            height = canvas.height,
+            lineWidth = 6;
 
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.lineWidth = lineWidth;
-        context.lineCap = 'square';
+        context.lineCap = 'round';
 
         for (var i = 0; i < periods.length; i++){
             cycleDay = dayFromBirth % periods[i];
@@ -375,7 +381,7 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
 
             context.beginPath();
             context.moveTo(bounds[0], bounds[1]);
-            context.quadraticCurveTo(bounds[0] + width/2, bounds[1] - diff / 2 + (Math.abs(height + 30 - Math.min(bounds[1], bounds[3])) > height/2 + 50 ? factor*sideSign : 1), bounds[2], bounds[3]);
+            context.quadraticCurveTo(bounds[0] + width/2, bounds[1] - diff / 2 + (Math.abs(height + 30 - Math.min(bounds[1], bounds[3])) > height/2 + height/3 ? factor*sideSign : 1), bounds[2], bounds[3]);
 //            context.quadraticCurveTo(bounds[0] + width/2, bounds[1] - diff / 2 + (Math.abs(diff) < 30 ? factor*sideSign : 1), bounds[2], bounds[3]);
 //            context.lineTo(bounds[2], bounds[3]);
             // TODO completely fix the smoothing of curve & edges matching
@@ -427,14 +433,13 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
         }
     },
 
-    snapToDay : function(diff){
-        var dayWidth = this.drawing.visualDayWidth,
-            backSwipeDelta = 30,
-            side = diff > 0 ? 1 : -1,
-            steps = Math.round((diff + side*backSwipeDelta) / dayWidth),
-            next = steps * dayWidth,
-            shift = (Math.abs(diff) > 10) ? (next - diff) : -diff;
-	        this.animateTo(shift, Math.abs(steps), diff);
+    snapToDay : function(){
+        var currentDay = this.drawing.visibleArray[5],
+            currentBio = this.application.bio.getBioForDay(currentDay.dayFromBirth, true);
+
+        console.log(currentDay);
+        this.publish('monitor.show', currentBio);
+
 
     }
 }));

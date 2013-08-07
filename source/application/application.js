@@ -14,13 +14,20 @@ RAD.application = function (core) {
                 currentDate = date || new Date();
             return (currentDate - birth)/86400000;
         },
-        getBioForDay : function(date){
+        getBioForDay : function(date, byDayOfBirth){
             "use strict";
 
             var periods = [23, 28, 33],
-                day = [];
+                day = [],
+                d;
                 //birth = new Date(app.bio.birthDate);
-            var d = app.bio.getDaysFromBirth(date);
+            if (!byDayOfBirth) {
+                d = app.bio.getDaysFromBirth(date);
+            } else {
+                d = date;
+                date = app.bio.getDateByDayFromBirth(date);
+            }
+
             for (var per in periods){
                 day[per] = (Math.sin(2*Math.PI*d/periods[per]));
             }
@@ -28,6 +35,10 @@ RAD.application = function (core) {
             day[4] = date.toDateString().split(' ')[0];
             day[5] = d;
             return day;
+        },
+        getDateByDayFromBirth : function(daysFromBirth){
+            var birth = app.bio.birthDateTimestamp;
+            return new Date(birth + daysFromBirth * 86400000);
         }
     };
 
