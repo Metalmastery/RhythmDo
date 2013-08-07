@@ -21,9 +21,9 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
     },
 
     drawing: {
-        canvasWidth : 38,
-        visualDayWidth : 38,
-        daysMargin : 2,
+        canvasWidth : 30,
+        visualDayWidth : 30,
+        daysMargin : 1,
         daysPosAbsolute : true,
         graphParts : [[],[],[]]
     },

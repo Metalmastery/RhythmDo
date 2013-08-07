@@ -34,8 +34,8 @@ RAD.application = function (core) {
     app.start = function () {
         var options = {
             container_id: '#screen',
-//            content: "view.stat",
-            content: "view.start_page",
+            content: "view.stat",
+//            content: "view.start_page",
             animation: "none"
         };
         core.publish('navigation.show', options);
