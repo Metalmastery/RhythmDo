@@ -51,7 +51,6 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
             canvasHalfHeight : halfHeight,
             currentAnimation : null,
             animationWrapper : aniWrap,
-            visualDayWidth: 135,
             daysMargin : 4,
             colors : ['#01d5be', '#f75d55', '#40b2e4'],
             wrapperPosition : 0,
@@ -91,7 +90,7 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
                 width : self.drawing.canvasWidth,
                 height: self.drawing.canvasHeight
             }).css({
-		        width : self.drawing.canvasWidth
+		        width : self.drawing.canvasWidth - 1
 	        });
             self.drawing.visibleArray.push({
                 element : li[0],
@@ -189,7 +188,7 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
 
         start: function (startVelocity, min, max, type) {
 //            var FRICTION_FACTOR = 0.6;
-            var FRICTION_FACTOR = 4;
+            var FRICTION_FACTOR = 1;
 
             this.startVelocity = startVelocity;
 
@@ -318,6 +317,28 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
             return false;
         }
 
+        var cnv = $('<canvas></canvas>')[0];
+        cnv.width = width * 23;
+        cnv.height = height;
+
+        var step = 0.01;
+
+        var ctx = cnv.getContext('2d');
+
+        for (var i = 0; i < 2*Math.PI; i+= step){
+            var begX = i / (2 * Math.PI) * cnv.width,
+                begY = cnv.height/2 - Math.sin(i) * (cnv.height/2 - 10),
+                endX = (i + step) / (2 * Math.PI) * cnv.width;
+                endY = cnv.height/2 - Math.sin(i + step) * (cnv.height/2 - 10) ;
+            ctx.moveTo(begX, begY);
+            ctx.lineTo(endX, endY);
+            console.log(i, i / (2 * Math.PI) ,begX, begY);
+
+        }
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = this.drawing.colors[0];
+        ctx.stroke();
+
         var self = this,
             canvas = document.createElement('canvas'),
             context = canvas.getContext('2d'),
@@ -325,7 +346,9 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
             days = this.getBioRange(0, 34),
             colors = this.drawing.colors,
             periods = [23, 28, 33],
-            offset = 10;
+            offset = 10,
+            src = '',
+            factor = 1;
 
             canvas.width = width;
             canvas.height = height;
@@ -337,7 +360,37 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
                 var endX = canvas.width-1;
                 var endY = Math.floor(halfHeight - days[j+1][i]*(halfHeight-offset));
 
-                self.drawing.graphParts[i][j] = [begX, begY, endX, endY];
+                diff = (begY - endY);
+                sideSign = begY > height/2 ? 1 : -1;
+//
+//            context.beginPath();
+//            context.moveTo(bounds[0], bounds[1]);
+//            context.quadraticCurveTo(bounds[0] + width/2, bounds[1] - diff / 2 + (Math.abs(height + 30 - Math.min(bounds[1], bounds[3])) > height/2 + height/3 ? factor*sideSign : 1), bounds[2], bounds[3]);
+////            context.quadraticCurveTo(bounds[0] + width/2, bounds[1] - diff / 2 + (Math.abs(diff) < 30 ? factor*sideSign : 1), bounds[2], bounds[3]);
+////            context.lineTo(bounds[2], bounds[3]);
+
+                context.clearRect(0,0,canvas.width, canvas.height);
+                context.beginPath();
+                context.moveTo(begX, begY);
+                context.quadraticCurveTo(begX + width/2, begY - diff / 2 + (Math.abs(height + 30 - Math.min(begY, endY)) > height/2 + height/3 ? factor*sideSign : 1), endX, endY);
+//                context.lineTo(endX, endY);
+                context.lineWidth = 5;
+                context.lineCap = 'round';
+                context.strokeStyle = self.drawing.colors[i];
+                context.stroke();
+
+                if (i==0) {
+                    context.clearRect(0,0,500,500);
+                    context.putImageData(ctx.getImageData(j * width - 1, 0, (j+1) * width+1, height),0,0);
+                    console.log(j * width, (j+1) * width);
+                }
+
+                src = canvas.toDataURL();
+                var img = $('<img>').attr('src', src);
+
+
+
+                self.drawing.graphParts[i][j] = [begX, begY, endX, endY, img[0]];
             }
         }
     },
@@ -364,30 +417,32 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
             factor = 1,
             periods = [23, 28, 33],
             context = canvas.getContext('2d'),
-            width = this.drawing.visualDayWidth,
+            width = this.drawing.canvasWidth,
             height = canvas.height,
             lineWidth = 6;
 
         context.clearRect(0, 0, canvas.width, canvas.height);
+
         context.lineWidth = lineWidth;
-        context.lineCap = 'round';
 
         for (var i = 0; i < periods.length; i++){
             cycleDay = dayFromBirth % periods[i];
             bounds = self.drawing.graphParts[i][cycleDay >= 0 ? cycleDay : periods[i] + cycleDay];
-
-            diff = (bounds[1] - bounds[3]);
-            sideSign = bounds[1] > height/2 ? 1 : -1;
-
-            context.beginPath();
-            context.moveTo(bounds[0], bounds[1]);
-            context.quadraticCurveTo(bounds[0] + width/2, bounds[1] - diff / 2 + (Math.abs(height + 30 - Math.min(bounds[1], bounds[3])) > height/2 + height/3 ? factor*sideSign : 1), bounds[2], bounds[3]);
-//            context.quadraticCurveTo(bounds[0] + width/2, bounds[1] - diff / 2 + (Math.abs(diff) < 30 ? factor*sideSign : 1), bounds[2], bounds[3]);
-//            context.lineTo(bounds[2], bounds[3]);
-            // TODO completely fix the smoothing of curve & edges matching
-
-            context.strokeStyle = self.drawing.colors[i];
-            context.stroke();
+//
+//            diff = (bounds[1] - bounds[3]);
+//            sideSign = bounds[1] > height/2 ? 1 : -1;
+//
+//            context.beginPath();
+//            context.moveTo(bounds[0], bounds[1]);
+//            context.quadraticCurveTo(bounds[0] + width/2, bounds[1] - diff / 2 + (Math.abs(height + 30 - Math.min(bounds[1], bounds[3])) > height/2 + height/3 ? factor*sideSign : 1), bounds[2], bounds[3]);
+////            context.quadraticCurveTo(bounds[0] + width/2, bounds[1] - diff / 2 + (Math.abs(diff) < 30 ? factor*sideSign : 1), bounds[2], bounds[3]);
+////            context.lineTo(bounds[2], bounds[3]);
+//            // TODO completely fix the smoothing of curve & edges matching
+//
+//            context.strokeStyle = self.drawing.colors[i];
+//            context.stroke();
+//            console.log(bounds);
+            context.drawImage(bounds[4],0,0);
         }
     },
 
