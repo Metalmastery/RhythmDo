@@ -22,6 +22,8 @@
 
         "source/models/task.js",
         "source/models/task_list.js"
+
+
     ];
 
     function onEndLoad() {

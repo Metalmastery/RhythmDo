@@ -332,7 +332,6 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
                 endY = cnv.height/2 - Math.sin(i + step) * (cnv.height/2 - 10) ;
             ctx.moveTo(begX, begY);
             ctx.lineTo(endX, endY);
-            console.log(i, i / (2 * Math.PI) ,begX, begY);
 
         }
         ctx.lineWidth = 5;
