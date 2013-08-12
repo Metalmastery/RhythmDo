@@ -8,7 +8,7 @@
 
     <title>Scroll</title>
     <link rel="stylesheet" href="index.css"/>
-    <!--<script type="text/javascript" src="fastclick.js"></script>-->
+    <script type="text/javascript" src="fastclick.js"></script>
     <!--<script type="text/javascript" src="index.js"></script>-->
     <script type="text/javascript" src="../source/libs/jquery-2.0.2.min.js"></script>
 
@@ -17,10 +17,19 @@
 
 <div class="list-view">
 </div>
-</body>
-<script type="text/javascript" src="tapNavigator.js"></script>
 <script type="text/javascript">
-    $.fn.tapNavigator();
+//    var element = document.querySelector('.list-view'), adapter = new ListViewAdapter(null, null);
+    document.body.swiper = new Swiper(document.body);
+//    element.listView = new ListView(element, adapter, {direction: "vertical"});
+
+    // prevent scrolling on iOS
+    window.addEventListener('touchmove', function (e) {
+        e.preventDefault();
+    }, false);
+
+
 
 </script>
+<script type="text/javascript" src="tapNavigator.js"></script>
+</body>
 </html>

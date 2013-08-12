@@ -44,8 +44,6 @@
 			    var angles = orientateToCenter(),
 				    xArray = [], yArray = [];
 
-			    console.log(arguments);
-
 			    var angle = - angleStep * Math.floor(defaults.navIconsCount / 2);
 			    for (var i = 0; i < defaults.navIconsCount; i++) {
 
@@ -109,6 +107,7 @@
         defaults.bodyWidth = $('body').width();
 
         function _buildHTML (){
+            console.log('created');
             overlay.appendTo('body').css({
                 width : '100%',
                 height : '100%',
@@ -243,32 +242,39 @@
 	        mouseIsDown = true;
             currentPosition[0] = e.originalEvent.tapdown.clientX;
             currentPosition[1] = e.originalEvent.tapdown.clientY;
-	        extractCoordinates(e, 'tapdown');
-	        //startTimer();
-	        showNavLinks();
+
+	        startTimer();
+	        //showNavLinks();
             //checkTapPosition();
+
+            console.log('start', e);
         }).on('tapup', function(e){
             navigator.hide();
 		    mouseIsDown = false;
 		    toggleOverlay(false);
             stopTimer();
+            console.log('end', e);
         }).on('tapmove', function(e){
             //navigator.hide();
             stopTimer();
 		    // TODO allow that small movements not causing timer stop
 		    _animateIcons(e);
+            console.log('move', e);
+            var с = extractCoordinates(e, 'tapmove');
+            if (document.elementFromPoint(с.x, с.y).className == 'navLink') {
+                enableHighlight(document.elementFromPoint(с.x, с.y))
+            } else {
+                for (var i in navIcons){
+                    defaultView(navIcons[i][0])
+                }
+            }
+            console.log(document.elementFromPoint(с.x, с.y));
         });
 
-        $('.navLink').on('mouseenter', function(){
-	        console.log('mouseenter');
-	        enableHighlight(this);
-        }).on('mouseleave', function(){
-		        console.log('mouseleave');
+        $('.navLink').on('tapmove', function(){
+            console.log('NAV');
+        })
 
-		        defaultView(this);
-        }).on('mouseup', function(e){
-            navigate(this);
-        });
     };
 
 })(jQuery);
@@ -289,7 +295,7 @@ $.fn.tapNavigator({
 		item[0].style['opacity'] = 0.5 + diff;
 
 		item.css({
-			borderRadius: value/2,
+			borderRadius: value/2
 			//marginTop :  -diff * 10,
 			//marginLeft :  -diff * 10,
 //			with : value,
@@ -304,11 +310,11 @@ $.fn.tapNavigator({
 	},
 	navHighlightCss : {
 		boxShadow : '0 0 20px rgba(230,240,250,0.5)',
-		background: '#ddd'
+		background: '#222'
 	},
 	navIconsCount: 5,
 	arrangement: 'horizontal',
 	navItemWidth: 70,
 	navItemHeight: 70,
-	gravity: 'event'
+	gravity: 'center'
 });
