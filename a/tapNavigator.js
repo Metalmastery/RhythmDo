@@ -79,8 +79,8 @@
 	        var x = eventX, y = eventY;
 		    switch (defaults.gravity) {
 			    case 'center' :
-				    x = defaults.bodyWidth / 2;
-				    y = defaults.bodyHeight / 2;
+				    x = defaults.bodyWidth/2;
+				    y = defaults.bodyHeight/2;
 				    break;
 			    case 'left' :
 				    x = 0;
@@ -95,6 +95,8 @@
 				    y = defaults.bodyHeight;
 				    break;
 		    }
+            navigator[0].x = x;
+            navigator[0].y = y;
 		    setPosition(navigator[0], x, y)
 	    };
 
@@ -144,7 +146,7 @@
 
 	        gravitate(currentPosition[0], currentPosition[1]);
 
-	        //setNavigatorPosition();
+	        fixNavigatorPosition();
 
 	        _animateIcons();
             navigator.show();
@@ -164,7 +166,23 @@
         }
 
 	    function fixNavigatorPosition(){
+            if (navigator[0].x - navigator[0].width/2 < 0) {
+                navigator[0].x = 0 + navigator[0].width/2;
+            }
 
+            if (navigator[0].x + navigator[0].width/2 > defaults.bodyWidth) {
+                navigator[0].x = defaults.bodyWidth - navigator[0].width/2;
+            }
+
+            if (navigator[0].y - navigator[0].height/2 < 0) {
+                navigator[0].y = 0 + navigator[0].height/2;
+            }
+
+            if (navigator[0].y + navigator[0].height/2 > defaults.bodyHeight) {
+                navigator[0].y = defaults.bodyHeight - navigator[0].height/2;
+            }
+
+            setPosition(navigator[0], navigator[0].x, navigator[0].y);
 	    }
 
         function startTimer () {
@@ -247,19 +265,18 @@
 	        //showNavLinks();
             //checkTapPosition();
 
-            console.log('start', e);
+//            console.log('start', e);
         }).on('tapup', function(e){
             navigator.hide();
 		    mouseIsDown = false;
 		    toggleOverlay(false);
             stopTimer();
-            console.log('end', e);
+//            console.log('end', e);
         }).on('tapmove', function(e){
             //navigator.hide();
             stopTimer();
 		    // TODO allow that small movements not causing timer stop
 		    _animateIcons(e);
-            console.log('move', e);
             var с = extractCoordinates(e, 'tapmove');
             if (document.elementFromPoint(с.x, с.y).className == 'navLink') {
                 enableHighlight(document.elementFromPoint(с.x, с.y))
@@ -268,12 +285,8 @@
                     defaultView(navIcons[i][0])
                 }
             }
-            console.log(document.elementFromPoint(с.x, с.y));
+//            console.log(document.elementFromPoint(с.x, с.y));
         });
-
-        $('.navLink').on('tapmove', function(){
-            console.log('NAV');
-        })
 
     };
 
@@ -313,8 +326,8 @@ $.fn.tapNavigator({
 		background: '#222'
 	},
 	navIconsCount: 5,
-	arrangement: 'horizontal',
+	arrangement: 'arc',
 	navItemWidth: 70,
 	navItemHeight: 70,
-	gravity: 'center'
+	gravity: 'event'
 });
