@@ -128,7 +128,8 @@
             navigator.css({
                 position: 'absolute',
                 top : 0,
-                display : 'none'
+                display : 'none',
+	            'z-index' : 998
             }).appendTo('body');
         }
 
@@ -152,7 +153,7 @@
 
         function setPosition (item, x, y) {
             item.style.position = 'absolute';
-            var value = "translate3d(" + x + "px, " + y +  "px, 0)";
+            var value = "translate3d(" + x + "px, " + y +  "px, 0) scale(1)";
 
             item.style.webkitTransform = value;
             item.style.transform = value;
@@ -242,8 +243,9 @@
 	        mouseIsDown = true;
             currentPosition[0] = e.originalEvent.tapdown.clientX;
             currentPosition[1] = e.originalEvent.tapdown.clientY;
-	        startTimer();
 	        extractCoordinates(e, 'tapdown');
+	        //startTimer();
+	        showNavLinks();
             //checkTapPosition();
         }).on('tapup', function(e){
             navigator.hide();
@@ -258,9 +260,12 @@
         });
 
         $('.navLink').on('mouseenter', function(){
+	        console.log('mouseenter');
 	        enableHighlight(this);
         }).on('mouseleave', function(){
-		    defaultView(this);
+		        console.log('mouseleave');
+
+		        defaultView(this);
         }).on('mouseup', function(e){
             navigate(this);
         });
@@ -273,12 +278,24 @@ $.fn.tapNavigator({
 		var diff = (1 - distancePercentage) > 0 ? (1 - distancePercentage) : 0,
 			value = Math.floor(60 + diff * 20 );
 
-		item[0].style['margin-top'] = -diff * 10 + 'px';
-		item[0].style['margin-left'] = -diff * 10 + 'px';
+		item[0].style['margin'] = Math.floor(-diff * 10) + 'px 0 0 ' + Math.floor(-diff * 10) + 'px';
+
+
+//		item[0].style['margin-top'] = -diff * 10 + 'px';
+//		item[0].style['margin-left'] = -diff * 10 + 'px';
 		item[0].style['width'] = value + 'px';
 		item[0].style['height'] = value + 'px';
+
 		item[0].style['opacity'] = 0.5 + diff;
-		item[0].style['border-radius'] = value/2 + 'px';
+
+		item.css({
+			borderRadius: value/2,
+			//marginTop :  -diff * 10,
+			//marginLeft :  -diff * 10,
+//			with : value,
+//			height : value,
+//			opacity : 0.5 + diff
+		})
 
 	},
 	navCss : {
@@ -290,7 +307,7 @@ $.fn.tapNavigator({
 		background: '#ddd'
 	},
 	navIconsCount: 5,
-	arrangement: 'arc',
+	arrangement: 'horizontal',
 	navItemWidth: 70,
 	navItemHeight: 70,
 	gravity: 'event'
