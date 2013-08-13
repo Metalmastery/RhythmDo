@@ -12,6 +12,8 @@ RAD.view("view.monitor", RAD.Blanks.View.extend({
 
     currentDayBio : null,
 
+    inited : false,
+
 	drawing : {
 		canvasArray : [],
 		contextArray : [],
@@ -44,6 +46,10 @@ RAD.view("view.monitor", RAD.Blanks.View.extend({
 		var self = this;
         this.subscribe('monitor.show', this.receiver, this);
 	},
+
+    onEndDetach : function(){
+        this.stopAnimation(false);
+    },
 
     receiver : function(c, d){
         var data = d.splice(0,3);

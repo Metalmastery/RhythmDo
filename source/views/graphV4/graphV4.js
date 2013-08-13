@@ -17,6 +17,8 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
         'swipe .graph_container' : 'swipeEvent'
     },
 
+    inited : false,
+
     drawing: {
         canvasWidth : 135,
         visualDayWidth : 135,
@@ -573,7 +575,7 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
             currentBio = this.application.bio.getBioForDay(currentDay.dayFromBirth, true);
 
         console.log(currentDay);
-        this.publish('monitor.show', currentBio);
+        //this.publish('monitor.show', currentBio);
 
         var diff = this.animation.animationWrapperPosition - Math.round(this.animation.animationWrapperPosition / this.drawing.visualDayWidth) * this.drawing.visualDayWidth;
 //        this.animation.animationWrapperPosition = Math.round(this.animation.animationWrapperPosition / this.drawing.visualDayWidth) * this.drawing.visualDayWidth;

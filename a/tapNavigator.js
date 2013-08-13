@@ -177,6 +177,8 @@
 
             $('body').one('tap', function(e){
                 e.stopImmediatePropagation();
+            }).one('swipe', function(e){
+                e.stopImmediatePropagation();
             })
         }
 
@@ -420,9 +422,11 @@ $.fn.tapNavigator({
     navItemVerticalMargin : 50,
 	gravity: 'center',
 	navCallback : function(item){
-	    console.log('NAVIGATE', item)
+        var index = $(item).index(),
+            pages = ['view.stat', 'view.start_page'];
+
         RAD.core.publish('navigation.show', {
-            content : 'view.stat',
+            content : pages[index],
             container_id : '#screen',
             backstack : true
         });
