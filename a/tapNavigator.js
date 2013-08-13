@@ -27,15 +27,15 @@
             },
             self = this,
             timer = null,
-	        mouseIsDown = false,
+	        isDown = false,
+	        isVisible = false,
 	        angleStep = 3 * Math.asin(2*defaults.navSize / ( 2 * (defaults.navDistance + defaults.navSize ))),
             pi = Math.PI,
             overlay = $('<div id="tapNavigatorOverlay"></div>'),
             navigator = $('<div id="tapNavigator"></div>'),
             currentPosition = [],
             navIcons = [],
-            gridCellWidth = 0,
-            gridCellHeight = 0;
+	        currentHighlighted = null;
 
         $.extend(defaults, options);
 
@@ -141,7 +141,7 @@
 
         function showNavLinks(){
 	        toggleOverlay(true);
-
+	        isVisible = true;
 	        arrangeIcons(navIcons, navigator);
 
 	        gravitate(currentPosition[0], currentPosition[1]);
@@ -210,15 +210,20 @@
 	    }
 
 	    function defaultView(item){
-		    item.style['z-index'] = 998;
-		    $(item).css(defaults.navCss)
+		    if (item) {
+			    item.style['z-index'] = 998;
+			    $(item).css(defaults.navCss)
+		    }
 	    }
 
-	    function navigate(item){
-	        console.log('navigate ' + $(item).index());
+	    function _navigate(item){
+	        if (typeof defaults.navCallback === 'function'){
+		        defaults.navCallback(item);
+	        }
 	    }
 
 	    function toggleOverlay(factor){
+		    console.log(overlay);
 		    if (factor) {
 			    overlay[0].style.display = 'block'
 		    } else {
@@ -229,17 +234,14 @@
 	    function _animateIcons(e){
 		    var coord;
 		    if (!e) {
-			    coord = {
-				    x : currentPosition[0],
-				    y : currentPosition[1]
-			    }
+			    coord = [currentPosition[0], currentPosition[1]]
 		    } else {
 		        coord =  extractCoordinates(e, 'tapmove');
 		    }
 
-		    if (mouseIsDown) {
+		    if (isDown) {
 			    for (var i = 0; i < navIcons.length; i++) {
-				    var mouseDistance = Math.sqrt(Math.pow(navIcons[i][0].posX + navigator[0].posX - coord.x + defaults.navItemWidth/2, 2) + Math.pow(navIcons[i][0].posY + navigator[0].posY - coord.y  + defaults.navItemHeight/2, 2));
+				    var mouseDistance = Math.sqrt(Math.pow(navIcons[i][0].posX + navigator[0].posX - coord[0] + defaults.navItemWidth/2, 2) + Math.pow(navIcons[i][0].posY + navigator[0].posY - coord[1]  + defaults.navItemHeight/2, 2));
 //				    var initialDistance = Math.sqrt(Math.pow(navIcons[i][0].posX - currentPosition[0] + defaults.navItemWidth/2, 2) + Math.pow(navIcons[i][0].posY - currentPosition[1]  + defaults.navItemHeight/2, 2));
 				    var initialDistance = defaults.navReactionDistance;
 				    animateIcon(navIcons[i], mouseDistance/initialDistance);
@@ -250,43 +252,79 @@
 	    function extractCoordinates(e, eventName) {
 		    var x = e.originalEvent[eventName].clientX,
 			    y = e.originalEvent[eventName].clientY;
-		    return {x : x, y : y};
+//		    return {x : x, y : y};
+		    return [x, y];
+	    }
+
+	    function extractTarget(e, eventName){
+		    var с = extractCoordinates(e, eventName);
+		    return document.elementFromPoint(с[0], с[1]);
+	    }
+
+	    function tapDownEvent(e){
+		    e.preventDefault();
+		    isDown = true;
+		    currentPosition[0] = e.originalEvent.tapdown.clientX;
+		    currentPosition[1] = e.originalEvent.tapdown.clientY;
+
+		    startTimer();
+		    //showNavLinks();
+		    //checkTapPosition();
+
+//            console.log('start', e);
+	    }
+
+	    function tapUpEvent(e){
+		    var target = extractTarget(e, 'tapup');
+		    if (target === currentHighlighted) {
+			    _navigate(target);
+		    }
+		    isVisible = false;
+		    navigator.hide();
+		    isDown = false;
+		    toggleOverlay(false);
+		    stopTimer();
+		    defaultView(currentHighlighted);
+
+	    }
+
+	    function tapMoveEvent(e){
+		    stopTimer();
+		    if (!isVisible) return false;
+
+		    // TODO allow that small moves not causing timer stop
+		    _animateIcons(e);
+		    var target = extractTarget(e, 'tapmove');
+		    if (target.id !== 'tapNavigatorOverlay') {
+			    if (currentHighlighted && target !== currentHighlighted) {
+				    defaultView(currentHighlighted);
+			    }
+			    currentHighlighted = target;
+			    enableHighlight(target);
+		    } else {
+			    defaultView(currentHighlighted);
+			    currentHighlighted = null;
+		    }
+//            console.log(document.elementFromPoint(с.x, с.y));
+	    }
+
+	    function _destroy(){
+		    $('body')
+			    .off('tapdown', tapDownEvent)
+			    .off('tapup', tapUpEvent)
+			    .off('tapmove',tapMoveEvent);
+		    console.log(navigator, overlay);
+		    $('#tapNavigator').remove();
+		    $('#tapNavigatorOverlay').remove();
+
 	    }
 
         _buildHTML();
 
-        $('body').on('tapdown', function(e){
-	        e.preventDefault();
-	        mouseIsDown = true;
-            currentPosition[0] = e.originalEvent.tapdown.clientX;
-            currentPosition[1] = e.originalEvent.tapdown.clientY;
-
-	        startTimer();
-	        //showNavLinks();
-            //checkTapPosition();
-
-//            console.log('start', e);
-        }).on('tapup', function(e){
-            navigator.hide();
-		    mouseIsDown = false;
-		    toggleOverlay(false);
-            stopTimer();
-//            console.log('end', e);
-        }).on('tapmove', function(e){
-            //navigator.hide();
-            stopTimer();
-		    // TODO allow that small movements not causing timer stop
-		    _animateIcons(e);
-            var с = extractCoordinates(e, 'tapmove');
-            if (document.elementFromPoint(с.x, с.y).className == 'navLink') {
-                enableHighlight(document.elementFromPoint(с.x, с.y))
-            } else {
-                for (var i in navIcons){
-                    defaultView(navIcons[i][0])
-                }
-            }
-//            console.log(document.elementFromPoint(с.x, с.y));
-        });
+        $('body')
+	        .on('tapdown', tapDownEvent)
+	        .on('tapup', tapUpEvent)
+	        .on('tapmove',tapMoveEvent);
 
     };
 
@@ -304,16 +342,12 @@ $.fn.tapNavigator({
 //		item[0].style['margin-left'] = -diff * 10 + 'px';
 		item[0].style['width'] = value + 'px';
 		item[0].style['height'] = value + 'px';
-
 		item[0].style['opacity'] = 0.5 + diff;
+		item[0].style['border-radius'] = (value / 2) + 'px';
+
 
 		item.css({
-			borderRadius: value/2
-			//marginTop :  -diff * 10,
-			//marginLeft :  -diff * 10,
-//			with : value,
-//			height : value,
-//			opacity : 0.5 + diff
+			//borderRadius: value/2
 		})
 
 	},
@@ -329,5 +363,8 @@ $.fn.tapNavigator({
 	arrangement: 'arc',
 	navItemWidth: 70,
 	navItemHeight: 70,
-	gravity: 'event'
+	gravity: 'event',
+	navCallback : function(item){
+	    console.log('NAVIGATE', item)
+	}
 });

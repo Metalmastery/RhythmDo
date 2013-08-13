@@ -105,7 +105,7 @@ RAD.namespace("views.graphV3Base", RAD.Blanks.View.extend({
     },
 
 	onEndRender : function(){
-        this.initVisual();
+	    this.initVisual();
 	},
 
     startMove : function(e){

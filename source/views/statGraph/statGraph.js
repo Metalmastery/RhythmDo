@@ -112,7 +112,16 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
 
 		this.shiftList(-self.drawing.visualDayWidth * 3);
 	    this.prepareGraphParts(this.drawing.canvasWidth, this.drawing.canvasHeight);
-        this.drawRange(this.getBounds(this.application.bio.currentDay, 3));
+//	    this.drawRange(this.getBounds(this.application.bio.currentDay, 3));
+
+	    this.subscribe('graphPartsReady', function(){
+		    this.drawRange(this.getBounds(this.application.bio.currentDay, 3));
+		    this.unsubscribe('graphPartsReady');
+	    }, this)
+
+//	    window.setTimeout(function(){
+//		    self.drawRange(self.getBounds(self.application.bio.currentDay, 3));
+//	    }, 100)
     },
 
     rearrangeDaysList : function(side){
@@ -318,6 +327,7 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
         }
 
         var cnv = $('<canvas></canvas>')[0];
+	    var loadedImagesCount = 0;
         cnv.width = width * 23;
         cnv.height = height;
 
@@ -356,7 +366,7 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
             for (var j = 0; j < periods[i]; j++){
                 var begX = 0;
                 var begY = Math.floor(halfHeight - days[j][i]*(halfHeight-offset));
-                var endX = canvas.width-1;
+                var endX = canvas.width;
                 var endY = Math.floor(halfHeight - days[j+1][i]*(halfHeight-offset));
 
                 diff = (begY - endY);
@@ -378,14 +388,19 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
                 context.strokeStyle = self.drawing.colors[i];
                 context.stroke();
 
-                if (i==0) {
-                    context.clearRect(0,0,500,500);
-                    context.putImageData(ctx.getImageData(j * width - 1, 0, (j+1) * width+1, height),0,0);
-                    console.log(j * width, (j+1) * width);
-                }
+//                if (i==0) {
+//                    context.clearRect(0,0,500,500);
+//                    context.putImageData(ctx.getImageData(j * width - 1, 0, (j+1) * width+1, height),0,0);
+//                    console.log(j * width, (j+1) * width);
+//                }
 
                 src = canvas.toDataURL();
-                var img = $('<img>').attr('src', src);
+                var img = $('<img>').on('load', function(){
+	                loadedImagesCount += 1;
+	                if (loadedImagesCount === 84) {
+		                self.publish('graphPartsReady', {})
+	                }
+                }).attr('src', src);
 
 
 
@@ -395,6 +410,7 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
     },
 
 	rebuildOneDay : function(item) {
+		console.log(item);
 		var id = item.id,
 			date = new Date(this.application.bio.birthDateTimestamp + item.dayFromBirth * 86400000),
 			monthDay = this.drawing.monthDayArray[id],
@@ -470,6 +486,8 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
             firstRedrawingDay = index || 0,
             factor = 2;
 
+	    console.log(this.drawing.visibleArray);
+
         for (var i = firstRedrawingDay; i < this.drawing.visibleArray.length; i++) {
 
             canvas = this.drawing.canvasArray[i];
@@ -483,7 +501,10 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
             this.drawing.visibleArray[i].dayFromBirth = days[i][5];
             this.drawing.visibleArray[i].canvas = canvas;
 
+	        console.log(this.drawing.visibleArray[i]);
+
             this.drawOneDay(days[i][5], canvas);
+            //this.rebuildOneDay(this.drawing.visibleArray[i]);
         }
     },
 
