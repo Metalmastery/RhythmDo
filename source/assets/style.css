@@ -42,7 +42,7 @@ body {
 .days {
     height: 100%;
     left: 0;
-    overflow: hidden;
+    /*overflow: hidden;*/
     position: absolute;
     top: 0;
     /*width: 100%;*/
@@ -104,10 +104,11 @@ body {
     position: absolute;
     height: 178px;
     top: 0;
-    left: 4px;
+    left: 139px;
     background-color: #000;
     opacity: 0.25;
     width: 127px;
+    z-index: 100;
 }
 
 .animationWrap {
@@ -213,7 +214,8 @@ body {
     background-color: #000;
     opacity: 0.25;
     width: 80px;
-    margin-left: 10%;
+    /*margin-left: 10%;*/
+    left: 66px;
 }
 
 .stat #days_pointer_line {
@@ -222,10 +224,11 @@ body {
     height: 100%;
     background-color: #000;
     opacity: 0.25;
-    width: 38px;
-    margin-left: 15%;
+    width: 26px;
+    left : 92px;
+    /*margin-left: 15%;*/
     margin-top: 10px;
-    margin-bottom: 50px;
+    /*margin-bottom: 50px;*/
 }
 
 .stat .animationWrap {

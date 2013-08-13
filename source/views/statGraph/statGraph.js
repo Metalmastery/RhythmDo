@@ -8,7 +8,7 @@
 
 //RAD.view("view.graphV3", RAD.views.graphV3Base.extend({}));
 
-RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
+RAD.view("view.statGraph", RAD.views.graphV4Base.extend({
     url :  'source/views/statGraph/statGraph.html',
 
     events : {
@@ -115,7 +115,7 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
 //	    this.drawRange(this.getBounds(this.application.bio.currentDay, 3));
 
 	    this.subscribe('graphPartsReady', function(){
-		    this.drawRange(this.getBounds(this.application.bio.currentDay, 3));
+		    this.drawRange(this.getBounds(this.application.bio.currentDay, 5));
 		    this.unsubscribe('graphPartsReady');
 	    }, this)
 
@@ -515,6 +515,8 @@ RAD.view("view.statGraph", RAD.views.graphV3Base.extend({
         console.log(currentDay);
         this.publish('monitor.show', currentBio);
 
+        var diff = this.animation.animationWrapperPosition - Math.round(this.animation.animationWrapperPosition / this.drawing.visualDayWidth) * this.drawing.visualDayWidth;
+        this.shiftList(-diff);
 
     }
 }));

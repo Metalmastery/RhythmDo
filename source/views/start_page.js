@@ -8,7 +8,7 @@ RAD.view("view.start_page", RAD.Blanks.View.extend({
     children : [
         {
             container_id : '.graph',
-            content : 'view.graphV3'
+            content : 'view.graphV4'
         },
         {
             container_id : '.list',
