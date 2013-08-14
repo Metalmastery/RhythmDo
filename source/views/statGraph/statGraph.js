@@ -117,7 +117,7 @@ RAD.view("view.statGraph", RAD.views.graphV4Base.extend({
 	    this.subscribe('graphPartsReady', function(){
 		    this.drawRange(this.getBounds(this.application.bio.currentDay, 5));
 		    this.unsubscribe('graphPartsReady');
-	    }, this)
+	    }, this);
 
 //	    window.setTimeout(function(){
 //		    self.drawRange(self.getBounds(self.application.bio.currentDay, 3));

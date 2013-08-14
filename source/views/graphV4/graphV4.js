@@ -333,6 +333,7 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
 
     stopAnimation : function(monitorOff){
         window.cancelAnimationFrame(this.animation.currentRAF);
+        this.drawing.isAnimating = false;
         if (!monitorOff) {
             this.snapToDay();
         }
@@ -359,8 +360,8 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
         this.animation.pointerIsDown = false;
 
         this.scroller.start(velocity, 0, this.adapter.getCountItems() * this.drawing.visualDayWidth, "easeInQuad");
+        this.drawing.isAnimating = true;
         this.stepAnimation();
-
     },
 
     stepAnimation : function(){
@@ -393,7 +394,7 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
     },
 
     tapupEvent : function(){
-	    if (!this.drawing.isMoving){
+	    if (!this.drawing.isAnimating){
 		    this.toggleCurrentDay(true);
 	    }
         this.animation.pointerIsDown = false;
