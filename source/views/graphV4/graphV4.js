@@ -6,9 +6,10 @@
  * To change this template use File | Settings | File Templates.
  */
 RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
-    url :  'source/views/statGraph/statGraph.html',
+    url :  'source/views/graphV4/graphV4.html',
 
     events : {
+        'tapcancel .graph_container' : 'tapCancelEvent',
         'tapdown .graph_container' : 'tapdownEvent',
         'tapup .graph_container' : 'tapupEvent',
         'tapmove .graph_container' : 'tapmoveEvent',
@@ -20,11 +21,13 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
     inited : false,
 
     drawing: {
-        canvasWidth : 135,
-        visualDayWidth : 135,
+        canvasWidth : 105,
+        visualDayWidth : 105,
         daysMargin : 4,
         daysPosAbsolute : true,
-        graphParts : [[],[],[]]
+        graphParts : [[],[],[]],
+	    daysWithTasks : [],
+	    currentDayOffset : 4
     },
 
     animation : {
@@ -64,6 +67,11 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
             contextArray : [],
             monthDayArray : [],
             weekDayArray : [],
+	        daysPointer : {
+		        item : null,
+		        weekDay : null,
+		        monthDay : null
+	        },
             isMoving : false,
             isAnimating : false,
             moveBasePosition : 0,
@@ -76,11 +84,15 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
         var self = this,
             daysList = self.$el.find('ul.days'),
             dayLi = daysList.find('li'),
-            daysPointer = self.$el.find('#days_pointer').css({
-                top : daysList.eq(-2).css('top'),
-                left : daysList.eq(-2).css('left')
-            })[0],
-            listSize = self.drawing.visualDayWidth;
+	        listSize = self.drawing.visualDayWidth;
+
+        self.drawing.daysPointer.item = self.$el.find('#days_pointer').css({
+            top : daysList.eq(-2).css('top'),
+            left : daysList.eq(-2).css('left')
+        });
+	    self.drawing.daysPointer.monthDay = self.$el.find('#days_pointer .monthDay')[0];
+	    self.drawing.daysPointer.weekDay = self.$el.find('#days_pointer .weekDay')[0];
+
 
         for (var key=0; key < self.drawing.visualRange; key++){
             var li = dayLi.clone().appendTo(daysList).css({
@@ -113,18 +125,16 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
 
         this.drawing.list = daysList;
 
-        this.shiftList(-self.drawing.visualDayWidth * 3);
+	    self.setItemPosition(self.drawing.daysPointer.item[0], self.drawing.visualDayWidth + self.drawing.daysMargin, 0);
+
+        this.shiftList(-self.drawing.visualDayWidth * (self.drawing.currentDayOffset));
         this.prepareGraphParts(this.drawing.canvasWidth, this.drawing.canvasHeight);
-//	    this.drawRange(this.getBounds(this.application.bio.currentDay, 3));
-
+		this.prepareTaskList();
         this.subscribe('graphPartsReady', function(){
-            this.drawRange(this.getBounds(this.application.bio.currentDay, 3));
+            this.drawRange(this.getBounds(this.application.bio.currentDay, self.drawing.currentDayOffset));
+	        this.toggleCurrentDay(true);
             this.unsubscribe('graphPartsReady');
-        }, this)
-
-//	    window.setTimeout(function(){
-//		    self.drawRange(self.getBounds(self.application.bio.currentDay, 3));
-//	    }, 100)
+        }, this);
     },
 
     onInitialize : function(){
@@ -159,7 +169,18 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
                 };
             }
         }());
+
     },
+
+	prepareTaskList : function(){
+	    var model = RAD.models.task_list,
+		    self = this,
+		    date;
+		_.each(model.toJSON(), function(item){
+			date = new Date(item.date);
+		    self.drawing.daysWithTasks.push(Math.floor(self.application.bio.getDaysFromBirth(date)));
+		});
+	},
 
 //    startMove : function(e){
 //        if (!this.drawing.isAnimating){
@@ -353,23 +374,37 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
             } else {
                 self.shiftList(self.animation.animationWrapperPosition % 1, false);
                 self.stopAnimation(true);
+	            self.toggleCurrentDay(false);
                 self.snapToDay();
             }
         };
         callback();
     },
 
+	tapCancelEvent : function(){
+		this.toggleCurrentDay(true);
+	},
+
     tapdownEvent : function(e){
         this.animation.pointerIsDown = true;
         this.stopAnimation(false);
+	    this.toggleCurrentDay(false);
         this.animation.lastPointCoordinate = e.originalEvent.tapdown.screenX;
     },
 
     tapupEvent : function(){
+	    if (!this.drawing.isMoving){
+		    this.toggleCurrentDay(true);
+	    }
         this.animation.pointerIsDown = false;
+	    this.drawing.isMoving = false;
+
     },
 
     tapmoveEvent : function(e){
+	    if (this.animation.pointerIsDown) {
+		    this.drawing.isMoving = true;
+	    }
         this.extractLastCoordinate(e, 'tapmove', this.animation.pointerIsDown);
     },
 
@@ -417,7 +452,7 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
             days = this.getBioRange(0, 34),
             colors = this.drawing.colors,
             periods = [23, 28, 33],
-            offset = 10,
+            offset = 30,
             src = '',
             factor = 1;
 
@@ -472,7 +507,7 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
     },
 
     rebuildOneDay : function(item) {
-        console.log(item);
+
         var id = item.id,
             date = new Date(this.application.bio.birthDateTimestamp + item.dayFromBirth * 86400000),
             monthDay = this.drawing.monthDayArray[id],
@@ -480,6 +515,13 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
 
         monthDay.innerHTML = date.getDate();
         weekDay.innerHTML = date.toDateString().split(' ')[0];
+
+	    if (this.drawing.daysWithTasks.indexOf(item.dayFromBirth) >= 0) {
+		    item.element.setAttribute('data-has-task', 'true');
+		    console.log(item.element);
+	    } else {
+		    item.element.removeAttribute('data-has-task');
+	    }
 
         this.drawOneDay(item.dayFromBirth, item.canvas, true)
     },
@@ -548,7 +590,7 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
             firstRedrawingDay = index || 0,
             factor = 2;
 
-        console.log(this.drawing.visibleArray);
+//        console.log(this.drawing.visibleArray);
 
         for (var i = firstRedrawingDay; i < this.drawing.visibleArray.length; i++) {
 
@@ -563,35 +605,50 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
             this.drawing.visibleArray[i].dayFromBirth = days[i][5];
             this.drawing.visibleArray[i].canvas = canvas;
 
-            console.log(this.drawing.visibleArray[i]);
+//            console.log(this.drawing.visibleArray[i]);
 
-            this.drawOneDay(days[i][5], canvas);
-            //this.rebuildOneDay(this.drawing.visibleArray[i]);
+            //this.drawOneDay(days[i][5], canvas);
+            this.rebuildOneDay(this.drawing.visibleArray[i]);
         }
     },
 
     snapToDay : function(){
-        var currentDay = this.drawing.visibleArray[5],
+        var currentDay = this.extractCurrentDay(),
             currentBio = this.application.bio.getBioForDay(currentDay.dayFromBirth, true);
 
-        console.log(currentDay);
-        //this.publish('monitor.show', currentBio);
+	    this.publish('current_day_changed', {
+		    currentDay : currentDay.dayFromBirth
+	    });
+	    console.log('currentDay', currentDay);
 
-        var diff = this.animation.animationWrapperPosition - Math.round(this.animation.animationWrapperPosition / this.drawing.visualDayWidth) * this.drawing.visualDayWidth;
-//        this.animation.animationWrapperPosition = Math.round(this.animation.animationWrapperPosition / this.drawing.visualDayWidth) * this.drawing.visualDayWidth;
+	    var diff = this.animation.animationWrapperPosition - Math.round(this.animation.animationWrapperPosition / this.drawing.visualDayWidth) * this.drawing.visualDayWidth;
 
-//        var diff = this.animation.animationWrapperPosition;
-        console.log(diff);
-        this.shiftList(-diff);
-//        var dayWidth = this.drawing.visualDayWidth,
-//            backSwipeDelta = 30,
-//            side = diff > 0 ? 1 : -1,
-//            steps = Math.round((diff + side*backSwipeDelta) / dayWidth),
-//            next = steps * dayWidth,
-//            shift = (Math.abs(diff) > 10) ? (next - diff) : -diff;
-//        this.animateTo(shift, Math.abs(steps), diff);
+	    this.shiftList(-diff);
 
+	    this.toggleCurrentDay(true);
     },
+
+	extractCurrentDay : function(){
+	    return this.drawing.visibleArray[this.drawing.currentDayOffset];
+	},
+
+	toggleCurrentDay : function(factor){
+		var currentDay = this.extractCurrentDay();
+		if (factor) {
+			this.drawing.daysPointer.monthDay.innerHTML = this.drawing.monthDayArray[currentDay.id].innerHTML;
+			this.drawing.daysPointer.weekDay.innerHTML = this.drawing.weekDayArray[currentDay.id].innerHTML;
+
+			this.drawing.monthDayArray[currentDay.id].style.display = 'none';
+			this.drawing.weekDayArray[currentDay.id].style.display = 'none';
+		} else {
+			this.drawing.daysPointer.monthDay.innerHTML = '';
+			this.drawing.daysPointer.weekDay.innerHTML = '';
+
+			this.drawing.monthDayArray[currentDay.id].style.display = 'block';
+			this.drawing.weekDayArray[currentDay.id].style.display = 'block';
+		}
+
+	},
 
     animateTo : function(left, count, rearrangeSide){
 

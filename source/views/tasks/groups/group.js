@@ -58,6 +58,7 @@ RAD.view(["view.group_brain", "view.group_emo", "view.group_strength", "view.gro
 
     currentDayChanged : function(c, data){
         this.currentDay = data.currentDay;
+	    //console.log(data);
         this.render();
     },
 

@@ -16,11 +16,9 @@ RAD.model('task', Backbone.Model.extend({
     },
 
     initialize : function(){
-        //this.validate(this.attributes);
     },
 
     validate : function(attr, options){
-        console.log(attr);
         if (attr.text.length === 0) {
             return 'empty text';
         }
