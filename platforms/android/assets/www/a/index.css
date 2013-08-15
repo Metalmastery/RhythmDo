@@ -1,0 +1,77 @@
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+}
+
+/*scroll view*/
+.scroll-view {
+    position: relative;
+    height: 100%;
+    width: 100%;
+
+    overflow: hidden;
+}
+
+.scroll-view > div {
+    position: absolute;
+
+    height: 100%;
+    width: 100%;
+
+    -webkit-transition: -webkit-transform 0ms;
+    transition: -webkit-transform 0ms;
+    -webkit-transform-origin: 0px 0px;
+}
+
+.scroll-view-item {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+
+    padding: 20px;
+    margin: 5px 0 5px 0;
+
+    background-color: #17b7f9;
+}
+
+.item {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+
+    margin: 0 0 1px 0;
+
+    background-color: #17b7f9;
+    width: 100%;
+}
+
+.item .img,  .item img{
+    display: inline-block;
+    width: 60px;
+    height: 60px;
+
+    vertical-align: middle;
+}
+
+.item span {
+    vertical-align: middle;
+    text-transform: uppercase;
+    font-family: sans-serif;
+
+    color: #ffffff;
+    padding-left: 20px;
+
+    -webkit-user-select: none;  /* Chrome all / Safari all */
+    -moz-user-select: none;     /* Firefox all */
+    -ms-user-select: none;      /* IE 10+ */
+
+    /* No support for these yet, use at own risk */
+    -o-user-select: none;
+    user-select: none;
+}
+
+.list-view {
+    height: 100%;
+    width: 100%;
+}

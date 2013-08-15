@@ -1,0 +1,482 @@
+body {
+    background: #504556;
+    background: -webkit-linear-gradient(#2e4d6c, #423f52);
+    background: -moz-linear-gradient(#2e4d6c, #423f52);
+    background: -o-linear-gradient(#2e4d6c, #423f52);
+    background: -ms-linear-gradient(#2e4d6c, #423f52);
+    background: linear-gradient(#2e4d6c, #423f52);
+    /*background-color: #303d4b;454054*/
+    font: 14px Arial;
+}
+
+.module_holder {
+    position: relative;
+    overflow: hidden;
+}
+
+.main {
+    height: 100%;
+    position: relative;
+}
+
+.positionRelative {
+    position: relative !important;
+}
+
+/*=============*/
+/* graph begin */
+/*=============*/
+
+.graph {
+    margin-top: 40px;
+    height: 200px;
+}
+
+.graph_container {
+    height: auto;
+}
+
+.graph_container canvas {
+    margin-top: 42px;
+}
+
+.days {
+    height: 100%;
+    left: 0;
+    /*overflow: hidden;*/
+    position: absolute;
+    top: 0;
+    /*width: 100%;*/
+    margin: 0;
+    color: #fff;
+}
+.days li {
+    list-style: none;
+    background-color: #273d55;
+    position: relative;
+    height: 140px;
+    width: 105px;
+    float: left;
+    margin:0 4px;
+}
+
+.days li .taskPointer{
+    position: absolute;
+    display: none;
+    top: 10px;
+    right: 10px;
+    width: 10px;
+    height: 10px;
+    border-radius: 10px;
+    background: #fff;
+    opacity: 0.3;
+}
+
+.days li[data-has-task=true] .taskPointer{
+    display: block;
+}
+
+.days li .bottomHalf {
+    background-color: #9e170e;
+    opacity: 0.1;
+    width: 100%;
+    height: 50%;
+}
+
+.days canvas {
+    height: 100%;
+    width: 135px;
+    position: absolute;
+    top : 0;
+    left: 0;
+    margin: 0;
+}
+
+.days li .topHalf {
+    background-color: #000;
+    opacity: 0.1;
+    width: 100%;
+    height: 50%;
+}
+
+.days li .monthday {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    margin-top: 25px;
+}
+
+.days li .weekday {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+#days_pointer {
+    position: absolute;
+    height: 140px;
+    top: 0;
+    background-color: rgba(0,0,0,0.25);
+    width: 97px;
+    z-index: 100;
+}
+
+#days_pointer .arrow {
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-left: 6px solid rgba(0,0,0,0.25);
+    border-bottom: 8px solid transparent;
+    position: absolute;
+    top: 81px;
+    right: -6px;
+}
+
+#days_pointer .half {
+    width: 100%;
+    height: 50%;
+    color: #eee;
+    text-align: center;
+}
+
+#days_pointer .monthDay {
+    font-size: 350%;
+    line-height: 140%;
+}
+
+#days_pointer .weekDay {
+    font-size: 170%;
+    line-height: 400%;
+    text-transform: uppercase;
+}
+
+#days_pointer .taskPointer {
+
+}
+
+.animationWrap {
+    height: 178px;
+    position: absolute;
+}
+
+.animated {
+    -webkit-transition: -webkit-transform 300ms;
+    transition: -webkit-transform 300ms;
+}
+
+/*===========*/
+/* graph end */
+/*===========*/
+
+/*==================*/
+/* stat graph begin */
+/*==================*/
+
+.stat {
+    width: 100%;
+    height: 100%;
+}
+
+.stat .graph {
+    margin-top: 0px;
+    height: 60%;
+}
+
+.stat .days canvas {
+    height: 70%;
+    position: absolute;
+    top : 15%;
+    margin: 0;
+}
+
+.stat .graph_container {
+    height: 100%;
+}
+
+.stat .days {
+    height: 100%;
+    left: 0;
+    overflow: visible;
+    position: absolute;
+    top: 0;
+    margin: 0;
+    color: #fff;
+}
+.stat .days li {
+    list-style: none;
+    background: none;
+
+    position: absolute;
+    height: 100%;
+    font: 14px Arial;
+    top : 0;
+    float: none;
+    margin: 0;
+    padding: 0;
+}
+
+.stat .days li .bottomHalf {
+    background-color: #9e170e;
+    opacity: 0.1;
+    width: auto;
+    height: 40%;
+    margin: 0 2px 50px 2px;
+}
+
+.stat .days li .topHalf {
+    background: #000;
+    opacity: 0.1;
+    width: auto;
+    height: 40%;
+    margin: 25px 2px 0 2px;
+}
+
+.stat .days li .monthday {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: auto;
+    height: 25px;
+    line-height: 25px;
+    text-align: center;
+    margin: 0 2px;
+    background: rgba(0,0,0,0.1);
+}
+
+.stat .days li .weekday {
+    /*position: absolute;*/
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.stat #days_pointer {
+    height: 20%;
+    background-color: #000;
+    opacity: 0.25;
+    width: 80px;
+    /*margin-left: 10%;*/
+    left: 66px;
+}
+
+.stat #days_pointer_line {
+    position: absolute;
+    top: 20%;
+    height: 100%;
+    background-color: #000;
+    opacity: 0.25;
+    width: 26px;
+    left : 92px;
+    /*margin-left: 15%;*/
+    margin-top: 10px;
+    /*margin-bottom: 50px;*/
+}
+
+.stat .animationWrap {
+    height: 80%;
+    position: absolute;
+    margin-top: 10px;
+    top: 20%;
+}
+
+.stat .animated {
+    -webkit-transition: -webkit-transform 300ms;
+    transition: -webkit-transform 300ms;
+}
+
+/*================*/
+/* stat graph end */
+/*================*/
+
+/*=================*/
+/* task list begin */
+/*=================*/
+
+.list {
+    bottom: 0;
+    overflow: auto;
+    position: absolute;
+    top: 200px;
+    width: 100%;
+}
+
+.task_list.collapsed {
+    display: none;
+}
+
+.task.even {
+    background: rgba(221,84,75,0.1);
+}
+
+.task {
+    overflow: hidden;
+    height: 60px;
+    background: rgba(0,0,0,0.1);
+    margin: 2px 10px;
+}
+
+.task div {
+    float: right;
+    text-align: center;
+    line-height: 60px;
+    min-width: 50px;
+    min-height: 60px;
+    padding: 0 10px;
+}
+
+.task .text {
+    float: left;
+}
+
+.task .hidden{
+    display: none;
+}
+
+.task .type_1 {
+    background: url('../img/strength.png') no-repeat center;
+}
+.task .type_2 {
+    background: url('../img/heart.png') no-repeat center;
+}
+.task .type_3 {
+    background: url('../img/brain.png') no-repeat center;
+}
+
+.group {
+    color: #ffffff;
+}
+
+.group .groupTitle {
+    height: 50px;
+    font:  250% sans-serif;
+    text-transform:uppercase;
+    padding-right: 15px;
+    text-align: right;
+}
+
+.group .groupTitle .count {
+    display: inline-block;
+    padding-right: 16px;
+    width: 100px;
+}
+
+/*===============*/
+/* task list end */
+/*===============*/
+
+/*===============*/
+/* monitor begin */
+/*===============*/
+.bio_monitor {
+    bottom: 0;
+    overflow: auto;
+    position: absolute;
+    top: 60%;
+    width: 100%;
+}
+
+.monitor .block_wrap {
+    margin: 0 auto;
+    overflow: hidden;
+    width: 100%;
+}
+
+.monitor .block_wrap .block {
+    width: 160px;
+    height: 240px;
+    float: left;
+    margin: 20px 0;
+    position: relative;
+}
+
+.block canvas {
+    position: absolute;
+    top: -10%;
+    left: 0;
+}
+
+.block .bg {
+    width: 80%;
+    height: 80%;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: #000;
+    opacity: 0.1;
+}
+
+.block .negative {
+    position: absolute;
+    top: 7.5%;
+    left: 17.5%;
+    width: 65%;
+    height: 65%;
+    border-radius: 50%;
+    background: #b22222;
+    opacity: 0.1;
+}
+
+.block .info {
+    width: 30%;
+    height: 40%;
+    opacity: 1;
+    position: absolute;
+    top: 20%;
+    left: 35%;
+}
+
+.block .info .cycle_day{
+    color: #eee;
+    /*font: 40pt Arial;*/
+    font: 2em Arial;
+    text-align: center;
+}
+.block .info .status {
+    overflow: hidden;
+}
+
+.block .info .status div {
+    width: 50%;
+    float: left;
+}
+
+.block .info .status .cycle_period{
+    color: #ccc;
+    font: 14pt Arial;
+}
+.block .info .cycle_period::before{
+    content: '/';
+}
+
+.block .info .status .cycle_trend{
+    /*width: 50%;*/
+    height: 25px;
+}
+.block .info .status .cycle_trend.ascending{
+    background: #228b22;
+}
+.block .info .status .cycle_trend.descending{
+    background: #9e170e;
+}
+
+.block .icon {
+    margin: 30px 57px;
+    width: 46px;
+    height: 46px;
+}
+.block .icon.strength {
+    background: url('../img/strength.png') no-repeat center;
+}
+.block .icon.emo {
+    background: url('../img/heart.png') no-repeat center;
+}
+.block .icon.brain {
+    background: url('../img/brain.png') no-repeat center;
+}
