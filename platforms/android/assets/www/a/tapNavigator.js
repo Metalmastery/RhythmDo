@@ -415,7 +415,8 @@ $.fn.tapNavigator({
         border : '3px solid #ccc'
     },
 	navIconsCount: 2,
-    overlayColor : '#111922',
+//    overlayColor : '#111922',
+    overlayColor : '#f0f',
 	arrangement: 'vertical',
 	navItemWidth: 100,
 	navItemHeight: 120,

@@ -50,7 +50,7 @@ body {
     margin: 0;
     color: #fff;
 }
-.days li {
+.days .day {
     list-style: none;
     background-color: #273d55;
     position: relative;
@@ -60,7 +60,7 @@ body {
     margin:0 4px;
 }
 
-.days li .taskPointer{
+.days .day .taskPointer{
     position: absolute;
     display: none;
     top: 10px;
@@ -72,11 +72,11 @@ body {
     opacity: 0.3;
 }
 
-.days li[data-has-task=true] .taskPointer{
+.days .day[data-has-task=true] .taskPointer{
     display: block;
 }
 
-.days li .bottomHalf {
+.days .day .bottomHalf {
     background-color: #9e170e;
     opacity: 0.1;
     width: 100%;
@@ -85,21 +85,38 @@ body {
 
 .days canvas {
     height: 100%;
-    width: 135px;
+    /*width: 135px;*/
+    position: absolute;
+    top : 0;
+    left: 0;
+    margin: 0;
+}
+.days img {
+    height: 100%;
+    /*width: 135px;*/
     position: absolute;
     top : 0;
     left: 0;
     margin: 0;
 }
 
-.days li .topHalf {
+.stat .days img {
+    height: 70%;
+    width: 30px;
+    position: absolute;
+    top : 15%;
+    left: 0;
+    margin: 0;
+}
+
+.days .day .topHalf {
     background-color: #000;
     opacity: 0.1;
     width: 100%;
     height: 50%;
 }
 
-.days li .monthday {
+.days .day .monthday {
     position: absolute;
     top: 0;
     left: 0;
@@ -108,7 +125,7 @@ body {
     margin-top: 25px;
 }
 
-.days li .weekday {
+.days .day .weekday {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -208,7 +225,7 @@ body {
     margin: 0;
     color: #fff;
 }
-.stat .days li {
+.stat .days .day {
     list-style: none;
     background: none;
 
@@ -221,7 +238,7 @@ body {
     padding: 0;
 }
 
-.stat .days li .bottomHalf {
+.stat .days .day .bottomHalf {
     background-color: #9e170e;
     opacity: 0.1;
     width: auto;
@@ -229,7 +246,7 @@ body {
     margin: 0 2px 50px 2px;
 }
 
-.stat .days li .topHalf {
+.stat .days .day .topHalf {
     background: #000;
     opacity: 0.1;
     width: auto;
@@ -237,7 +254,7 @@ body {
     margin: 25px 2px 0 2px;
 }
 
-.stat .days li .monthday {
+.stat .days .day .monthday {
     position: relative;
     top: 0;
     left: 0;
@@ -249,7 +266,7 @@ body {
     background: rgba(0,0,0,0.1);
 }
 
-.stat .days li .weekday {
+.stat .days .day .weekday {
     /*position: absolute;*/
     bottom: 0;
     left: 0;

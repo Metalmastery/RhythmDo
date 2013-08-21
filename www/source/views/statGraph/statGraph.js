@@ -43,9 +43,11 @@ RAD.view("view.statGraph", RAD.views.graphV4Base.extend({
         }
 
         var aniWrap = this.$('.animationWrap'),
-            canvasWidth = $('ul.days li canvas').width(),
-            canvasHeight = $('ul.days li canvas').height(),
+            canvasWidth = $('.stat div.days .day canvas').width(),
+            canvasHeight = $('.stat div.days .day canvas').height(),
             halfHeight = canvasHeight / 2;
+
+        console.log('CANVAS', canvasHeight);
 
 	    this.animation.animationWrapper = aniWrap[0];
 
@@ -75,8 +77,8 @@ RAD.view("view.statGraph", RAD.views.graphV4Base.extend({
         this.drawing.visualRange = Math.round(this.$el.width() / this.drawing.visualDayWidth) + 6;
 
         var self = this,
-            daysList = self.$el.find('ul.days'),
-            dayLi = daysList.find('li'),
+            daysList = self.$el.find('div.days'),
+            dayLi = daysList.find('.day'),
             daysPointer = self.$el.find('#days_pointer').css({
                 top : daysList.eq(-2).css('top'),
                 left : daysList.eq(-2).css('left')
@@ -410,7 +412,8 @@ RAD.view("view.statGraph", RAD.views.graphV4Base.extend({
 
 
 
-                self.drawing.graphParts[i][j] = [begX, begY, endX, endY, img[0]];
+//                self.drawing.graphParts[i][j] = [begX, begY, endX, endY, img[0]];
+                self.drawing.graphParts[i][j] = [begX, begY, endX, endY, src];
             }
         }
     },
@@ -445,6 +448,8 @@ RAD.view("view.statGraph", RAD.views.graphV4Base.extend({
 
         context.lineWidth = lineWidth;
 
+        var classes = ['.green', '.red', '.blue'];
+
         for (var i = 0; i < periods.length; i++){
             cycleDay = dayFromBirth % periods[i];
             bounds = self.drawing.graphParts[i][cycleDay >= 0 ? cycleDay : periods[i] + cycleDay];
@@ -462,7 +467,8 @@ RAD.view("view.statGraph", RAD.views.graphV4Base.extend({
 //            context.strokeStyle = self.drawing.colors[i];
 //            context.stroke();
 //            console.log(bounds);
-            context.drawImage(bounds[4],0,0);
+//            context.drawImage(bounds[4],0,0);
+            $(canvas).parents('.day').find(classes[i]).attr('src', bounds[4]);
         }
     },
 

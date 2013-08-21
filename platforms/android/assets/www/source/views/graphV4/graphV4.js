@@ -49,8 +49,8 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
         }
 
         var aniWrap = this.$('.animationWrap'),
-            canvasWidth = $('ul.days li canvas').width(),
-            canvasHeight = $('ul.days li canvas').height(),
+            canvasWidth = $('div.days .day canvas').width(),
+            canvasHeight = $('div.days .day canvas').height(),
             halfHeight = canvasHeight / 2;
 
         this.animation.animationWrapper = aniWrap[0];
@@ -86,8 +86,8 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
         this.drawing.visualRange = Math.round(this.$el.width() / this.drawing.visualDayWidth) + 6;
 
         var self = this,
-            daysList = self.$el.find('ul.days'),
-            dayLi = daysList.find('li'),
+            daysList = self.$el.find('div.days'),
+            dayLi = daysList.find('.day'),
 	        listSize = self.drawing.visualDayWidth;
 
         self.drawing.daysPointer.item = self.$el.find('#days_pointer').css({
@@ -429,7 +429,7 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
         if (!width || !height) {
             return false;
         }
-
+        console.log(width);
         var cnv = $('<canvas></canvas>')[0];
         var loadedImagesCount = 0;
         cnv.width = width * 23;
@@ -508,7 +508,8 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
 
 
 
-                self.drawing.graphParts[i][j] = [begX, begY, endX, endY, img[0]];
+                //self.drawing.graphParts[i][j] = [begX, begY, endX, endY, img[0]];
+                self.drawing.graphParts[i][j] = [begX, begY, endX, endY, src];
             }
         }
     },
@@ -529,10 +530,10 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
 		    item.element.removeAttribute('data-has-task');
 	    }
 
-        this.drawOneDay(item.dayFromBirth, item.canvas, true)
+        this.drawOneDay(item.dayFromBirth, item.canvas, true, item.element)
     },
 
-    drawOneDay : function(dayFromBirth, canvas, force){
+    drawOneDay : function(dayFromBirth, canvas, force, el){
 
         var self = this,
             bounds = null,
@@ -549,6 +550,8 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
         context.clearRect(0, 0, canvas.width, canvas.height);
 
         context.lineWidth = lineWidth;
+
+        var classes = ['.green', '.red', '.blue'];
 
         for (var i = 0; i < periods.length; i++){
             cycleDay = dayFromBirth % periods[i];
@@ -567,7 +570,8 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
 //            context.strokeStyle = self.drawing.colors[i];
 //            context.stroke();
 //            console.log(bounds);
-            context.drawImage(bounds[4],0,0);
+            //context.drawImage(bounds[4],0,0);
+            $(el).find(classes[i]).attr('src', bounds[4]);
         }
     },
 

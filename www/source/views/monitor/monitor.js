@@ -118,7 +118,7 @@ RAD.view("view.monitor", RAD.Blanks.View.extend({
                 if (res) {
                     self.animation.animID = window.requestAnimationFrame(callback);
                 } else {
-                    self.stopAnimation(false);
+                    self.stopAnimation(true);
                 }
 
 		}
