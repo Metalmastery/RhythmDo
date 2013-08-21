@@ -1,0 +1,86 @@
+fiddle 
+
+<div class="holder">
+    <div class="item">
+        <div class="aniWrap">
+            <div class="content">djedj</div>
+            <div class="content">кен</div>
+            <img class="content" src="http://lorempixel.com/30/30" />
+        </div>
+    </div>
+    
+</div>
+
+$('.aniWrap').addClass('animate');
+$('.content').addClass('animate-fast');
+var flag = false;
+for (var i = 0; i < 3; i++) {
+    $('.item').clone().appendTo('.holder');
+}
+var count = $('.item').length;
+
+function toggleItem(item, state, delay){
+    
+    setTimeout(function(){
+        item.style.height = state ? 'auto' : 0;
+        console.log(item);
+    },delay*1000+(state ? 0 : 250))
+    
+    $(item).find('.aniWrap').toggleClass('key1', !state)[0].style.transitionDelay = delay + 's';
+    
+    $(item).find('.content').toggleClass('key2', state).css('transitionDelay', (delay + 0.5) + 's');
+    
+}
+setInterval(function(){
+    $('.item').each(function(i){
+        toggleItem(this, flag, flag ? i*0.1 : (count-i)*0.1);
+    })
+    flag=!flag;
+    //console.log(flag);
+},2000)
+
+.holder {
+    width : 200px;
+    padding : 5px;
+    border : 1px solid black;
+    
+}
+.item {
+    overflow : hidden;
+    perspective: 200px;
+    height : auto;
+}
+.aniWrap{
+    background : gray;
+    border : 1px solid gray;
+
+    overflow : hidden;
+    margin: 3px;
+    padding : 3px;
+    box-shadow: 0 0 1px #000;
+}
+.item img {
+    float : right;
+    
+}
+.content{
+    opacity : 0;
+    transform : scale(0);
+    float : left
+}
+.animate {
+    transform-style: preserve-3d;
+    -moz-transition: all 0.2s ease-out;
+}
+
+.animate-fast {
+    -moz-transition: all 0.1s cubic-bezier(0,0.8,0.25,1);
+}
+.key1 {
+    transform : rotateX(90deg);
+}
+.key2 {
+    opacity : 1;
+    transform : scale(1);
+}
+
