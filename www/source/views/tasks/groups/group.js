@@ -13,7 +13,7 @@ RAD.view(["view.group_brain", "view.group_emo", "view.group_strength", "view.gro
     className : 'positionRelative',
 
     events: {
-        'tap .groupTitle' : 'toggleGroup'
+        'tap .groupTitle' : 'toggleGroupCustom'
     },
 
     collapsed : false,
@@ -62,6 +62,35 @@ RAD.view(["view.group_brain", "view.group_emo", "view.group_strength", "view.gro
         this.render();
     },
 
+    toggleItemCustom :function(item, state, delay){
+        $(item)
+            .find('.taskAnimationWrap')
+            .toggleClass('task-animate', state)
+            .toggleClass('task-animate-long', !state)
+            .toggleClass('task-rotate', !state);
+            item.style.transitionDelay = state ? (delay+0.2) + 's' : '0';
+    },
+
+    toggleGroupCustom : function(){
+        console.log('TOGGLE CUSTOM');
+        var holder = this.$('.task_list'),
+            count = holder.find('.task').length,
+            flag = !this.collapsed,
+            self = this;
+        holder[0].style.height = flag ? 44*count+'px' : 0;
+        holder[0].style.transitionDelay = flag ? '0' : '0.5s';
+        setTimeout(function(){
+            self.publish('taskListRefresh', {});
+        }, 1000);
+        var items = this.$('.task');
+
+        items.each(function(i){
+            self.toggleItemCustom(this, flag, flag ? i*0.1 : (count-i)*0.1);
+        });
+        this.collapsed=flag;
+        //console.log(flag);
+    },
+
     toggleGroup : function(){
         var self = this;
 
@@ -106,7 +135,7 @@ RAD.view(["view.group_brain", "view.group_emo", "view.group_strength", "view.gro
     },
 
     onEndRender : function(){
-        this.$el.find('div.task_list .task').toggle(this.collapsed);
+        this.$el.find('div.task_list')[0].style.height = this.collapsed ? 0 : 'auto';
     },
 
     onNewExtras : function(data){

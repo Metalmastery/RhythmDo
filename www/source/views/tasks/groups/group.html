@@ -5,13 +5,15 @@
         {{# _(mods).each(function(mod, index){ }}
         {{# var item = mod.attributes}}
         <div class="task {{=index % 2 === 0 ? '' : 'even';}}" data-model-id="{{= item.id }}">
-            <div class="id hidden">  {{= item.id }} </div>
-            <div class="reminder hidden">  {{= item.reminder }} </div>
-            <div class="repeat hidden">  {{= item.repeat }} </div>
-            <div class="date hidden">  {{= item.date }} </div>
-            <div class="text">  {{= item.text }} </div>
-            <div class="time">  {{= item.time }} </div>
-            <div class="type {{='type_' + item.type;}}"></div>
+            <div class="taskAnimationWrap">
+                <div class="id hidden">  {{= item.id }} </div>
+                <div class="reminder hidden">  {{= item.reminder }} </div>
+                <div class="repeat hidden">  {{= item.repeat }} </div>
+                <div class="date hidden">  {{= item.date }} </div>
+                <div class="text">  {{= item.text }} </div>
+                <div class="time">  {{= item.time }} </div>
+                <div class="type {{='type_' + item.type;}}"></div>
+            </div>
         </div>
         {{# }) }}
     </div>
