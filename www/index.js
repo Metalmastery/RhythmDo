@@ -10,14 +10,22 @@
         "source/views/start_page.js",
 //	      "source/views/graph/graph.js",
 //        "source/views/graphV2/graphV2.js",
-        "source/views/graphV3/graphV3.js",
+//        "source/views/graphV3/graphV3.js",
         "source/views/graphV4/graphV4.js",
         "source/views/stat/stat.js",
+
+        "source/views/profile/profile.js",
+        "source/views/profile/profile_edit/profile_edit.js",
+        "source/views/profile/profile_view/profile_view.js",
+        "source/views/profile/profile_settings/profile_settings.js",
+
         "source/views/statGraph/statGraph.js",
         "source/views/monitor/monitor.js",
         "source/views/tasks/task_list/task_list.js",
         "source/views/tasks/groups/group.js",
         "source/views/tasks/redactor/redactor.js",
+
+        "source/views/bio_edge_checker/bio_edge_checker.js",
 
         "source/services/storage.js",
 

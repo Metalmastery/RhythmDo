@@ -95,8 +95,10 @@
 	        var x = eventX, y = eventY;
 		    switch (defaults.gravity) {
 			    case 'center' :
-				    x = defaults.bodyWidth/2 - navigator[0].width/2;
-				    y = defaults.bodyHeight/2 - navigator[0].height/2;
+				    //x = defaults.bodyWidth/2 - navigator[0].width/2;
+				    x = defaults.bodyWidth/2;
+				    //y = defaults.bodyHeight/2 - navigator[0].height/2;
+				    y = defaults.bodyHeight/2;
 				    break;
 			    case 'left' :
 				    x = 0;
@@ -127,13 +129,13 @@
         function _buildHTML (){
             console.log('created');
             overlay.appendTo('body').css({
-                width : '100%',
-                height : '100%',
-	            opacity: defaults.overlayOpacity,
+                opacity: defaults.overlayOpacity,
 	            background : defaults.overlayColor,
-	            position : 'absolute',
+	            position : 'fixed',
 	            top : 0,
 	            left : 0,
+                bottom : 0,
+                right : 0,
 	            'z-index' : 995,
 	            display : 'none'
             });
@@ -415,8 +417,7 @@ $.fn.tapNavigator({
         border : '3px solid #ccc'
     },
 	navIconsCount: 2,
-//    overlayColor : '#111922',
-    overlayColor : '#f0f',
+    overlayColor : '#111922',
 	arrangement: 'vertical',
 	navItemWidth: 100,
 	navItemHeight: 120,

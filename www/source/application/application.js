@@ -46,8 +46,8 @@ RAD.application = function (core) {
         console.log('START');
         var options = {
             container_id: '#screen',
-//            content: "view.stat",
-            content: "view.start_page",
+              content: "view.profile_main",
+//            content: "view.start_page",
             animation: "none"
         };
         core.publish('navigation.show', options);

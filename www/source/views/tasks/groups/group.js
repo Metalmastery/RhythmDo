@@ -63,12 +63,13 @@ RAD.view(["view.group_brain", "view.group_emo", "view.group_strength", "view.gro
     },
 
     toggleItemCustom :function(item, state, delay){
+        //item.style.transitionDelay = state ? ((delay+0.2) + 's') : '0.6s';
         $(item)
             .find('.taskAnimationWrap')
             .toggleClass('task-animate', state)
             .toggleClass('task-animate-long', !state)
-            .toggleClass('task-rotate', !state);
-            item.style.transitionDelay = state ? (delay+0.2) + 's' : '0';
+            .toggleClass('task-rotate', !state)
+            .css('transitionDelay', state ? ((delay) + 's') : '0');
     },
 
     toggleGroupCustom : function(){
@@ -76,16 +77,18 @@ RAD.view(["view.group_brain", "view.group_emo", "view.group_strength", "view.gro
         var holder = this.$('.task_list'),
             count = holder.find('.task').length,
             flag = !this.collapsed,
-            self = this;
-        holder[0].style.height = flag ? 44*count+'px' : 0;
-        holder[0].style.transitionDelay = flag ? '0' : '0.5s';
+            self = this,
+            items = this.$('.task');
+        holder[0].style.height = flag ? 64*count+'px' : 0;
+        holder[0].style.transition = (!flag ? items.length * 0.01 : 0) + 's all ease-out';
+        holder[0].style.transitionDelay = flag ? '0' : '0.7s';
         setTimeout(function(){
             self.publish('taskListRefresh', {});
         }, 1000);
-        var items = this.$('.task');
+
 
         items.each(function(i){
-            self.toggleItemCustom(this, flag, flag ? i*0.1 : (count-i)*0.1);
+            self.toggleItemCustom(this, flag, flag ? i*0.05 : (count-i)*0.1);
         });
         this.collapsed=flag;
         //console.log(flag);

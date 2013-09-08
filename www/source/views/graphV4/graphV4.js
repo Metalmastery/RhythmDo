@@ -13,7 +13,6 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
         'tapdown .graph_container' : 'tapdownEvent',
         'tapup .graph_container' : 'tapupEvent',
         'tapmove .graph_container' : 'tapmoveEvent',
-        'tapcancel .graph_container' : 'tapcancelEvent',
         'tap .graph_container' : 'tapEvent',
         'swipe .graph_container' : 'swipeEvent'
     },
@@ -135,6 +134,7 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
         this.prepareGraphParts(this.drawing.canvasWidth, this.drawing.canvasHeight);
 		this.prepareTaskList();
         this.subscribe('graphPartsReady', function(){
+            console.log('GRAPH PARTS READY');
             this.drawRange(this.getBounds(this.application.bio.currentDay, self.drawing.currentDayOffset));
 	        this.toggleCurrentDay(true);
             this.unsubscribe('graphPartsReady');
@@ -572,6 +572,7 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
 //            console.log(bounds);
             //context.drawImage(bounds[4],0,0);
             $(el).find(classes[i]).attr('src', bounds[4]);
+            //console.log(el, bounds[4]);
         }
     },
 
@@ -616,9 +617,8 @@ RAD.namespace("views.graphV4Base", RAD.Blanks.View.extend({
             this.drawing.visibleArray[i].canvas = canvas;
 
 //            console.log(this.drawing.visibleArray[i]);
-
-            this.drawOneDay(days[i][5], canvas);
-            //this.rebuildOneDay(this.drawing.visibleArray[i]);
+            //this.drawOneDay(days[i][5], canvas, false, days[i].el);
+            this.rebuildOneDay(this.drawing.visibleArray[i]);
         }
     },
 

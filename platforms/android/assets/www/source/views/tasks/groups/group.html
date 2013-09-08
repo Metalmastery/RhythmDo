@@ -4,7 +4,7 @@
     <div class="task_list">
         {{# _(mods).each(function(mod, index){ }}
         {{# var item = mod.attributes}}
-        <div class="task {{=index % 2 === 0 ? '' : 'even';}}" data-model-id="{{= item.id }}">
+        <div class="task" data-model-id="{{= item.id }}">
             <div class="id hidden">  {{= item.id }} </div>
             <div class="reminder hidden">  {{= item.reminder }} </div>
             <div class="repeat hidden">  {{= item.repeat }} </div>
